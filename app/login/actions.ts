@@ -21,6 +21,17 @@ interface AuthResponse {
 }
 
 /**
+ * What a form action hands back to the page on failure.
+ *
+ * A thrown error inside a Server Action is not delivered to the client as its
+ * message: in production Next replaces it with an opaque digest and logs an
+ * unhandled `⨯ Error`, so a simple wrong password read as a server crash. The
+ * actions therefore RETURN this on failure and only ever throw the framework's
+ * own `redirect()` on success.
+ */
+type ActionError = { error: string }
+
+/**
  * Forward the API's session cookies onto the outgoing response.
  * Next's cookies() store is writable inside a Server Action.
  */
@@ -57,7 +68,7 @@ function destinationFor(role: string | undefined): string {
   return '/'
 }
 
-export async function login(formData: FormData) {
+export async function login(formData: FormData): Promise<ActionError | void> {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
@@ -71,17 +82,18 @@ export async function login(formData: FormData) {
   const payload = (await response.json().catch(() => ({}))) as AuthResponse
 
   if (!response.ok || !payload.user) {
-    throw new Error(payload.error?.message ?? 'Invalid login credentials')
+    return { error: payload.error?.message ?? 'Invalid login credentials' }
   }
 
   await persistSessionCookies(response)
   revalidatePath('/', 'layout')
 
-  // redirect() throws internally, so it must sit outside any try/catch.
+  // redirect() throws NEXT_REDIRECT internally, so it must sit outside any
+  // try/catch. It is the only throw the happy path performs.
   redirect(destinationFor(payload.user.role))
 }
 
-export async function signup(formData: FormData) {
+export async function signup(formData: FormData): Promise<ActionError | void> {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
   const fullName = formData.get('name') as string
@@ -96,7 +108,7 @@ export async function signup(formData: FormData) {
   const payload = (await response.json().catch(() => ({}))) as AuthResponse
 
   if (!response.ok || !payload.user) {
-    throw new Error(payload.error?.message ?? 'Failed to create user')
+    return { error: payload.error?.message ?? 'Failed to create user' }
   }
 
   await persistSessionCookies(response)

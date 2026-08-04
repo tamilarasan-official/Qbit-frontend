@@ -82,7 +82,15 @@ export default function LoginPage() {
 
     try {
       if (currentView === "login") {
-        await login(formData)
+        // On success the action redirects (never returns); on failure it
+        // returns the message rather than throwing, so a wrong password shows
+        // inline instead of surfacing as a server error.
+        const result = await login(formData)
+        if (result?.error) {
+          setError(result.error)
+          setLoading(false)
+          return
+        }
       } else if (currentView === "register") {
         const password = formData.get('password') as string
         const confirmPassword = formData.get('confirmPassword') as string
@@ -93,7 +101,12 @@ export default function LoginPage() {
           return
         }
 
-        await signup(formData)
+        const result = await signup(formData)
+        if (result?.error) {
+          setError(result.error)
+          setLoading(false)
+          return
+        }
       } else if (currentView === "forgot") {
         // Handle forgot password
         const email = formData.get('email') as string
