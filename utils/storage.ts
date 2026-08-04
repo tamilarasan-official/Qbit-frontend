@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/client'
+import { compressImage, describeCompression } from '@/lib/compress-image'
 
 export interface UploadResult {
   url: string | null
@@ -68,15 +69,22 @@ export async function uploadTaskFile(
   try {
     const supabase = createClient()
 
-    // Create a unique filename
-    const fileExt = file.name.split('.').pop()
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
-    const filePath = `${userId}/${taskId}/${stepId}/${fileName}`
+    // Shrink a phone photo before it goes anywhere near the network. The API
+    // re-encodes too, so this is about the student's upload time, not about
+    // what ends up stored.
+    const compressed = await compressImage(file)
+    if (compressed.applied) {
+      console.info(`Compressed ${file.name}: ${describeCompression(compressed)}`)
+    }
+
+    // The path is only a hint -- the server derives the real key from the
+    // authenticated user -- but it still carries the task/step grouping.
+    const filePath = `${userId}/${taskId}/${stepId}/${compressed.file.name}`
 
     // Upload file
     const { data, error } = await supabase.storage
       .from('task-submissions')
-      .upload(filePath, file, {
+      .upload(filePath, compressed.file, {
         cacheControl: '3600',
         upsert: false
       })

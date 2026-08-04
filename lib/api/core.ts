@@ -355,9 +355,20 @@ export interface UploadedFile {
   signedUrl?: string
   /** Unix seconds. */
   signedUrlExpiresAt?: number
+  /** Size of what was STORED, which is not the size that was sent when an image was re-encoded. */
   size?: number
+  /** Type of what was stored -- `image/webp` for anything the API re-encoded. */
   mimeType?: string
   originalName?: string
+  /** How the API compressed it. `applied: false` means the original was kept. */
+  compression?: {
+    applied: boolean
+    originalSize: number
+    storedSize: number
+    width?: number
+    height?: number
+    reason?: string
+  }
 }
 
 class StorageBucket {
