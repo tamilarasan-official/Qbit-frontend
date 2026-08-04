@@ -101,14 +101,14 @@ export default function StartLivePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-brand-700" />
       </div>
     )
   }
 
   return (
-    <main className="overflow-hidden bg-background min-h-screen transition-colors duration-300">
+    <main className="overflow-hidden min-h-screen transition-colors duration-300">
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
       <Sidebar isOpen={sidebarOpen} />
 

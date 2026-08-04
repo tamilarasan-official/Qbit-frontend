@@ -319,7 +319,7 @@ export default function LeaderboardPage() {
   ]
 
   return (
-    <main className="brand-canvas min-h-screen overflow-hidden bg-background transition-colors duration-300">
+    <main className="brand-canvas min-h-screen overflow-hidden transition-colors duration-300">
       {/* Mobile Sidebar */}
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
 

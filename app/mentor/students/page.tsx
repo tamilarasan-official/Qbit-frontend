@@ -286,14 +286,14 @@ export default function MentorStudentsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
+      <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="w-8 h-8 animate-spin text-brand-700" />
       </div>
     );
   }
 
   return (
-    <main className="overflow-hidden bg-background min-h-screen">
+    <main className="overflow-hidden min-h-screen">
       {/* Mobile Sidebar */}
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
 

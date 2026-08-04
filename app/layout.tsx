@@ -3,6 +3,7 @@ import { Figtree } from 'next/font/google'
 import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 import { ThemeProvider } from '@/contexts/ThemeContext'
+import { BoardBackdrop } from '@/components/brand/BoardBackdrop'
 import { brand } from '@/lib/brand'
 
 /**
@@ -41,6 +42,12 @@ export default function RootLayout({
       </head>
       <body>
         <ThemeProvider>
+          {/*
+            Sits behind every page: the board motif plus the site's lime bloom.
+            Mounted here rather than per-page so a route added later cannot
+            forget it, and so it does not repaint on navigation.
+          */}
+          <BoardBackdrop />
           {children}
         </ThemeProvider>
       </body>

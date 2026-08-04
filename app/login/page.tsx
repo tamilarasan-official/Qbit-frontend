@@ -11,6 +11,7 @@ import { login, signup } from './actions'
 import { useTheme } from "@/contexts/ThemeContext"
 import { createClient } from "@/utils/supabase/client"
 import { BrandWordmark } from "@/components/brand/Logo"
+import { BoardPlate } from "@/components/brand/BoardBackdrop"
 import { brand } from "@/lib/brand"
 
 export default function LoginPage() {
@@ -161,7 +162,7 @@ export default function LoginPage() {
   // Show loading while checking authentication
   if (checkingAuth) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-10 w-10 border-2 border-border border-t-brand-400 mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading…</p>
@@ -206,6 +207,25 @@ export default function LoginPage() {
           }}
         />
 
+        {/*
+          The boards themselves, anchored to the bottom of the panel and fading
+          upward so the copy above keeps a clean field to sit on. This is the
+          one surface where the art is the point rather than texture, so it is
+          loaded eagerly and left at full strength.
+        */}
+        <BoardPlate
+          art="hero"
+          mask="fadeUp"
+          priority
+          className="absolute bottom-[5%] left-1/2 w-[90%] max-w-none -translate-x-1/2 rotate-[-2deg] drop-shadow-[0_30px_70px_rgba(0,0,0,0.6)]"
+        />
+
+        {/* Keeps the tagline legible where it crosses a board. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#0d0c0c] via-[#0d0c0c]/85 to-transparent"
+        />
+
         <div className="relative z-10 flex flex-col justify-between w-full px-14 py-14">
           <div className="flex items-center gap-4">
             <img
@@ -242,12 +262,29 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <p className="text-sm text-white/40">{brand.tagline}</p>
+          {/* Sits over the board art, so it needs more weight than white/40. */}
+          <p className="text-sm font-medium text-white/60">{brand.tagline}</p>
         </div>
       </div>
 
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-background transition-colors duration-300">
-        <div className="w-full max-w-md space-y-8">
+      {/*
+        `min-w-0` matters: a flex item defaults to min-width:auto, so this
+        column refused to shrink below the 28rem form plus its padding, and the
+        inputs ran off the right edge of a phone screen.
+      */}
+      <div className="relative flex min-w-0 w-full items-center justify-center overflow-hidden bg-background p-6 transition-colors duration-300 sm:p-8 lg:w-1/2">
+        {/*
+          Below `lg` the ink panel is hidden entirely, which would leave the
+          sign-in screen with no trace of the product. This carries the motif
+          onto the small-screen layout, faint enough to stay behind the form.
+        */}
+        <BoardPlate
+          art="ambient"
+          mask="fadeUp"
+          className="absolute -bottom-[3%] left-1/2 w-[150%] max-w-none -translate-x-1/2 opacity-[0.14] dark:opacity-[0.10] lg:hidden"
+        />
+
+        <div className="relative z-10 w-full max-w-md space-y-8">
           <div className="lg:hidden text-center mb-8">
             <BrandWordmark className="mx-auto mb-3 h-10" priority />
             <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">

@@ -161,7 +161,7 @@ export default function AdminManageNotifications() {
   }
 
   return (
-    <main className="overflow-hidden bg-background min-h-screen">
+    <main className="overflow-hidden min-h-screen">
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
       <Sidebar isOpen={sidebarOpen} />
 

@@ -392,7 +392,7 @@ export default function FeedbackPage() {
   };
 
   return (
-    <main className="overflow-hidden bg-background min-h-screen transition-colors duration-300">
+    <main className="overflow-hidden min-h-screen transition-colors duration-300">
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
       <Sidebar isOpen={sidebarOpen} />
 

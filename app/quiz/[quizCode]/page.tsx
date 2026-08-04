@@ -219,7 +219,7 @@ export default function QuizPage() {
 
   if (loading) {
     return (
-      <main className="overflow-hidden bg-background min-h-screen transition-colors duration-300">
+      <main className="overflow-hidden min-h-screen transition-colors duration-300">
         <div className="flex items-center justify-center min-h-screen">
           <Loader2 className="h-12 w-12 animate-spin text-primary dark:text-brand-400" />
         </div>
@@ -229,7 +229,7 @@ export default function QuizPage() {
 
   if (error || !quiz) {
     return (
-      <main className="overflow-hidden bg-background min-h-screen transition-colors duration-300">
+      <main className="overflow-hidden min-h-screen transition-colors duration-300">
         <div className="flex flex-col items-center justify-center min-h-screen px-4">
           <div className="rounded-full bg-red-100 dark:bg-red-900/20 p-4 mb-4">
             <X className="h-12 w-12 text-red-500" />
@@ -256,7 +256,7 @@ export default function QuizPage() {
     }).length
 
     return (
-      <main className="overflow-hidden bg-background min-h-screen transition-colors duration-300">
+      <main className="overflow-hidden min-h-screen transition-colors duration-300">
         <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
         <Sidebar isOpen={sidebarOpen} />
 
@@ -399,7 +399,7 @@ export default function QuizPage() {
   const progress = ((currentQuestionIndex + 1) / quiz.questions.length) * 100
 
   return (
-    <main className="overflow-hidden bg-background min-h-screen transition-colors duration-300">
+    <main className="overflow-hidden min-h-screen transition-colors duration-300">
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
       <Sidebar isOpen={sidebarOpen} />
 

@@ -343,7 +343,7 @@ export function HomeTab() {
   // three pulsing blobs this replaces tinted the whole canvas an uneven
   // yellow-green and never sat still.
   return (
-    <div className="brand-canvas relative min-h-screen bg-background transition-colors duration-300">
+    <div className="brand-canvas relative min-h-screen transition-colors duration-300">
 
       <div className="relative z-10 space-y-6 sm:space-y-8 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
         {/* Welcome Header */}
