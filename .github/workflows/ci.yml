@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        # NEXT_PUBLIC_* is inlined at build time. CI only proves the build
+        # succeeds, so a placeholder is fine here -- the real value is passed as
+        # a build argument by Dokploy.
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:4000
+          NEXT_TELEMETRY_DISABLED: '1'
+        run: npm run build
+
+      - name: Check for leftover Supabase references
+        # The frontend must have no dependency on Supabase. This fails the build
+        # if one is reintroduced by a merge.
+        run: |
+          if grep -rn "@supabase" --include="*.ts" --include="*.tsx" app components lib utils hooks contexts types 2>/dev/null; then
+            echo "::error::Supabase import reintroduced"
+            exit 1
+          fi
+          if grep -n '"@supabase' package.json; then
+            echo "::error::Supabase dependency reintroduced in package.json"
+            exit 1
+          fi
+          echo "Clean."
+
+  docker:
+    name: Build Docker image
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: edutou-frontend:ci
+          build-args: |
+            NEXT_PUBLIC_API_URL=http://localhost:4000
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test the image
+        run: |
+          docker run -d --name web -p 3000:3000 edutou-frontend:ci
+          for i in $(seq 1 30); do
+            # /login is public; any non-5xx means Next is serving.
+            code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/login || true)
+            if [ -n "$code" ] && [ "$code" -lt 500 ] 2>/dev/null; then
+              echo "Frontend is serving (HTTP $code)"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Frontend failed to become ready:"
+          docker logs web
+          exit 1
+
+  deploy:
+    name: Trigger Dokploy deploy
+    runs-on: ubuntu-latest
+    needs: [build, docker]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Call Dokploy deploy webhook
+        # Add DOKPLOY_FRONTEND_DEPLOY_URL as a repository secret (Dokploy shows
+        # it under the application's Deployments -> Webhook section).
+        env:
+          DEPLOY_URL: ${{ secrets.DOKPLOY_FRONTEND_DEPLOY_URL }}
+        run: |
+          if [ -z "$DEPLOY_URL" ]; then
+            echo "DOKPLOY_FRONTEND_DEPLOY_URL not set -- skipping deploy."
+            exit 0
+          fi
+          curl -fsS -X POST "$DEPLOY_URL"
+          echo "Deploy triggered."

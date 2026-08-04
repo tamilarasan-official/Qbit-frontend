@@ -1,0 +1,206 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/**
+ * qbitio theme tokens.
+ *
+ * The identity is black + white + one signature lime (#D5FF00 => hsl(70 100% 50%)).
+ * Because that lime is far too bright to sit as text on white, each theme uses it
+ * differently while keeping the same brand read:
+ *
+ *   light   -> ink-black surfaces, lime reserved for accents/rings/highlights
+ *   dark    -> lime IS the primary surface, with black type on top
+ *   reading -> warm paper, lime pushed to a deep olive so it stays legible
+ *
+ * `--brand` always resolves to the raw signature lime regardless of theme, for
+ * the cases that genuinely want the logo colour (charts, glows, the mark).
+ */
+@layer base {
+  :root {
+    --font-sans: var(--font-geist-sans);
+    --font-mono: var(--font-geist-mono);
+
+    /* signature lime — constant across themes */
+    --brand: 70 100% 50%;
+    --brand-foreground: 0 0% 4%;
+
+    --background: 0 0% 100%;
+    --foreground: 0 0% 6%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 6%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 6%;
+    /* black primary keeps `text-primary` readable on white; lime is the accent */
+    --primary: 0 0% 7%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 70 30% 95%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 60 12% 96%;
+    --muted-foreground: 0 0% 42%;
+    --accent: 70 100% 92%;
+    --accent-foreground: 75 100% 12%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 60 8% 89%;
+    --input: 60 8% 87%;
+    --ring: 70 100% 40%;
+    --chart-1: 70 100% 45%;
+    --chart-2: 0 0% 12%;
+    --chart-3: 78 60% 32%;
+    --chart-4: 60 8% 68%;
+    --chart-5: 84 45% 55%;
+    --radius: 0.75rem;
+    --sidebar-background: 60 20% 98%;
+    --sidebar-foreground: 0 0% 22%;
+    --sidebar-primary: 0 0% 7%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 70 100% 90%;
+    --sidebar-accent-foreground: 75 100% 12%;
+    --sidebar-border: 60 10% 90%;
+    --sidebar-ring: 70 100% 40%;
+  }
+
+  .dark {
+    --brand: 70 100% 50%;
+    --brand-foreground: 0 0% 4%;
+
+    --background: 0 0% 4%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 98%;
+    /* on dark the lime carries the primary surface, with black type on top */
+    --primary: 70 100% 50%;
+    --primary-foreground: 0 0% 6%;
+    --secondary: 0 0% 14%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 13%;
+    --muted-foreground: 60 5% 64%;
+    --accent: 72 40% 16%;
+    --accent-foreground: 70 100% 72%;
+    --destructive: 0 62.8% 40%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 16%;
+    --input: 0 0% 18%;
+    --ring: 70 100% 50%;
+    --chart-1: 70 100% 50%;
+    --chart-2: 0 0% 92%;
+    --chart-3: 78 70% 42%;
+    --chart-4: 0 0% 45%;
+    --chart-5: 84 55% 65%;
+    --sidebar-background: 0 0% 6%;
+    --sidebar-foreground: 0 0% 88%;
+    --sidebar-primary: 70 100% 50%;
+    --sidebar-primary-foreground: 0 0% 6%;
+    --sidebar-accent: 72 40% 15%;
+    --sidebar-accent-foreground: 70 100% 72%;
+    --sidebar-border: 0 0% 15%;
+    --sidebar-ring: 70 100% 50%;
+  }
+
+  .reading {
+    --brand: 70 100% 50%;
+    --brand-foreground: 0 0% 4%;
+
+    --background: 45 60% 96%;
+    --foreground: 60 15% 16%;
+    --card: 45 70% 98%;
+    --card-foreground: 60 15% 16%;
+    --popover: 45 70% 98%;
+    --popover-foreground: 60 15% 16%;
+    /* deep olive: the lime family, dark enough to read on paper */
+    --primary: 75 100% 18%;
+    --primary-foreground: 70 100% 96%;
+    --secondary: 60 35% 88%;
+    --secondary-foreground: 60 15% 16%;
+    --muted: 55 35% 92%;
+    --muted-foreground: 60 12% 38%;
+    --accent: 68 55% 82%;
+    --accent-foreground: 75 100% 14%;
+    --destructive: 0 74% 45%;
+    --destructive-foreground: 45 100% 98%;
+    --border: 55 28% 84%;
+    --input: 55 28% 84%;
+    --ring: 75 100% 26%;
+    --chart-1: 75 90% 30%;
+    --chart-2: 60 15% 25%;
+    --chart-3: 84 45% 42%;
+    --chart-4: 55 25% 62%;
+    --chart-5: 70 60% 45%;
+    --sidebar-background: 48 50% 94%;
+    --sidebar-foreground: 60 15% 22%;
+    --sidebar-primary: 75 100% 18%;
+    --sidebar-primary-foreground: 70 100% 96%;
+    --sidebar-accent: 68 55% 84%;
+    --sidebar-accent-foreground: 75 100% 14%;
+    --sidebar-border: 55 28% 84%;
+    --sidebar-ring: 75 100% 26%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* Lime selection is the cheapest, most consistent brand cue in the product. */
+  ::selection {
+    background-color: hsl(var(--brand));
+    color: hsl(var(--brand-foreground));
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--brand));
+    outline-offset: 2px;
+  }
+
+  /* Thin, theme-aware scrollbars so the chrome stops looking stock. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--border));
+    border: 3px solid transparent;
+    background-clip: content-box;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--brand));
+  }
+}
+
+@layer utilities {
+  /* Lime halo for hero elements and active states. */
+  .brand-glow {
+    box-shadow:
+      0 0 0 1px hsl(var(--brand) / 0.35),
+      0 12px 32px -12px hsl(var(--brand) / 0.55);
+  }
+
+  /* The wordmark ships as two PNGs; show the one that suits the surface. */
+  .logo-light {
+    @apply block dark:hidden;
+  }
+  .logo-dark {
+    @apply hidden dark:block;
+  }
+}

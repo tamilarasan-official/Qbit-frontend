@@ -1,0 +1,106 @@
+# Edutou -- full stack: Postgres + API + Next.js frontend.
+#
+# Local:   docker compose up -d --build
+# Dokploy: point a Docker Compose application at this file. See DEPLOYMENT.md
+#          for the env vars and domain wiring Dokploy needs.
+
+services:
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-edutou}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      POSTGRES_DB: ${POSTGRES_DB:-edutou}
+      # Deterministic collation, so ORDER BY does not change if the host locale does.
+      POSTGRES_INITDB_ARGS: '--encoding=UTF8 --locale=C'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      # `-d` is required: without it pg_isready checks the wrong database and
+      # reports healthy before the app database exists.
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-edutou} -d ${POSTGRES_DB:-edutou}']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks: [edutou]
+    # NOT published to the host. The database is reachable only from this
+    # network; expose it temporarily via an SSH tunnel if you need psql.
+
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        # Wait for a real readiness check, not just "container started" --
+        # otherwise migrations race the database's first boot.
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgres://${POSTGRES_USER:-edutou}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-edutou}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
+      ACCESS_TOKEN_TTL_SECONDS: ${ACCESS_TOKEN_TTL_SECONDS:-900}
+      REFRESH_TOKEN_TTL_SECONDS: ${REFRESH_TOKEN_TTL_SECONDS:-2592000}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN:-}
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:4000}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      STORAGE_DIR: /var/lib/edutou/uploads
+      MAX_UPLOAD_BYTES: ${MAX_UPLOAD_BYTES:-26214400}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+    volumes:
+      # Uploads must outlive the container. Losing this volume loses every task
+      # submission and shared resource -- back it up separately from Postgres.
+      - uploads_data:/var/lib/edutou/uploads
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:4000/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    networks: [edutou]
+    ports:
+      # Remove this in a Dokploy deployment -- Traefik routes to the container
+      # directly and publishing the port would bypass TLS.
+      - '${BACKEND_PORT:-4000}:4000'
+
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Baked into the client bundle at build time, so changing it later
+        # requires a rebuild, not just a restart.
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000}
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      # Server-side rendering talks to the API over the internal network, which
+      # skips the public hostname and TLS termination entirely.
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000}
+    networks: [edutou]
+    ports:
+      - '${FRONTEND_PORT:-3000}:3000'
+
+volumes:
+  postgres_data:
+  uploads_data:
+
+networks:
+  edutou:
+    driver: bridge

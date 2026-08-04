@@ -1,0 +1,15 @@
+node_modules
+.next
+out
+build
+# The backend is its own image and its own repo; never ship it inside the
+# frontend build context.
+backend
+.env
+.env.local
+.env.*.local
+*.log
+.git
+.github
+.idea
+.vscode
