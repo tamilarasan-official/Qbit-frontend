@@ -21,7 +21,6 @@ export function SecurityTab() {
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
     const [authProvider, setAuthProvider] = useState<string | null>(null)
-    const [userEmail, setUserEmail] = useState<string>("")
 
     const supabase = createClient()
 
@@ -31,7 +30,6 @@ export function SecurityTab() {
             try {
                 const { data: { user } } = await supabase.auth.getUser()
                 if (user) {
-                    setUserEmail(user.email || "")
                     // Check the provider from app_metadata or user metadata
                     const provider = user.app_metadata?.provider ||
                                    user.identities?.[0]?.provider ||
@@ -61,8 +59,10 @@ export function SecurityTab() {
             return
         }
 
-        if (newPassword.length < 6) {
-            setMessage({ type: 'error', text: 'Password must be at least 6 characters long' })
+        // 8, matching the API. At 6 the request left here and came back as a
+        // flat"Invalid update".
+        if (newPassword.length < 8) {
+            setMessage({ type: 'error', text: 'Password must be at least 8 characters long' })
             return
         }
 
@@ -74,21 +74,14 @@ export function SecurityTab() {
         setLoading(true)
 
         try {
-            // First, verify the current password by trying to sign in
-            const { error: signInError } = await supabase.auth.signInWithPassword({
-                email: userEmail,
-                password: currentPassword,
-            })
-
-            if (signInError) {
-                setMessage({ type: 'error', text: 'Current password is incorrect' })
-                setLoading(false)
-                return
-            }
-
-            // If verification successful, update the password
+            // The API re-authenticates the change itself: it rejects a password
+            // update that does not carry the current one, so that a stolen
+            // session cannot lock the real owner out. Sending it was missing
+            // here, which failed every attempt with"Current password is
+            // incorrect" no matter what was typed.
             const { error: updateError } = await supabase.auth.updateUser({
-                password: newPassword
+                password: newPassword,
+                current_password: currentPassword,
             })
 
             if (updateError) {
@@ -109,29 +102,29 @@ export function SecurityTab() {
     }
 
     return (
-        <Card className="border-gray-200 dark:border-slate-700 reading:border-amber-300 rounded-xl shadow-sm bg-white dark:bg-slate-800 reading:bg-amber-50">
+        <Card className="border-border rounded-xl shadow-sm bg-card">
             <CardHeader className="pb-4">
-                <CardTitle className="text-xl text-gray-900 dark:text-gray-100 reading:text-amber-900">Security Settings</CardTitle>
-                <CardDescription className="text-gray-600 dark:text-gray-400 reading:text-amber-700">Manage your account security and authentication</CardDescription>
+                <CardTitle className="text-xl text-foreground">Security Settings</CardTitle>
+                <CardDescription className="text-muted-foreground">Manage your account security and authentication</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6 sm:space-y-8">
                 {/* Password Section */}
                 <div className="space-y-4 sm:space-y-5">
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 reading:text-amber-900 text-base sm:text-lg">Password</h3>
+                    <h3 className="font-semibold text-foreground text-base sm:text-lg">Password</h3>
 
                     {authProvider === 'google' ? (
                         // Google Auth User
-                        <div className="p-5 bg-brand-50 dark:bg-brand-900/20 reading:bg-brand-100 border border-brand-200 dark:border-brand-800 reading:border-brand-300 rounded-xl">
+                        <div className="p-5 bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-800 rounded-xl">
                             <div className="flex items-start gap-3">
                                 <CheckCircle className="w-5 h-5 text-brand-700 dark:text-brand-400 mt-0.5 flex-shrink-0" />
                                 <div>
-                                    <h4 className="font-medium text-brand-900 dark:text-brand-200 reading:text-brand-900 mb-1">
+                                    <h4 className="font-medium text-brand-900 dark:text-brand-200 mb-1">
                                         Connected with Google
                                     </h4>
-                                    <p className="text-sm text-brand-800 dark:text-brand-300 reading:text-brand-800">
+                                    <p className="text-sm text-brand-800 dark:text-brand-300">
                                         Your account is authenticated through Google. Password management is handled by your Google account.
                                     </p>
-                                    <p className="text-xs text-brand-700 dark:text-brand-400 reading:text-brand-800 mt-2">
+                                    <p className="text-xs text-brand-700 dark:text-brand-400 mt-2">
                                         To change your password, please visit your Google Account settings.
                                     </p>
                                 </div>
@@ -143,8 +136,8 @@ export function SecurityTab() {
                             {message && (
                                 <div className={`p-4 rounded-xl flex items-start gap-3 ${
                                     message.type === 'success'
-                                        ? 'bg-green-50 dark:bg-green-900/20 reading:bg-green-100 border border-green-200 dark:border-green-800 reading:border-green-300'
-                                        : 'bg-red-50 dark:bg-red-900/20 reading:bg-red-100 border border-red-200 dark:border-red-800 reading:border-red-300'
+                                        ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800'
+                                        : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
                                 }`}>
                                     {message.type === 'success' ? (
                                         <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
@@ -153,8 +146,8 @@ export function SecurityTab() {
                                     )}
                                     <p className={`text-sm ${
                                         message.type === 'success'
-                                            ? 'text-green-700 dark:text-green-300 reading:text-green-800'
-                                            : 'text-red-700 dark:text-red-300 reading:text-red-800'
+                                            ? 'text-green-700 dark:text-green-300'
+                                            : 'text-red-700 dark:text-red-300'
                                     }`}>
                                         {message.text}
                                     </p>
@@ -162,7 +155,7 @@ export function SecurityTab() {
                             )}
 
                             <div className="space-y-2 sm:space-y-3">
-                                <Label htmlFor="currentPassword" className="text-sm font-medium text-gray-700 dark:text-gray-300 reading:text-amber-800">
+                                <Label htmlFor="currentPassword" className="text-sm font-medium text-muted-foreground">
                                     Current Password
                                 </Label>
                                 <div className="relative">
@@ -172,7 +165,7 @@ export function SecurityTab() {
                                         placeholder="Enter current password"
                                         value={currentPassword}
                                         onChange={(e) => setCurrentPassword(e.target.value)}
-                                        className="rounded-xl pr-12 bg-white dark:bg-slate-900 reading:bg-amber-50"
+                                        className="rounded-xl pr-12 bg-white dark:bg-slate-900"
                                         disabled={loading}
                                     />
                                     <Button
@@ -184,16 +177,16 @@ export function SecurityTab() {
                                         disabled={loading}
                                     >
                                         {showCurrentPassword ? (
-                                            <EyeOff className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                                            <EyeOff className="w-4 h-4 text-muted-foreground" />
                                         ) : (
-                                            <Eye className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                                            <Eye className="w-4 h-4 text-muted-foreground" />
                                         )}
                                     </Button>
                                 </div>
                             </div>
 
                             <div className="space-y-2 sm:space-y-3">
-                                <Label htmlFor="newPassword" className="text-sm font-medium text-gray-700 dark:text-gray-300 reading:text-amber-800">
+                                <Label htmlFor="newPassword" className="text-sm font-medium text-muted-foreground">
                                     New Password
                                 </Label>
                                 <div className="relative">
@@ -203,7 +196,7 @@ export function SecurityTab() {
                                         placeholder="Enter new password"
                                         value={newPassword}
                                         onChange={(e) => setNewPassword(e.target.value)}
-                                        className="rounded-xl pr-12 bg-white dark:bg-slate-900 reading:bg-amber-50"
+                                        className="rounded-xl pr-12 bg-white dark:bg-slate-900"
                                         disabled={loading}
                                     />
                                     <Button
@@ -215,19 +208,19 @@ export function SecurityTab() {
                                         disabled={loading}
                                     >
                                         {showNewPassword ? (
-                                            <EyeOff className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                                            <EyeOff className="w-4 h-4 text-muted-foreground" />
                                         ) : (
-                                            <Eye className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                                            <Eye className="w-4 h-4 text-muted-foreground" />
                                         )}
                                     </Button>
                                 </div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 reading:text-amber-600">
+                                <p className="text-xs text-muted-foreground">
                                     Password must be at least 6 characters long
                                 </p>
                             </div>
 
                             <div className="space-y-2 sm:space-y-3">
-                                <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700 dark:text-gray-300 reading:text-amber-800">
+                                <Label htmlFor="confirmPassword" className="text-sm font-medium text-muted-foreground">
                                     Confirm New Password
                                 </Label>
                                 <div className="relative">
@@ -237,7 +230,7 @@ export function SecurityTab() {
                                         placeholder="Confirm new password"
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
-                                        className="rounded-xl pr-12 bg-white dark:bg-slate-900 reading:bg-amber-50"
+                                        className="rounded-xl pr-12 bg-white dark:bg-slate-900"
                                         disabled={loading}
                                     />
                                     <Button
@@ -249,9 +242,9 @@ export function SecurityTab() {
                                         disabled={loading}
                                     >
                                         {showConfirmPassword ? (
-                                            <EyeOff className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                                            <EyeOff className="w-4 h-4 text-muted-foreground" />
                                         ) : (
-                                            <Eye className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                                            <Eye className="w-4 h-4 text-muted-foreground" />
                                         )}
                                     </Button>
                                 </div>
@@ -260,7 +253,7 @@ export function SecurityTab() {
                             <Button
                                 type="submit"
                                 disabled={loading}
-                                className="gap-2 bg-gradient-to-r from-brand-300 to-brand-400 hover:from-brand-400 hover:to-brand-500 dark:from-brand-300 dark:to-brand-400 dark:hover:from-brand-300 dark:hover:to-brand-400 reading:from-amber-600 reading:to-brand-500 reading:hover:from-amber-700 reading:hover:to-brand-600 text-black rounded-xl"
+                                className="gap-2 bg-gradient-to-r from-brand-300 to-brand-400 hover:from-brand-400 hover:to-brand-500 dark:from-brand-300 dark:to-brand-400 dark:hover:from-brand-300 dark:hover:to-brand-400 text-black rounded-xl"
                             >
                                 <Lock className="w-4 h-4" />
                                 {loading ? 'Updating...' : 'Update Password'}
@@ -271,17 +264,17 @@ export function SecurityTab() {
 
                 {/* Active Sessions Section */}
                 <div className="space-y-4 sm:space-y-5">
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 reading:text-amber-900 text-base sm:text-lg">Active Sessions</h3>
+                    <h3 className="font-semibold text-foreground text-base sm:text-lg">Active Sessions</h3>
                     <div className="space-y-3 sm:space-y-4">
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 sm:p-5 bg-gray-50 dark:bg-slate-700/50 reading:bg-amber-100/50 border border-gray-200 dark:border-slate-600 reading:border-amber-200 rounded-xl">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 sm:p-5 bg-muted/50 border border-gray-200 dark:border-slate-600 rounded-xl">
                             <div className="flex-1">
-                                <div className="font-medium text-gray-900 dark:text-gray-100 reading:text-amber-900 text-sm sm:text-base">Current Session</div>
-                                <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 reading:text-amber-700 mt-1">
+                                <div className="font-medium text-foreground text-sm sm:text-base">Current Session</div>
+                                <div className="text-xs sm:text-sm text-muted-foreground mt-1">
                                     {authProvider === 'google' ? 'Authenticated via Google' : 'Email Authentication'}
                                 </div>
-                                <div className="text-xs text-gray-400 dark:text-gray-500 reading:text-amber-600 mt-0.5">Last active: Now</div>
+                                <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Last active: Now</div>
                             </div>
-                            <Badge variant="secondary" className="bg-green-100 dark:bg-green-900/30 reading:bg-green-100 text-green-700 dark:text-green-400 reading:text-green-800 rounded-lg px-3 self-start sm:self-auto">
+                            <Badge variant="secondary" className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg px-3 self-start sm:self-auto">
                                 Current
                             </Badge>
                         </div>
