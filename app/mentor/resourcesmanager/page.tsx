@@ -235,32 +235,27 @@ export default function ResourcesManagerPage() {
 
       // Upload file if selected
       if (selectedFile) {
-        // Generate unique file name
-        const fileExt = selectedFile.name.split('.').pop()
-        fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`
-        const filePath = `${fileName}`
-
-        // Upload file to Supabase Storage
-        const { error: uploadError } = await supabase.storage
+        const { data: uploaded, error: uploadError } = await supabase.storage
           .from('resources')
-          .upload(filePath, selectedFile)
+          .upload(selectedFile.name, selectedFile)
 
-        if (uploadError) {
+        if (uploadError || !uploaded) {
           console.error('Upload error:', uploadError)
           toast({
             title: "Upload failed",
-            description: "Failed to upload file. Please try again.",
+            description: uploadError?.message ?? "Failed to upload file. Please try again.",
             variant: "destructive",
           })
           return
         }
 
-        // Get public URL
-        const { data: { publicUrl: url } } = supabase.storage
-          .from('resources')
-          .getPublicUrl(filePath)
-
-        publicUrl = url
+        // The URL MUST come from the response. The server decides the storage
+        // key -- it derives the folder from the authenticated user and
+        // generates the filename -- so a URL built from a client-invented name
+        // points at a key that was never written. That is what produced rows
+        // the portal listed happily and then 404'd with "File not found": the
+        // bytes were stored, just not where the row said.
+        publicUrl = uploaded.publicUrl
         fileName = selectedFile.name
         fileType = selectedFile.type || 'application/octet-stream'
         fileSize = selectedFile.size
