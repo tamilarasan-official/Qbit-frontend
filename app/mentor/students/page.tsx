@@ -286,14 +286,14 @@ export default function MentorStudentsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-black reading:bg-amber-50">
+      <div className="flex items-center justify-center min-h-screen bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-brand-700" />
       </div>
     );
   }
 
   return (
-    <main className="overflow-hidden bg-slate-50 dark:bg-black reading:bg-amber-50 min-h-screen">
+    <main className="overflow-hidden bg-background min-h-screen">
       {/* Mobile Sidebar */}
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
 
@@ -320,7 +320,7 @@ export default function MentorStudentsPage() {
             <h1 className="text-3xl font-bold bg-gradient-to-r from-neutral-900 to-brand-700 bg-clip-text text-transparent">
               My Students
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
+            <p className="text-muted-foreground mt-2">
               View and track your assigned students' progress
             </p>
           </div>
@@ -334,7 +334,7 @@ export default function MentorStudentsPage() {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Total Students</p>
+                        <p className="text-sm text-muted-foreground">Total Students</p>
                         <p className="text-3xl font-bold text-gray-900 dark:text-white">{students.length}</p>
                       </div>
                       <Users className="w-10 h-10 text-brand-700" />
@@ -346,7 +346,7 @@ export default function MentorStudentsPage() {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Total Quizzes</p>
+                        <p className="text-sm text-muted-foreground">Total Quizzes</p>
                         <p className="text-3xl font-bold text-green-600">
                           {students.reduce((sum, s) => sum + (s.stats?.quizzes_completed || 0), 0)}
                         </p>
@@ -360,7 +360,7 @@ export default function MentorStudentsPage() {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Total Points</p>
+                        <p className="text-sm text-muted-foreground">Total Points</p>
                         <p className="text-3xl font-bold text-purple-600">
                           {students.reduce((sum, s) => sum + (s.stats?.total_points || 0), 0).toLocaleString()}
                         </p>
@@ -394,7 +394,7 @@ export default function MentorStudentsPage() {
                     <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                       {students.length === 0 ? 'No Students Assigned' : 'No Students Found'}
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400">
+                    <p className="text-muted-foreground">
                       {students.length === 0
                         ? "You don't have any students assigned yet. Contact admin for student assignments."
                         : 'Try adjusting your search query'}
@@ -429,7 +429,7 @@ export default function MentorStudentsPage() {
                                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
                                     {student.full_name}
                                   </h3>
-                                  <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
                                     <Mail className="w-3 h-3" />
                                     <span className="truncate">{student.email}</span>
                                   </div>
@@ -473,7 +473,7 @@ export default function MentorStudentsPage() {
                                 </div>
                               </div>
 
-                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
+                              <p className="text-xs text-muted-foreground mt-3">
                                 Assigned: {new Date(student.assigned_at).toLocaleDateString()}
                               </p>
                             </div>
@@ -522,7 +522,7 @@ export default function MentorStudentsPage() {
                               {feedback.title}
                             </h4>
                           )}
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                          <p className="text-sm text-muted-foreground">
                             {feedback.message}
                           </p>
                           <p className="text-xs text-gray-500">
@@ -570,7 +570,7 @@ export default function MentorStudentsPage() {
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                           {selectedStudent.full_name}
                         </h2>
-                        <p className="text-gray-600 dark:text-gray-400">{selectedStudent.email}</p>
+                        <p className="text-muted-foreground">{selectedStudent.email}</p>
 
                         <div className="mt-4">
                           {(() => {
@@ -598,7 +598,7 @@ export default function MentorStudentsPage() {
                       <CardContent className="p-6">
                         <div className="text-center">
                           <Trophy className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Total Points</p>
+                          <p className="text-sm text-muted-foreground">Total Points</p>
                           <p className="text-2xl font-bold text-purple-600">
                             {studentStats.total_points.toLocaleString()}
                           </p>
@@ -610,7 +610,7 @@ export default function MentorStudentsPage() {
                       <CardContent className="p-6">
                         <div className="text-center">
                           <Target className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Quizzes</p>
+                          <p className="text-sm text-muted-foreground">Quizzes</p>
                           <p className="text-2xl font-bold text-green-600">
                             {studentStats.quizzes_completed}
                           </p>
@@ -622,7 +622,7 @@ export default function MentorStudentsPage() {
                       <CardContent className="p-6">
                         <div className="text-center">
                           <TrendingUp className="w-8 h-8 text-brand-700 mx-auto mb-2" />
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Accuracy</p>
+                          <p className="text-sm text-muted-foreground">Accuracy</p>
                           <p className="text-2xl font-bold text-brand-700">
                             {studentStats.total_attempts > 0
                               ? Math.round((studentStats.correct_answers / studentStats.total_attempts) * 100)
@@ -636,7 +636,7 @@ export default function MentorStudentsPage() {
                       <CardContent className="p-6">
                         <div className="text-center">
                           <Users className="w-8 h-8 text-brand-700 mx-auto mb-2" />
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Correct/Total</p>
+                          <p className="text-sm text-muted-foreground">Correct/Total</p>
                           <p className="text-2xl font-bold text-brand-700">
                             {studentStats.correct_answers}/{studentStats.total_attempts}
                           </p>
@@ -661,7 +661,7 @@ export default function MentorStudentsPage() {
                     <div className="space-y-4">
                       {/* Current Points Display */}
                       <div className="p-4 bg-gradient-to-r from-brand-50 to-brand-100 dark:from-brand-900/20 dark:to-brand-900/20 rounded-xl">
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Current Leaderboard Points</p>
+                        <p className="text-sm text-muted-foreground mb-1">Current Leaderboard Points</p>
                         <p className="text-3xl font-bold bg-gradient-to-r from-neutral-900 to-brand-700 bg-clip-text text-transparent">
                           {selectedStudent.leaderboard_points.toLocaleString()}
                         </p>
@@ -681,14 +681,14 @@ export default function MentorStudentsPage() {
                           className="text-lg font-semibold text-center"
                           placeholder="Enter points amount"
                         />
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                        <p className="text-xs text-muted-foreground">
                           Enter the number of points to add or subtract (1-1000)
                         </p>
                       </div>
 
                       {/* Quick Amount Buttons */}
                       <div className="flex flex-wrap gap-2">
-                        <p className="text-sm text-gray-600 dark:text-gray-400 w-full mb-1">Quick amounts:</p>
+                        <p className="text-sm text-muted-foreground w-full mb-1">Quick amounts:</p>
                         {[5, 10, 25, 50, 100, 500].map((amount) => (
                           <Button
                             key={amount}

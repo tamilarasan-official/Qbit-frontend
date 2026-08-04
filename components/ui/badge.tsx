@@ -10,11 +10,13 @@ const badgeVariants = cva(
       variant: {
         default:
           'border-transparent bg-primary text-primary-foreground hover:bg-primary/80',
+        // Lime chip for live/active states -- ink type, never lime text.
+        brand: 'border-transparent bg-brand-400 text-ink',
         secondary:
           'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80',
         destructive:
           'border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80',
-        outline: 'text-foreground',
+        outline: 'border-border text-foreground',
       },
     },
     defaultVariants: {

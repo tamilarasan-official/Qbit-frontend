@@ -129,7 +129,7 @@ export default function MentorResultsPage() {
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
                 Quiz Results
               </h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-muted-foreground">
                 {session?.quiz?.title}
               </p>
             </div>
@@ -152,7 +152,7 @@ export default function MentorResultsPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Participants</p>
+                    <p className="text-sm text-muted-foreground">Participants</p>
                     <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
                       {stats?.totalParticipants}
                     </p>
@@ -174,7 +174,7 @@ export default function MentorResultsPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Avg Score</p>
+                    <p className="text-sm text-muted-foreground">Avg Score</p>
                     <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
                       {stats?.avgScore}
                     </p>
@@ -196,7 +196,7 @@ export default function MentorResultsPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Accuracy</p>
+                    <p className="text-sm text-muted-foreground">Accuracy</p>
                     <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
                       {stats?.avgAccuracy}%
                     </p>
@@ -218,7 +218,7 @@ export default function MentorResultsPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Avg Time</p>
+                    <p className="text-sm text-muted-foreground">Avg Time</p>
                     <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
                       {stats?.avgAnswerTime}s
                     </p>
@@ -295,7 +295,7 @@ export default function MentorResultsPage() {
                         <p className="text-lg font-bold text-gray-900 dark:text-white truncate">
                           {participant.nickname}
                         </p>
-                        <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
                           <span>
                             {participant.correct_answers}/{participant.questions_answered} correct
                           </span>

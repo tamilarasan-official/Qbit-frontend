@@ -215,9 +215,9 @@ export function ProfileTab() {
 
   if (loading) {
     return (
-      <Card className="border-gray-200 dark:border-slate-700 reading:border-amber-300 rounded-xl shadow-sm bg-white dark:bg-slate-800 reading:bg-amber-50">
+      <Card className="border-border rounded-xl shadow-sm bg-card">
         <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-gray-400 dark:text-gray-500 reading:text-amber-600" />
+          <Loader2 className="w-8 h-8 animate-spin text-gray-400 dark:text-gray-500" />
         </CardContent>
       </Card>
     )
@@ -225,9 +225,9 @@ export function ProfileTab() {
 
   if (!profile) {
     return (
-      <Card className="border-gray-200 dark:border-slate-700 reading:border-amber-300 rounded-xl shadow-sm bg-white dark:bg-slate-800 reading:bg-amber-50">
+      <Card className="border-border rounded-xl shadow-sm bg-card">
         <CardContent className="flex items-center justify-center py-12">
-          <p className="text-gray-500 dark:text-gray-400 reading:text-amber-700">Unable to load profile</p>
+          <p className="text-muted-foreground">Unable to load profile</p>
         </CardContent>
       </Card>
     )
@@ -287,7 +287,7 @@ export function ProfileTab() {
       })()}
 
       {/* Profile Card - Compact Design */}
-      <Card className="border-gray-200 dark:border-slate-700">
+      <Card className="border-border">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">Profile Information</CardTitle>
           <CardDescription className="text-sm">Update your personal details</CardDescription>
@@ -302,10 +302,10 @@ export function ProfileTab() {
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 truncate">
+              <h3 className="text-base font-semibold text-foreground truncate">
                 {fullName || 'Your Name'}
               </h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{profile.email}</p>
+              <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
               {avatarUrl && (
                 <p className="text-xs text-green-600 dark:text-green-400 mt-0.5">✓ Social login avatar</p>
               )}
@@ -353,7 +353,7 @@ export function ProfileTab() {
               className="h-9 text-sm"
               disabled
             />
-            <p className="text-xs text-gray-500 dark:text-gray-400">Email cannot be changed</p>
+            <p className="text-xs text-muted-foreground">Email cannot be changed</p>
           </div>
 
           <div className="space-y-1.5">
@@ -395,7 +395,7 @@ export function ProfileTab() {
 
       {/* Quiz Statistics - Compact */}
       {leaderboardStats && (
-        <Card className="border-gray-200 dark:border-slate-700">
+        <Card className="border-border">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg">Performance Statistics</CardTitle>
             <CardDescription className="text-sm">Your learning progress and achievements</CardDescription>

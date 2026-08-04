@@ -1,5 +1,4 @@
 import type { Config } from 'tailwindcss'
-import plugin from 'tailwindcss/plugin'
 
 // all in fixtures is set to tailwind v3 as interims solutions
 
@@ -14,24 +13,33 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        // Figtree (the marketing site's face) with the mono reserved for figures.
+        sans: ['var(--font-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-geist-mono)', 'ui-monospace', 'monospace'],
+      },
       colors: {
-        // qbitio signature lime. 400 is the logo colour (#D5FF00); it is only
-        // legible as a surface (put black on it) or as text on dark. 700+ are
-        // the olive tones that stay readable as text on light surfaces.
+        // qbitio signature lime. 400 is the logo colour as the site ships it
+        // (#D9FF03); it is only legible as a surface (put ink on it) or as text
+        // on dark. 700+ are the olive tones that stay readable on cream.
         brand: {
-          50: '#FAFFE5',
-          100: '#F2FFBD',
-          200: '#E9FF85',
-          300: '#DFFF47',
-          400: '#D5FF00',
-          500: '#BEE600',
-          600: '#99BA00',
-          700: '#6B8200',
-          800: '#4C5C00',
-          900: '#363F00',
-          950: '#1D2200',
-          DEFAULT: '#D5FF00',
+          50: '#FBFFE8',
+          100: '#F4FFC2',
+          200: '#EBFF8A',
+          300: '#E2FF4D',
+          400: '#D9FF03',
+          500: '#C2E600',
+          600: '#9BBA00',
+          700: '#6E8200',
+          800: '#4E5C00',
+          900: '#373F00',
+          950: '#1E2200',
+          DEFAULT: '#D9FF03',
         },
+        // The site's warm neutrals, for the places that want the literal paper
+        // and ink rather than a semantic token.
+        paper: '#FFFAF5',
+        ink: '#121111',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {
@@ -85,8 +93,16 @@ const config: Config = {
       },
       borderRadius: {
         lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        md: 'calc(var(--radius) - 4px)',
+        sm: 'calc(var(--radius) - 8px)',
+        xl: 'calc(var(--radius) + 4px)',
+        '2xl': 'calc(var(--radius) + 8px)',
+      },
+      boxShadow: {
+        // Warm shadows: a neutral-grey drop shadow turns cream muddy.
+        soft: '0 1px 2px hsl(20 14% 4% / 0.04), 0 8px 24px -16px hsl(20 14% 4% / 0.2)',
+        lifted: '0 1px 2px hsl(20 14% 4% / 0.04), 0 18px 40px -24px hsl(20 14% 4% / 0.3)',
+        lime: '0 8px 24px -10px hsl(68 100% 45% / 0.5)',
       },
       keyframes: {
         'accordion-down': {
@@ -143,11 +159,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [
-    require('tailwindcss-animate'),
-    plugin(function({ addVariant }) {
-      addVariant('reading', '.reading &')
-    })
-  ],
+  // The `reading` variant went with the reading theme.
+  plugins: [require('tailwindcss-animate')],
 }
 export default config

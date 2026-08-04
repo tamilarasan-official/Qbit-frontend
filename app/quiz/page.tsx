@@ -142,7 +142,7 @@ const QRScannerModal = ({ isOpen, onClose, onScanSuccess }: {
                   onClick={startCamera}
                   className="mt-3 sm:mt-4 px-5 sm:px-6 py-2 sm:py-2.5 bg-white text-brand-700 rounded-xl font-medium hover:bg-gray-100 transition-all hover:scale-105 text-sm sm:text-base"
                 >
-                  Try Again
+                  Try again
                 </button>
               </div>
             </div>
@@ -233,53 +233,23 @@ export default function QuizPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-brand-100/30 to-brand-100/20 dark:from-slate-900 dark:via-brand-950 dark:to-brand-950 reading:from-amber-50 reading:via-yellow-50/50 reading:to-brand-50/30 relative overflow-hidden transition-colors duration-300">
-      {/* Theme Dropdown Menu */}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-brand-100/30 to-brand-100/20 dark:from-slate-900 dark:via-brand-950 dark:to-brand-950 relative overflow-hidden transition-colors duration-300">
+      {/* Theme toggle -- two themes, so one button rather than a menu. */}
       <div className="fixed top-4 right-4 sm:top-6 sm:right-6 z-50">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-lg transition-all duration-300 hover:scale-110 bg-white dark:bg-slate-800 reading:bg-amber-100 text-brand-700 dark:text-yellow-400 reading:text-amber-700 hover:bg-gray-50 dark:hover:bg-slate-700 reading:hover:bg-amber-200 focus:outline-none focus:ring-2 focus:ring-brand-400">
-              {theme === 'light' && <Sun className="w-5 h-5 sm:w-6 sm:h-6" />}
-              {theme === 'dark' && <Moon className="w-5 h-5 sm:w-6 sm:h-6" />}
-              {theme === 'reading' && <BookOpen className="w-5 h-5 sm:w-6 sm:h-6" />}
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel>Theme</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => setTheme('light')}
-              className="cursor-pointer"
-            >
-              <Sun className="mr-2 h-4 w-4" />
-              <span>Light</span>
-              {theme === 'light' && <span className="ml-auto text-primary">✓</span>}
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => setTheme('dark')}
-              className="cursor-pointer"
-            >
-              <Moon className="mr-2 h-4 w-4" />
-              <span>Dark</span>
-              {theme === 'dark' && <span className="ml-auto text-primary">✓</span>}
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => setTheme('reading')}
-              className="cursor-pointer"
-            >
-              <BookOpen className="mr-2 h-4 w-4" />
-              <span>Reading Mode</span>
-              {theme === 'reading' && <span className="ml-auto text-primary">✓</span>}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <button
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+          className="pill-chrome p-3 sm:p-4 text-foreground transition-all duration-300 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {theme === 'dark' ? <Sun className="w-5 h-5 sm:w-6 sm:h-6" /> : <Moon className="w-5 h-5 sm:w-6 sm:h-6" />}
+        </button>
       </div>
 
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full blur-3xl animate-pulse bg-gradient-to-br from-brand-200/20 to-brand-300/20 dark:from-brand-300/10 dark:to-brand-400/10 reading:from-amber-400/15 reading:to-brand-300/15"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full blur-3xl animate-pulse delay-700 bg-gradient-to-br from-brand-200/20 to-brand-300/20 dark:from-brand-300/10 dark:to-brand-400/10 reading:from-yellow-400/15 reading:to-amber-400/15"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full blur-3xl animate-pulse delay-1000 bg-gradient-to-br from-brand-200/10 to-brand-300/10 dark:from-brand-300/5 dark:to-brand-400/5 reading:from-brand-300/10 reading:to-yellow-400/10"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full blur-3xl animate-pulse bg-gradient-to-br from-brand-200/20 to-brand-300/20 dark:from-brand-300/10 dark:to-brand-400/10"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full blur-3xl animate-pulse delay-700 bg-gradient-to-br from-brand-200/20 to-brand-300/20 dark:from-brand-300/10 dark:to-brand-400/10"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full blur-3xl animate-pulse delay-1000 bg-gradient-to-br from-brand-200/10 to-brand-300/10 dark:from-brand-300/5 dark:to-brand-400/5"></div>
       </div>
 
       {/* Main Content */}
@@ -290,16 +260,16 @@ export default function QuizPage() {
             <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-brand-300 via-brand-400 to-brand-400 rounded-2xl sm:rounded-3xl shadow-xl mb-4 sm:mb-6">
               <Target className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
             </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-neutral-900 via-neutral-800 to-brand-700 dark:from-white dark:via-brand-200 dark:to-brand-400 reading:from-amber-600 reading:via-brand-900 reading:to-yellow-600 bg-clip-text text-transparent mb-3 sm:mb-4">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-neutral-900 via-neutral-800 to-brand-700 dark:from-white dark:via-brand-200 dark:to-brand-400 bg-clip-text text-transparent mb-3 sm:mb-4">
               Join a Quiz
             </h1>
-            <p className="text-base sm:text-lg max-w-md mx-auto text-gray-600 dark:text-gray-300 reading:text-amber-800">
+            <p className="text-base sm:text-lg max-w-md mx-auto text-gray-600 dark:text-gray-300">
               Enter your quiz code or scan a QR code to get started
             </p>
           </div>
 
           {/* Main Card */}
-          <div className="backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden bg-white/70 dark:bg-slate-800/70 reading:bg-amber-100/70 border border-gray-100/50 dark:border-slate-700/50 reading:border-amber-300/50">
+          <div className="backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden bg-card/70 border border-gray-100/50 dark:border-slate-700/50">
             {/* Gradient Header */}
             <div className="bg-gradient-to-r from-brand-300 via-brand-400 to-brand-400 p-6 sm:p-8 relative overflow-hidden">
               <div className="absolute inset-0 opacity-20">
@@ -324,7 +294,7 @@ export default function QuizPage() {
                 <div>
                   <label
                     htmlFor="quizCode"
-                    className="block text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300 reading:text-amber-900"
+                    className="block text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300"
                   >
                     Quiz Code
                   </label>
@@ -337,7 +307,7 @@ export default function QuizPage() {
                       setInputError(false);
                     }}
                     placeholder="Enter code (e.g., QZ1234)"
-                    className={`w-full px-4 sm:px-5 py-3 sm:py-4 rounded-xl border-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent font-medium text-base sm:text-lg transition-all bg-gray-50 dark:bg-slate-700 reading:bg-amber-50 border-gray-200 dark:border-slate-600 reading:border-amber-300 text-gray-800 dark:text-gray-100 reading:text-amber-900 ${
+                    className={`w-full px-4 sm:px-5 py-3 sm:py-4 rounded-xl border-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent font-medium text-base sm:text-lg transition-all bg-muted border-gray-200 dark:border-slate-600 text-foreground ${
                       inputError ? 'border-red-300 ring-2 ring-red-300' : ''
                     }`}
                     maxLength={10}
@@ -355,7 +325,7 @@ export default function QuizPage() {
                     type="submit"
                     className="flex-1 bg-gradient-to-r from-brand-300 via-brand-400 to-brand-400 text-black hover:shadow-xl font-semibold px-6 py-3 sm:py-4 rounded-xl transition-all duration-200 inline-flex items-center justify-center gap-2 hover:scale-105 group"
                   >
-                    <span className="text-base sm:text-lg">Start Quiz</span>
+                    <span className="text-base sm:text-lg">Start quiz</span>
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </button>
 
@@ -371,17 +341,17 @@ export default function QuizPage() {
               </form>
 
               {/* Info Section */}
-              <div className="mt-6 sm:mt-8 pt-6 border-t border-gray-200 dark:border-slate-700 reading:border-amber-300">
+              <div className="mt-6 sm:mt-8 pt-6 border-t border-border">
                 <div className="space-y-3">
-                  <div className="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                  <div className="flex items-start gap-3 text-sm text-muted-foreground">
                     <div className="w-1.5 h-1.5 bg-brand-400 rounded-full mt-1.5 flex-shrink-0"></div>
                     <p>Quiz codes are provided by your instructor or course coordinator</p>
                   </div>
-                  <div className="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                  <div className="flex items-start gap-3 text-sm text-muted-foreground">
                     <div className="w-1.5 h-1.5 bg-brand-400 rounded-full mt-1.5 flex-shrink-0"></div>
                     <p>Codes are case-insensitive and typically 4-10 characters long</p>
                   </div>
-                  <div className="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                  <div className="flex items-start gap-3 text-sm text-muted-foreground">
                     <div className="w-1.5 h-1.5 bg-brand-400 rounded-full mt-1.5 flex-shrink-0"></div>
                     <p>You can also scan a QR code if your instructor provides one</p>
                   </div>

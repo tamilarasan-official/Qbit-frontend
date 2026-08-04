@@ -178,7 +178,7 @@ export default function AdminManagePoints() {
   }
 
   return (
-    <main className="overflow-hidden bg-slate-50 dark:bg-black reading:bg-amber-50 min-h-screen">
+    <main className="overflow-hidden bg-background min-h-screen">
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
       <Sidebar isOpen={sidebarOpen} />
 
@@ -197,10 +197,10 @@ export default function AdminManagePoints() {
         <div className="p-6 space-y-6">
           {/* Header */}
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 reading:text-amber-900">
+            <h1 className="text-3xl font-bold text-foreground">
               Manage Points System
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 reading:text-amber-700 mt-1">
+            <p className="text-muted-foreground mt-1">
               Configure point values for student actions
             </p>
           </div>
@@ -219,12 +219,12 @@ export default function AdminManagePoints() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card className="border-none shadow-lg rounded-2xl">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
                   Total Action Types
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                <div className="text-3xl font-bold text-foreground">
                   {pointConfigs.length}
                 </div>
               </CardContent>
@@ -232,7 +232,7 @@ export default function AdminManagePoints() {
 
             <Card className="border-none shadow-lg rounded-2xl">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
                   Active Actions
                 </CardTitle>
               </CardHeader>
@@ -245,7 +245,7 @@ export default function AdminManagePoints() {
 
             <Card className="border-none shadow-lg rounded-2xl">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
                   Total Active Points
                 </CardTitle>
               </CardHeader>
@@ -260,11 +260,11 @@ export default function AdminManagePoints() {
           {/* Point Configurations */}
           <Card className="border-none shadow-lg rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-gray-900 dark:text-gray-100 reading:text-amber-900 flex items-center gap-2">
+              <CardTitle className="text-foreground flex items-center gap-2">
                 <Award className="h-5 w-5" />
                 Point Configurations
               </CardTitle>
-              <CardDescription className="text-gray-600 dark:text-gray-400 reading:text-amber-700">
+              <CardDescription className="text-muted-foreground">
                 Adjust point values and enable/disable actions
               </CardDescription>
             </CardHeader>
@@ -276,10 +276,10 @@ export default function AdminManagePoints() {
               ) : pointConfigs.length === 0 ? (
                 <div className="text-center py-12">
                   <Award className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                  <p className="text-muted-foreground">
                     No point configurations found
                   </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-500 reading:text-amber-600 mt-1">
+                  <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
                     Run the points_system_schema.sql to set up the points system
                   </p>
                 </div>
@@ -291,19 +291,19 @@ export default function AdminManagePoints() {
                       className={cn(
                         "p-4 rounded-xl border-2 transition-all",
                         config.is_active
-                          ? "border-gray-200 dark:border-slate-700 reading:border-amber-300 bg-white dark:bg-slate-800 reading:bg-amber-50"
-                          : "border-gray-100 dark:border-slate-800 reading:border-amber-200 bg-gray-50 dark:bg-slate-900 reading:bg-amber-100/50 opacity-60"
+                          ?"border-border bg-card"
+                          :"border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-900 opacity-60"
                       )}
                     >
                       <div className="flex flex-col md:flex-row md:items-center gap-4">
                         {/* Action Info */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-semibold text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                            <h3 className="font-semibold text-foreground">
                               {ACTION_TYPE_LABELS[config.action_type] || config.action_type}
                             </h3>
                             {config.is_active ? (
-                              <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 reading:bg-green-200">
+                              <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
                                 Active
                               </Badge>
                             ) : (
@@ -312,7 +312,7 @@ export default function AdminManagePoints() {
                               </Badge>
                             )}
                           </div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                          <p className="text-sm text-muted-foreground">
                             {config.description || 'No description'}
                           </p>
                         </div>
@@ -329,7 +329,7 @@ export default function AdminManagePoints() {
                               max="10000"
                               disabled={!config.is_active}
                             />
-                            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">pts</span>
+                            <span className="text-sm font-medium text-muted-foreground">pts</span>
                           </div>
 
                           <Button

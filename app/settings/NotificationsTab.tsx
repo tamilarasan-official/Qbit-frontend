@@ -18,21 +18,21 @@ interface NotificationsTabProps {
 
 export function NotificationsTab({ notifications, handleNotificationChange }: NotificationsTabProps) {
   return (
-    <Card className="border-gray-200 dark:border-slate-700 reading:border-amber-300 rounded-xl shadow-sm bg-white dark:bg-slate-800 reading:bg-amber-50">
+    <Card className="border-border rounded-xl shadow-sm bg-card">
       <CardHeader className="pb-4">
-        <CardTitle className="text-xl text-gray-900 dark:text-gray-100 reading:text-amber-900">Notification Preferences</CardTitle>
-        <CardDescription className="text-gray-600 dark:text-gray-400 reading:text-amber-700">Choose how you want to be notified about important events</CardDescription>
+        <CardTitle className="text-xl text-foreground">Notification Preferences</CardTitle>
+        <CardDescription className="text-muted-foreground">Choose how you want to be notified about important events</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6 sm:space-y-8">
         <div className="space-y-4 sm:space-y-5">
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100 reading:text-amber-900 text-base sm:text-lg">Notification Channels</h3>
+          <h3 className="font-semibold text-foreground text-base sm:text-lg">Notification Channels</h3>
           <div className="space-y-3 sm:space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-gray-50 dark:bg-slate-700/50 reading:bg-amber-100/50 rounded-lg border border-gray-100 dark:border-slate-600 reading:border-amber-200">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-muted/50 rounded-lg border border-gray-100 dark:border-slate-600">
               <div className="flex items-center gap-3 sm:gap-4">
-                <Mail className="w-5 h-5 text-brand-700 dark:text-brand-400 reading:text-amber-600 flex-shrink-0" />
+                <Mail className="w-5 h-5 text-brand-700 dark:text-brand-400 flex-shrink-0" />
                 <div>
-                  <div className="font-medium text-gray-900 dark:text-gray-100 reading:text-amber-900 text-sm sm:text-base">Email Notifications</div>
-                  <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 reading:text-amber-700 mt-0.5">Receive notifications via email</div>
+                  <div className="font-medium text-foreground text-sm sm:text-base">Email Notifications</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground mt-0.5">Receive notifications via email</div>
                 </div>
               </div>
               <Switch
@@ -41,12 +41,12 @@ export function NotificationsTab({ notifications, handleNotificationChange }: No
               />
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-gray-50 dark:bg-slate-700/50 reading:bg-amber-100/50 rounded-lg border border-gray-100 dark:border-slate-600 reading:border-amber-200">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-muted/50 rounded-lg border border-gray-100 dark:border-slate-600">
               <div className="flex items-center gap-3 sm:gap-4">
-                <Bell className="w-5 h-5 text-brand-700 dark:text-brand-400 reading:text-amber-600 flex-shrink-0" />
+                <Bell className="w-5 h-5 text-brand-700 dark:text-brand-400 flex-shrink-0" />
                 <div>
-                  <div className="font-medium text-gray-900 dark:text-gray-100 reading:text-amber-900 text-sm sm:text-base">Push Notifications</div>
-                  <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 reading:text-amber-700 mt-0.5">Receive browser push notifications</div>
+                  <div className="font-medium text-foreground text-sm sm:text-base">Push Notifications</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground mt-0.5">Receive browser push notifications</div>
                 </div>
               </div>
               <Switch
@@ -55,12 +55,12 @@ export function NotificationsTab({ notifications, handleNotificationChange }: No
               />
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-gray-50 dark:bg-slate-700/50 reading:bg-amber-100/50 rounded-lg border border-gray-100 dark:border-slate-600 reading:border-amber-200">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-muted/50 rounded-lg border border-gray-100 dark:border-slate-600">
               <div className="flex items-center gap-3 sm:gap-4">
-                <Smartphone className="w-5 h-5 text-brand-700 dark:text-brand-400 reading:text-amber-600 flex-shrink-0" />
+                <Smartphone className="w-5 h-5 text-brand-700 dark:text-brand-400 flex-shrink-0" />
                 <div>
-                  <div className="font-medium text-gray-900 dark:text-gray-100 reading:text-amber-900 text-sm sm:text-base">SMS Notifications</div>
-                  <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 reading:text-amber-700 mt-0.5">Receive text message alerts</div>
+                  <div className="font-medium text-foreground text-sm sm:text-base">SMS Notifications</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground mt-0.5">Receive text message alerts</div>
                 </div>
               </div>
               <Switch
@@ -72,12 +72,12 @@ export function NotificationsTab({ notifications, handleNotificationChange }: No
         </div>
 
         <div className="space-y-4 sm:space-y-5">
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100 reading:text-amber-900 text-base sm:text-lg">Event Notifications</h3>
+          <h3 className="font-semibold text-foreground text-base sm:text-lg">Event Notifications</h3>
           <div className="space-y-3 sm:space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-gray-50 dark:bg-slate-700/50 reading:bg-amber-100/50 rounded-lg border border-gray-100 dark:border-slate-600 reading:border-amber-200">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-muted/50 rounded-lg border border-gray-100 dark:border-slate-600">
               <div>
-                <div className="font-medium text-gray-900 dark:text-gray-100 reading:text-amber-900 text-sm sm:text-base">Workflow Success</div>
-                <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 reading:text-amber-700 mt-0.5">When workflows complete successfully</div>
+                <div className="font-medium text-foreground text-sm sm:text-base">Workflow Success</div>
+                <div className="text-xs sm:text-sm text-muted-foreground mt-0.5">When workflows complete successfully</div>
               </div>
               <Switch
                 checked={notifications.workflowSuccess}
@@ -85,10 +85,10 @@ export function NotificationsTab({ notifications, handleNotificationChange }: No
               />
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-gray-50 dark:bg-slate-700/50 reading:bg-amber-100/50 rounded-lg border border-gray-100 dark:border-slate-600 reading:border-amber-200">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-muted/50 rounded-lg border border-gray-100 dark:border-slate-600">
               <div>
-                <div className="font-medium text-gray-900 dark:text-gray-100 reading:text-amber-900 text-sm sm:text-base">Workflow Failure</div>
-                <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 reading:text-amber-700 mt-0.5">When workflows fail or encounter errors</div>
+                <div className="font-medium text-foreground text-sm sm:text-base">Workflow Failure</div>
+                <div className="text-xs sm:text-sm text-muted-foreground mt-0.5">When workflows fail or encounter errors</div>
               </div>
               <Switch
                 checked={notifications.workflowFailure}
@@ -96,10 +96,10 @@ export function NotificationsTab({ notifications, handleNotificationChange }: No
               />
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-gray-50 dark:bg-slate-700/50 reading:bg-amber-100/50 rounded-lg border border-gray-100 dark:border-slate-600 reading:border-amber-200">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-muted/50 rounded-lg border border-gray-100 dark:border-slate-600">
               <div>
-                <div className="font-medium text-gray-900 dark:text-gray-100 reading:text-amber-900 text-sm sm:text-base">Weekly Reports</div>
-                <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 reading:text-amber-700 mt-0.5">Weekly summary of workflow performance</div>
+                <div className="font-medium text-foreground text-sm sm:text-base">Weekly Reports</div>
+                <div className="text-xs sm:text-sm text-muted-foreground mt-0.5">Weekly summary of workflow performance</div>
               </div>
               <Switch
                 checked={notifications.weeklyReport}
@@ -107,10 +107,10 @@ export function NotificationsTab({ notifications, handleNotificationChange }: No
               />
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-gray-50 dark:bg-slate-700/50 reading:bg-amber-100/50 rounded-lg border border-gray-100 dark:border-slate-600 reading:border-amber-200">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-muted/50 rounded-lg border border-gray-100 dark:border-slate-600">
               <div>
-                <div className="font-medium text-gray-900 dark:text-gray-100 reading:text-amber-900 text-sm sm:text-base">Security Alerts</div>
-                <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 reading:text-amber-700 mt-0.5">Important security and account notifications</div>
+                <div className="font-medium text-foreground text-sm sm:text-base">Security Alerts</div>
+                <div className="text-xs sm:text-sm text-muted-foreground mt-0.5">Important security and account notifications</div>
               </div>
               <Switch
                 checked={notifications.securityAlerts}
@@ -121,9 +121,9 @@ export function NotificationsTab({ notifications, handleNotificationChange }: No
         </div>
 
         <div className="flex justify-end pt-4">
-          <Button className="bg-gradient-to-r from-brand-300 to-brand-400 hover:from-brand-400 hover:to-brand-500 dark:from-brand-300 dark:to-brand-400 dark:hover:from-brand-300 dark:hover:to-brand-400 reading:from-amber-600 reading:to-brand-500 reading:hover:from-amber-700 reading:hover:to-brand-600 text-black gap-2 rounded-lg px-6">
+          <Button className="bg-gradient-to-r from-brand-300 to-brand-400 hover:from-brand-400 hover:to-brand-500 dark:from-brand-300 dark:to-brand-400 dark:hover:from-brand-300 dark:hover:to-brand-400 text-black gap-2 rounded-lg px-6">
             <Save className="w-4 h-4" />
-            Save Preferences
+            Save preferences
           </Button>
         </div>
       </CardContent>

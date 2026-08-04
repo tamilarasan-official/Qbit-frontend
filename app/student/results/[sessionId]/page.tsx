@@ -101,7 +101,7 @@ export default function StudentResultsPage() {
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
             Quiz Completed!
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">{session?.quiz?.title}</p>
+          <p className="text-muted-foreground">{session?.quiz?.title}</p>
         </motion.div>
 
         {/* Rank Card */}
@@ -150,7 +150,7 @@ export default function StudentResultsPage() {
                   <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
                     Rank #{rank}
                   </h2>
-                  <p className="text-lg text-gray-600 dark:text-gray-400">
+                  <p className="text-lg text-muted-foreground">
                     out of {totalParticipants} participants
                   </p>
                 </div>
@@ -190,7 +190,7 @@ export default function StudentResultsPage() {
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
                   {participant?.total_score}
                 </p>
-                <p className="text-xs text-gray-600 dark:text-gray-400">Total Score</p>
+                <p className="text-xs text-muted-foreground">Total Score</p>
               </CardContent>
             </Card>
           </motion.div>
@@ -206,7 +206,7 @@ export default function StudentResultsPage() {
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
                   {accuracy.toFixed(0)}%
                 </p>
-                <p className="text-xs text-gray-600 dark:text-gray-400">Accuracy</p>
+                <p className="text-xs text-muted-foreground">Accuracy</p>
               </CardContent>
             </Card>
           </motion.div>
@@ -222,7 +222,7 @@ export default function StudentResultsPage() {
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
                   {participant?.best_streak}
                 </p>
-                <p className="text-xs text-gray-600 dark:text-gray-400">Best Streak</p>
+                <p className="text-xs text-muted-foreground">Best Streak</p>
               </CardContent>
             </Card>
           </motion.div>
@@ -238,7 +238,7 @@ export default function StudentResultsPage() {
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
                   {participant?.correct_answers}/{participant?.questions_answered}
                 </p>
-                <p className="text-xs text-gray-600 dark:text-gray-400">Correct</p>
+                <p className="text-xs text-muted-foreground">Correct</p>
               </CardContent>
             </Card>
           </motion.div>
@@ -326,7 +326,7 @@ export default function StudentResultsPage() {
                         >
                           {p.nickname} {isMe && '(You)'}
                         </p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                        <p className="text-xs text-muted-foreground">
                           {p.correct_answers}/{p.questions_answered} correct
                         </p>
                       </div>

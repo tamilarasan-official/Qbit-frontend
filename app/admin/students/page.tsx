@@ -286,7 +286,7 @@ export default function AdminStudentsPage() {
   };
 
   return (
-    <main className="overflow-hidden bg-slate-50 dark:bg-black min-h-screen transition-colors duration-300">
+    <main className="overflow-hidden bg-background min-h-screen transition-colors duration-300">
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
       <Sidebar isOpen={sidebarOpen} />
 
@@ -315,7 +315,7 @@ export default function AdminStudentsPage() {
                   <h1 className="text-3xl font-bold bg-gradient-to-r from-neutral-900 to-brand-700 bg-clip-text text-transparent">
                     User Management
                   </h1>
-                  <p className="text-gray-600 dark:text-gray-400 mt-2">
+                  <p className="text-muted-foreground mt-2">
                     View and manage all users in the platform (Students, Mentors, Course Masters, Admins)
                   </p>
                 </div>
@@ -326,7 +326,7 @@ export default function AdminStudentsPage() {
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Total Students</p>
+                          <p className="text-sm text-muted-foreground">Total Students</p>
                           <p className="text-3xl font-bold text-gray-900 dark:text-white">{students.length}</p>
                         </div>
                         <Users className="w-10 h-10 text-brand-700" />
@@ -338,7 +338,7 @@ export default function AdminStudentsPage() {
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">With Mentors</p>
+                          <p className="text-sm text-muted-foreground">With Mentors</p>
                           <p className="text-3xl font-bold text-green-600">
                             {students.filter(s => s.assigned_mentor_id).length}
                           </p>
@@ -352,7 +352,7 @@ export default function AdminStudentsPage() {
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Without Mentors</p>
+                          <p className="text-sm text-muted-foreground">Without Mentors</p>
                           <p className="text-3xl font-bold text-brand-700">
                             {students.filter(s => !s.assigned_mentor_id).length}
                           </p>
@@ -400,7 +400,7 @@ export default function AdminStudentsPage() {
                               <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
                                 {student.full_name}
                               </h3>
-                              <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                              <p className="text-sm text-muted-foreground truncate">
                                 {student.email}
                               </p>
 
@@ -411,7 +411,7 @@ export default function AdminStudentsPage() {
                               </div>
 
                               {student.mentor_name && (
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                <p className="text-xs text-muted-foreground mt-2">
                                   Mentor: {student.mentor_name}
                                 </p>
                               )}
@@ -460,7 +460,7 @@ export default function AdminStudentsPage() {
                               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                                 {selectedStudent.full_name}
                               </h2>
-                              <p className="text-gray-600 dark:text-gray-400">{selectedStudent.email}</p>
+                              <p className="text-muted-foreground">{selectedStudent.email}</p>
 
                               <div className="mt-4 flex flex-wrap gap-3">
                                 {(() => {
@@ -586,7 +586,7 @@ export default function AdminStudentsPage() {
                             <CardContent className="p-6">
                               <div className="text-center">
                                 <Trophy className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Total Points</p>
+                                <p className="text-sm text-muted-foreground">Total Points</p>
                                 <p className="text-2xl font-bold text-purple-600">
                                   {studentStats.total_points.toLocaleString()}
                                 </p>
@@ -598,7 +598,7 @@ export default function AdminStudentsPage() {
                             <CardContent className="p-6">
                               <div className="text-center">
                                 <Target className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Quizzes</p>
+                                <p className="text-sm text-muted-foreground">Quizzes</p>
                                 <p className="text-2xl font-bold text-green-600">
                                   {studentStats.quizzes_completed}
                                 </p>
@@ -610,7 +610,7 @@ export default function AdminStudentsPage() {
                             <CardContent className="p-6">
                               <div className="text-center">
                                 <TrendingUp className="w-8 h-8 text-brand-700 mx-auto mb-2" />
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Accuracy</p>
+                                <p className="text-sm text-muted-foreground">Accuracy</p>
                                 <p className="text-2xl font-bold text-brand-700">
                                   {studentStats.total_attempts > 0
                                     ? Math.round((studentStats.correct_answers / studentStats.total_attempts) * 100)
@@ -624,7 +624,7 @@ export default function AdminStudentsPage() {
                             <CardContent className="p-6">
                               <div className="text-center">
                                 <Users className="w-8 h-8 text-brand-700 mx-auto mb-2" />
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Correct/Total</p>
+                                <p className="text-sm text-muted-foreground">Correct/Total</p>
                                 <p className="text-2xl font-bold text-brand-700">
                                   {studentStats.correct_answers}/{studentStats.total_attempts}
                                 </p>
@@ -671,7 +671,7 @@ export default function AdminStudentsPage() {
                                         </h4>
                                       )}
                                       {feedback.mentor_name && (
-                                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                                        <p className="text-sm text-muted-foreground">
                                           For Mentor: {feedback.mentor_name}
                                         </p>
                                       )}

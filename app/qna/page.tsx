@@ -452,7 +452,7 @@ export default function QAFAQPage() {
               primaryButton={
                 <Button className="rounded-2xl bg-white text-brand-800 hover:bg-white/90">
                   <MessageCircle className="mr-2 h-4 w-4" />
-                  Contact Support
+                  Contact support
                 </Button>
               }
             />

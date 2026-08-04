@@ -199,7 +199,7 @@ export default function MentorLobbyPage() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className="border-none shadow-2xl bg-white dark:bg-slate-800">
+          <Card className="border-none shadow-2xl bg-card">
             <CardHeader className="text-center pb-4">
               <CardTitle className="text-slate-900 dark:text-white">Session Code</CardTitle>
             </CardHeader>
@@ -247,7 +247,7 @@ export default function MentorLobbyPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <Card className="border-none shadow-lg bg-white dark:bg-slate-800">
+          <Card className="border-none shadow-lg bg-card">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">

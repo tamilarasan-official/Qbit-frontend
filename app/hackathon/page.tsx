@@ -438,7 +438,7 @@ export default function HackathonPage() {
   }
 
   return (
-    <main className="overflow-hidden bg-slate-50 dark:bg-black reading:bg-amber-50 min-h-screen transition-colors duration-300">
+    <main className="overflow-hidden bg-background min-h-screen transition-colors duration-300">
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
       <Sidebar isOpen={sidebarOpen} />
 
@@ -461,7 +461,7 @@ export default function HackathonPage() {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
                 Hackathon
               </h1>
-              <p className="mt-2 text-gray-600 dark:text-gray-400 reading:text-amber-700">
+              <p className="mt-2 text-muted-foreground">
                 Build amazing projects with your team
               </p>
             </div>
@@ -473,17 +473,17 @@ export default function HackathonPage() {
 
           {loading ? (
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-8 w-8 animate-spin text-primary dark:text-brand-400 reading:text-brand-700" />
+              <Loader2 className="h-8 w-8 animate-spin text-primary dark:text-brand-400" />
             </div>
           ) : myTeam ? (
             /* Team View */
             <div className="max-w-4xl mx-auto space-y-6">
               {/* Team Info Card */}
-              <Card className="border-none shadow-lg rounded-3xl bg-white dark:bg-slate-800 reading:bg-amber-50">
+              <Card className="border-none shadow-lg rounded-3xl bg-card">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div>
-                      <CardTitle className="text-3xl text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                      <CardTitle className="text-3xl text-foreground">
                         {myTeam.team_name}
                       </CardTitle>
                       <CardDescription className="mt-2 text-lg">
@@ -516,11 +516,11 @@ export default function HackathonPage() {
                     <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 dark:from-purple-900/20 dark:to-pink-900/20">
                       <div className="flex items-center gap-2 mb-2">
                         <Target className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                        <h3 className="font-semibold text-foreground">
                           Hackathon Theme
                         </h3>
                       </div>
-                      <p className="text-gray-700 dark:text-gray-300 reading:text-amber-800">
+                      <p className="text-muted-foreground">
                         {myTeam.theme}
                       </p>
                     </div>
@@ -529,7 +529,7 @@ export default function HackathonPage() {
                   {/* Team Members */}
                   <div>
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-semibold text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                      <h3 className="font-semibold text-foreground">
                         Team Members ({myTeam.member_count}/{myTeam.max_members})
                       </h3>
                       {myTeam.member_count < myTeam.max_members && (
@@ -554,8 +554,8 @@ export default function HackathonPage() {
                             <div className={cn(
                               "flex items-center gap-4 p-4 rounded-2xl border-2 transition-all",
                               isCurrentUser
-                                ? "border-brand-400 bg-brand-50 dark:bg-brand-900/20 reading:bg-brand-100"
-                                : "border-gray-200 dark:border-slate-700 reading:border-amber-300"
+                                ?"border-brand-400 bg-brand-50 dark:bg-brand-900/20"
+                                :"border-border"
                             )}>
                               <Avatar className="h-12 w-12 border-2 border-white dark:border-slate-700">
                                 <AvatarFallback className={cn(
@@ -569,7 +569,7 @@ export default function HackathonPage() {
                               </Avatar>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2">
-                                  <p className="font-semibold text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                                  <p className="font-semibold text-foreground">
                                     {getDisplayName(member.full_name, member.email)}
                                   </p>
                                   {isLeader && (
@@ -603,7 +603,7 @@ export default function HackathonPage() {
                       className="rounded-xl"
                     >
                       <X className="h-4 w-4 mr-2" />
-                      Leave Team
+                      Leave team
                     </Button>
                   </div>
                 </CardContent>
@@ -617,13 +617,13 @@ export default function HackathonPage() {
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Card
                     onClick={() => setShowCreateModal(true)}
-                    className="cursor-pointer rounded-3xl border-2 border-dashed transition-all duration-300 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/10 reading:hover:bg-purple-100 h-full"
+                    className="cursor-pointer rounded-3xl border-2 border-dashed transition-all duration-300 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/10 h-full"
                   >
                     <CardContent className="flex flex-col items-center justify-center p-12 text-center">
                       <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500">
                         <Plus className="h-8 w-8 text-white" />
                       </div>
-                      <h3 className="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                      <h3 className="text-2xl font-bold mb-3 text-foreground">
                         Create Team
                       </h3>
                       <p className="text-muted-foreground mb-4">
@@ -640,13 +640,13 @@ export default function HackathonPage() {
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Card
                     onClick={() => setShowJoinModal(true)}
-                    className="cursor-pointer rounded-3xl border-2 border-dashed transition-all duration-300 hover:border-pink-500 hover:bg-pink-50 dark:hover:bg-pink-900/10 reading:hover:bg-pink-100 h-full"
+                    className="cursor-pointer rounded-3xl border-2 border-dashed transition-all duration-300 hover:border-pink-500 hover:bg-pink-50 dark:hover:bg-pink-900/10 h-full"
                   >
                     <CardContent className="flex flex-col items-center justify-center p-12 text-center">
                       <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-pink-500 to-red-500">
                         <LogIn className="h-8 w-8 text-white" />
                       </div>
-                      <h3 className="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                      <h3 className="text-2xl font-bold mb-3 text-foreground">
                         Join Team
                       </h3>
                       <p className="text-muted-foreground mb-4">

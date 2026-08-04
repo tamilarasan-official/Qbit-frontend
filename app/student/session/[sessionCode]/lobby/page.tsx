@@ -225,7 +225,7 @@ export default function StudentLobbyPage() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className="border-none shadow-2xl bg-white dark:bg-slate-800">
+          <Card className="border-none shadow-2xl bg-card">
             <CardContent className="py-12">
               <div className="text-center space-y-4">
                 <motion.div
@@ -264,7 +264,7 @@ export default function StudentLobbyPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <Card className="border-none shadow-lg bg-white dark:bg-slate-800">
+          <Card className="border-none shadow-lg bg-card">
             <CardContent className="py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -290,7 +290,7 @@ export default function StudentLobbyPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <Card className="border-none shadow-lg bg-white dark:bg-slate-800">
+          <Card className="border-none shadow-lg bg-card">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">

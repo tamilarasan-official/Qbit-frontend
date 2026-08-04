@@ -275,7 +275,7 @@ export function Header({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: {
   }
 
   return (
-    <header className="sticky top-0 z-10 flex h-16 items-center gap-3 border-b bg-background/95 px-4 backdrop-blur">
+    <header className="sticky top-0 z-10 flex h-16 items-center gap-3 border-b border-border/70 bg-background/80 px-4 backdrop-blur-xl">
       <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(true)}>
         <Menu className="h-5 w-5" />
       </Button>
@@ -345,44 +345,17 @@ export function Header({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: {
             </DropdownMenu>
           )}
 
-          {/* Theme Toggle */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-2xl">
-                {theme === 'light' && <Sun className="h-5 w-5" />}
-                {theme === 'dark' && <Moon className="h-5 w-5" />}
-                {theme === 'reading' && <BookOpen className="h-5 w-5" />}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Theme</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => setTheme('light')}
-                className="cursor-pointer"
-              >
-                <Sun className="mr-2 h-4 w-4" />
-                <span>Light</span>
-                {theme === 'light' && <span className="ml-auto text-primary">✓</span>}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setTheme('dark')}
-                className="cursor-pointer"
-              >
-                <Moon className="mr-2 h-4 w-4" />
-                <span>Dark</span>
-                {theme === 'dark' && <span className="ml-auto text-primary">✓</span>}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setTheme('reading')}
-                className="cursor-pointer"
-              >
-                <BookOpen className="mr-2 h-4 w-4" />
-                <span>Reading Mode</span>
-                {theme === 'reading' && <span className="ml-auto text-primary">✓</span>}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* Theme toggle. Two themes now, so a menu was one click too many. */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full"
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+            title={theme === 'dark' ? 'Light theme' : 'Dark theme'}
+          >
+            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

@@ -40,6 +40,7 @@ import {
 import { cn } from '@/lib/utils'
 import { createClient } from '@/utils/supabase/client'
 import { browserFileUrl } from '@/utils/storage'
+import { compressImage, describeCompression } from '@/lib/compress-image'
 import { useToast } from '@/components/ui/use-toast'
 
 interface Resource {
@@ -65,6 +66,9 @@ export default function ResourcesManagerPage() {
   const [resources, setResources] = useState<Resource[]>([])
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
   const [uploading, setUploading] = useState(false)
+  // Re-encoding a large image takes a moment; the button says so rather than
+  // appearing to hang.
+  const [compressing, setCompressing] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [description, setDescription] = useState('')
   const [textContent, setTextContent] = useState('')
@@ -232,12 +236,25 @@ export default function ResourcesManagerPage() {
       let fileName = null
       let fileType = null
       let fileSize = null
+      // What the file weighed before compression, for the confirmation toast.
+      let savedFrom: number | null = null
 
       // Upload file if selected
       if (selectedFile) {
+        // Re-encoded in the browser first, so a large scan or photo does not
+        // have to cross the network at full size. The API compresses whatever
+        // reaches it regardless.
+        setCompressing(true)
+        const compressed = await compressImage(selectedFile)
+        setCompressing(false)
+
+        if (compressed.applied) {
+          console.info(`Compressed ${selectedFile.name}: ${describeCompression(compressed)}`)
+        }
+
         const { data: uploaded, error: uploadError } = await supabase.storage
           .from('resources')
-          .upload(selectedFile.name, selectedFile)
+          .upload(compressed.file.name, compressed.file)
 
         if (uploadError || !uploaded) {
           console.error('Upload error:', uploadError)
@@ -256,9 +273,13 @@ export default function ResourcesManagerPage() {
         // the portal listed happily and then 404'd with "File not found": the
         // bytes were stored, just not where the row said.
         publicUrl = uploaded.publicUrl
+        // The row keeps the name a person recognises, but the type and size
+        // must describe what was STORED -- the API re-encodes images, so the
+        // uploaded file's own type and size no longer match the bytes.
         fileName = selectedFile.name
-        fileType = selectedFile.type || 'application/octet-stream'
-        fileSize = selectedFile.size
+        fileType = uploaded.mimeType || selectedFile.type || 'application/octet-stream'
+        fileSize = uploaded.size ?? compressed.file.size
+        savedFrom = uploaded.compression?.applied ? uploaded.compression.originalSize : null
       }
 
       // Save metadata to database
@@ -288,7 +309,9 @@ export default function ResourcesManagerPage() {
       toast({
         title: "Success",
         description: selectedFile
-          ? `${selectedFile.name} has been uploaded successfully`
+          ? savedFrom && fileSize
+            ? `${selectedFile.name} uploaded — compressed from ${formatFileSize(savedFrom)} to ${formatFileSize(fileSize)}`
+            : `${selectedFile.name} has been uploaded successfully`
           : "Text resource has been posted successfully",
       })
 
@@ -385,7 +408,7 @@ export default function ResourcesManagerPage() {
   }
 
   return (
-    <main className="overflow-hidden bg-slate-50 dark:bg-black reading:bg-amber-50 min-h-screen transition-colors duration-300">
+    <main className="overflow-hidden bg-background min-h-screen transition-colors duration-300">
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
       <Sidebar isOpen={sidebarOpen} />
 
@@ -408,7 +431,7 @@ export default function ResourcesManagerPage() {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-neutral-900 to-brand-700 dark:from-white dark:to-brand-400 bg-clip-text text-transparent">
                 Resources Manager
               </h1>
-              <p className="mt-2 text-gray-600 dark:text-gray-400 reading:text-amber-700">
+              <p className="mt-2 text-muted-foreground">
                 Upload and manage learning resources for students
               </p>
             </div>
@@ -423,12 +446,12 @@ export default function ResourcesManagerPage() {
 
           {loading ? (
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-8 w-8 animate-spin text-primary dark:text-brand-400 reading:text-brand-700" />
+              <Loader2 className="h-8 w-8 animate-spin text-primary dark:text-brand-400" />
             </div>
           ) : resources.length === 0 ? (
             <Card className="rounded-3xl p-12 text-center">
               <FileText className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-              <h3 className="text-2xl font-semibold mb-2 text-gray-900 dark:text-gray-100 reading:text-amber-900">
+              <h3 className="text-2xl font-semibold mb-2 text-foreground">
                 No Resources Yet
               </h3>
               <p className="text-muted-foreground mb-6">
@@ -452,7 +475,7 @@ export default function ResourcesManagerPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                 >
-                  <Card className="border-none shadow-lg rounded-3xl bg-white dark:bg-slate-800 reading:bg-amber-50 h-full flex flex-col">
+                  <Card className="border-none shadow-lg rounded-3xl bg-card h-full flex flex-col">
                     <CardHeader>
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
@@ -462,7 +485,7 @@ export default function ResourcesManagerPage() {
                             ) : (
                               <FileText className="h-5 w-5 text-purple-600 dark:text-purple-400 flex-shrink-0" />
                             )}
-                            <CardTitle className="text-lg text-gray-900 dark:text-gray-100 reading:text-amber-900 truncate">
+                            <CardTitle className="text-lg text-foreground truncate">
                               {resource.file_name || (resource.description || 'Text Resource')}
                             </CardTitle>
                           </div>
@@ -483,15 +506,15 @@ export default function ResourcesManagerPage() {
                     <CardContent className="space-y-4 flex-1 flex flex-col">
                       {/* Description */}
                       {resource.description && !resource.text_content && (
-                        <p className="text-sm text-gray-700 dark:text-gray-300 reading:text-amber-800 line-clamp-2">
+                        <p className="text-sm text-muted-foreground line-clamp-2">
                           {resource.description}
                         </p>
                       )}
 
                       {/* Text Content */}
                       {resource.text_content && (
-                        <div className="p-4 bg-slate-50 dark:bg-slate-900 reading:bg-amber-100 rounded-xl">
-                          <p className="text-sm text-gray-700 dark:text-gray-300 reading:text-amber-800 whitespace-pre-wrap">
+                        <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl">
+                          <p className="text-sm text-muted-foreground whitespace-pre-wrap">
                             {resource.text_content}
                           </p>
                         </div>
@@ -516,7 +539,7 @@ export default function ResourcesManagerPage() {
                       <div className="flex-1" />
 
                       {/* Metadata */}
-                      <div className="space-y-2 pt-4 border-t border-gray-200 dark:border-slate-700">
+                      <div className="space-y-2 pt-4 border-t border-border">
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <Calendar className="h-3 w-3" />
                           <span>{formatDate(resource.created_at)}</span>
@@ -695,7 +718,7 @@ export default function ResourcesManagerPage() {
               {uploading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {selectedFile ? 'Uploading...' : 'Posting...'}
+                  {compressing ? 'Compressing...' : selectedFile ? 'Uploading...' : 'Posting...'}
                 </>
               ) : (
                 <>

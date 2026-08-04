@@ -101,14 +101,14 @@ export default function StartLivePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-black">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-brand-700" />
       </div>
     )
   }
 
   return (
-    <main className="overflow-hidden bg-slate-50 dark:bg-black reading:bg-amber-50 min-h-screen transition-colors duration-300">
+    <main className="overflow-hidden bg-background min-h-screen transition-colors duration-300">
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
       <Sidebar isOpen={sidebarOpen} />
 
@@ -136,10 +136,10 @@ export default function StartLivePage() {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              <h1 className="text-3xl font-bold text-foreground">
                 Start Live Session
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+              <p className="text-muted-foreground mt-1">
                 Configure settings and launch a real-time quiz
               </p>
             </div>
@@ -151,7 +151,7 @@ export default function StartLivePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <Card className="mb-6 border-none shadow-lg rounded-2xl bg-white dark:bg-slate-800">
+            <Card className="mb-6 border-none shadow-lg rounded-2xl bg-card">
               <CardHeader className="bg-gradient-to-r from-brand-300 to-brand-400 text-black rounded-t-2xl">
                 <CardTitle>{quiz?.title}</CardTitle>
                 {quiz?.description && (
@@ -161,7 +161,7 @@ export default function StartLivePage() {
                 )}
               </CardHeader>
               <CardContent className="pt-6">
-                <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <div>
                     <span className="font-semibold">{quiz?.questions.length}</span> questions
                   </div>
@@ -174,7 +174,7 @@ export default function StartLivePage() {
             </Card>
 
             {/* Settings */}
-            <Card className="border-none shadow-lg rounded-2xl bg-white dark:bg-slate-800">
+            <Card className="border-none shadow-lg rounded-2xl bg-card">
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <SettingsIcon className="h-5 w-5 text-brand-700" />

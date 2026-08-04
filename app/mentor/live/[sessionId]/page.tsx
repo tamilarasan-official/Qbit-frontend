@@ -194,7 +194,7 @@ export default function MentorLiveControlPage() {
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
                 {session?.quiz?.title}
               </h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-muted-foreground">
                 Question {questionIndex + 1} of {totalQuestions}
               </p>
             </div>
@@ -355,7 +355,7 @@ export default function MentorLiveControlPage() {
 
                   <div className="pt-4 mt-4 border-t dark:border-gray-700">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600 dark:text-gray-400">
+                      <span className="text-muted-foreground">
                         Correct Answers:
                       </span>
                       <span className="font-bold text-green-600">
@@ -452,7 +452,7 @@ export default function MentorLiveControlPage() {
                           <p className="font-semibold text-gray-900 dark:text-white truncate">
                             {participant.nickname}
                           </p>
-                          <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <span>
                               {participant.correct_answers}/{participant.questions_answered}{' '}
                               correct

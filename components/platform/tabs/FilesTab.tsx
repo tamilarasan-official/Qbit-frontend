@@ -16,13 +16,13 @@ export function FilesTab() {
           primaryButton={
             <Button className="rounded-2xl bg-white text-brand-800 hover:bg-white/90">
               <Plus className="mr-2 h-4 w-4" />
-              Upload Files
+              Upload files
             </Button>
           }
           secondaryButton={
             <Button className="rounded-2xl bg-white/20 backdrop-blur-md hover:bg-white/30">
               <Cloud className="mr-2 h-4 w-4" />
-              Cloud Storage
+              Cloud storage
             </Button>
           }
         />
@@ -31,7 +31,7 @@ export function FilesTab() {
       <div className="flex flex-wrap gap-3 mb-6">
         <Button variant="outline" className="rounded-2xl">
           <FileText className="mr-2 h-4 w-4" />
-          All Files
+          All files
         </Button>
         <Button variant="outline" className="rounded-2xl">
           <Clock className="mr-2 h-4 w-4" />

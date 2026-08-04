@@ -219,9 +219,9 @@ export default function QuizPage() {
 
   if (loading) {
     return (
-      <main className="overflow-hidden bg-slate-50 dark:bg-black reading:bg-amber-50 min-h-screen transition-colors duration-300">
+      <main className="overflow-hidden bg-background min-h-screen transition-colors duration-300">
         <div className="flex items-center justify-center min-h-screen">
-          <Loader2 className="h-12 w-12 animate-spin text-primary dark:text-brand-400 reading:text-brand-700" />
+          <Loader2 className="h-12 w-12 animate-spin text-primary dark:text-brand-400" />
         </div>
       </main>
     )
@@ -229,15 +229,15 @@ export default function QuizPage() {
 
   if (error || !quiz) {
     return (
-      <main className="overflow-hidden bg-slate-50 dark:bg-black reading:bg-amber-50 min-h-screen transition-colors duration-300">
+      <main className="overflow-hidden bg-background min-h-screen transition-colors duration-300">
         <div className="flex flex-col items-center justify-center min-h-screen px-4">
           <div className="rounded-full bg-red-100 dark:bg-red-900/20 p-4 mb-4">
             <X className="h-12 w-12 text-red-500" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 reading:text-amber-900 mb-2">
+          <h1 className="text-2xl font-bold text-foreground mb-2">
             Quiz Not Found
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 reading:text-amber-700 mb-6 text-center">
+          <p className="text-muted-foreground mb-6 text-center">
             {error || 'The quiz you are looking for does not exist or is not available'}
           </p>
           <Button onClick={() => router.push('/')} className="rounded-xl">
@@ -256,7 +256,7 @@ export default function QuizPage() {
     }).length
 
     return (
-      <main className="overflow-hidden bg-slate-50 dark:bg-black reading:bg-amber-50 min-h-screen transition-colors duration-300">
+      <main className="overflow-hidden bg-background min-h-screen transition-colors duration-300">
         <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
         <Sidebar isOpen={sidebarOpen} />
 
@@ -279,7 +279,7 @@ export default function QuizPage() {
               transition={{ duration: 0.3 }}
               className="w-full max-w-2xl"
             >
-              <Card className="border-none shadow-2xl rounded-3xl bg-white dark:bg-slate-800 reading:bg-amber-50">
+              <Card className="border-none shadow-2xl rounded-3xl bg-card">
                 <CardContent className="p-8 text-center">
                   <motion.div
                     initial={{ scale: 0 }}
@@ -290,42 +290,42 @@ export default function QuizPage() {
                     <Trophy className="h-12 w-12 text-white" />
                   </motion.div>
 
-                  <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 reading:text-amber-900 mb-2">
+                  <h1 className="text-3xl font-bold text-foreground mb-2">
                     Quiz Completed!
                   </h1>
-                  <p className="text-gray-600 dark:text-gray-400 reading:text-amber-700 mb-8">
+                  <p className="text-muted-foreground mb-8">
                     Great job on completing the quiz
                   </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                    <div className="p-4 rounded-2xl bg-brand-50 dark:bg-brand-900/20 reading:bg-brand-100">
+                    <div className="p-4 rounded-2xl bg-brand-50 dark:bg-brand-900/20">
                       <div className="text-3xl font-bold text-brand-700 dark:text-brand-400 mb-1">
                         {score}%
                       </div>
-                      <div className="text-sm text-brand-800 dark:text-brand-300 reading:text-brand-800">
+                      <div className="text-sm text-brand-800 dark:text-brand-300">
                         Your Score
                       </div>
                     </div>
-                    <div className="p-4 rounded-2xl bg-green-50 dark:bg-green-900/20 reading:bg-green-100">
+                    <div className="p-4 rounded-2xl bg-green-50 dark:bg-green-900/20">
                       <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-1">
                         {correctCount}/{quiz.questions.length}
                       </div>
-                      <div className="text-sm text-green-700 dark:text-green-300 reading:text-green-800">
+                      <div className="text-sm text-green-700 dark:text-green-300">
                         Correct Answers
                       </div>
                     </div>
-                    <div className="p-4 rounded-2xl bg-purple-50 dark:bg-purple-900/20 reading:bg-purple-100">
+                    <div className="p-4 rounded-2xl bg-purple-50 dark:bg-purple-900/20">
                       <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-1">
                         +{correctCount * 10}
                       </div>
-                      <div className="text-sm text-purple-700 dark:text-purple-300 reading:text-purple-800">
+                      <div className="text-sm text-purple-700 dark:text-purple-300">
                         Points Earned
                       </div>
                     </div>
                   </div>
 
                   <div className="space-y-3 mb-8">
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 reading:text-amber-900 text-left">
+                    <h3 className="font-semibold text-foreground text-left">
                       Review Answers:
                     </h3>
                     {quiz.questions.map((question, index) => {
@@ -344,8 +344,8 @@ export default function QuizPage() {
                           className={cn(
                             'p-4 rounded-xl text-left border-2',
                             isCorrect
-                              ? 'border-green-500 bg-green-50 dark:bg-green-900/20 reading:bg-green-100'
-                              : 'border-red-500 bg-red-50 dark:bg-red-900/20 reading:bg-red-100'
+                              ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                              : 'border-red-500 bg-red-50 dark:bg-red-900/20'
                           )}
                         >
                           <div className="flex items-start gap-3">
@@ -362,14 +362,14 @@ export default function QuizPage() {
                               )}
                             </div>
                             <div className="flex-1">
-                              <p className="font-medium text-gray-900 dark:text-gray-100 reading:text-amber-900 mb-2">
+                              <p className="font-medium text-foreground mb-2">
                                 {index + 1}. {question.question}
                               </p>
-                              <p className="text-sm text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                              <p className="text-sm text-muted-foreground">
                                 Your answer: {selectedOption?.text}
                               </p>
                               {!isCorrect && (
-                                <p className="text-sm text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                                <p className="text-sm text-muted-foreground">
                                   Correct answer: {correctOption?.text}
                                 </p>
                               )}
@@ -399,7 +399,7 @@ export default function QuizPage() {
   const progress = ((currentQuestionIndex + 1) / quiz.questions.length) * 100
 
   return (
-    <main className="overflow-hidden bg-slate-50 dark:bg-black reading:bg-amber-50 min-h-screen transition-colors duration-300">
+    <main className="overflow-hidden bg-background min-h-screen transition-colors duration-300">
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
       <Sidebar isOpen={sidebarOpen} />
 
@@ -427,11 +427,11 @@ export default function QuizPage() {
                   {currentQuestionIndex + 1} / {quiz.questions.length}
                 </Badge>
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 reading:text-amber-900">
+              <h1 className="text-3xl font-bold text-foreground">
                 {quiz.title}
               </h1>
               {quiz.description && (
-                <p className="mt-2 text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                <p className="mt-2 text-muted-foreground">
                   {quiz.description}
                 </p>
               )}
@@ -439,7 +439,7 @@ export default function QuizPage() {
 
             {/* Progress Bar */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 reading:text-amber-700">
+              <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <span>Progress</span>
                 <span>{Math.round(progress)}%</span>
               </div>
@@ -455,12 +455,12 @@ export default function QuizPage() {
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.2 }}
               >
-                <Card className="border-none shadow-lg rounded-2xl bg-white dark:bg-slate-800 reading:bg-amber-50">
+                <Card className="border-none shadow-lg rounded-2xl bg-card">
                   <CardHeader>
-                    <CardTitle className="text-2xl text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                    <CardTitle className="text-2xl text-foreground">
                       Question {currentQuestionIndex + 1}
                     </CardTitle>
-                    <CardDescription className="text-lg text-gray-700 dark:text-gray-300 reading:text-amber-800 mt-4">
+                    <CardDescription className="text-lg text-muted-foreground mt-4">
                       {currentQuestion.question}
                     </CardDescription>
                   </CardHeader>
@@ -474,8 +474,8 @@ export default function QuizPage() {
                           className={cn(
                             'w-full p-4 rounded-xl border-2 transition-all text-left flex items-center gap-3 hover:border-brand-400',
                             isSelected
-                              ? 'border-brand-400 bg-brand-50 dark:bg-brand-900/20 reading:bg-brand-100'
-                              : 'border-gray-200 dark:border-slate-700 reading:border-amber-300'
+                              ? 'border-brand-400 bg-brand-50 dark:bg-brand-900/20'
+                              : 'border-border'
                           )}
                         >
                           <div
@@ -483,7 +483,7 @@ export default function QuizPage() {
                               'flex-shrink-0 h-8 w-8 rounded-full border-2 flex items-center justify-center font-semibold',
                               isSelected
                                 ? 'border-brand-400 bg-brand-400 text-black'
-                                : 'border-gray-300 dark:border-slate-600 text-gray-600 dark:text-gray-400'
+                                : 'border-input text-muted-foreground'
                             )}
                           >
                             {getOptionLetter(index)}
@@ -492,8 +492,8 @@ export default function QuizPage() {
                             className={cn(
                               'flex-1 font-medium',
                               isSelected
-                                ? 'text-brand-900 dark:text-brand-200 reading:text-brand-900'
-                                : 'text-gray-700 dark:text-gray-300 reading:text-amber-800'
+                                ? 'text-brand-900 dark:text-brand-200'
+                                : 'text-muted-foreground'
                             )}
                           >
                             {option.text}

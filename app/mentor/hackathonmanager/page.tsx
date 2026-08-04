@@ -194,7 +194,7 @@ export default function HackathonManagerPage() {
   }
 
   return (
-    <main className="overflow-hidden bg-slate-50 dark:bg-black reading:bg-amber-50 min-h-screen transition-colors duration-300">
+    <main className="overflow-hidden bg-background min-h-screen transition-colors duration-300">
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
       <Sidebar isOpen={sidebarOpen} />
 
@@ -217,7 +217,7 @@ export default function HackathonManagerPage() {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
                 Hackathon Manager
               </h1>
-              <p className="mt-2 text-gray-600 dark:text-gray-400 reading:text-amber-700">
+              <p className="mt-2 text-muted-foreground">
                 Manage all hackathon teams and assign themes
               </p>
             </div>
@@ -229,12 +229,12 @@ export default function HackathonManagerPage() {
 
           {loading ? (
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-8 w-8 animate-spin text-primary dark:text-brand-400 reading:text-brand-700" />
+              <Loader2 className="h-8 w-8 animate-spin text-primary dark:text-brand-400" />
             </div>
           ) : teams.length === 0 ? (
             <Card className="rounded-3xl p-12 text-center">
               <Users className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-              <h3 className="text-2xl font-semibold mb-2 text-gray-900 dark:text-gray-100 reading:text-amber-900">
+              <h3 className="text-2xl font-semibold mb-2 text-foreground">
                 No Teams Yet
               </h3>
               <p className="text-muted-foreground">
@@ -251,11 +251,11 @@ export default function HackathonManagerPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                 >
-                  <Card className="border-none shadow-lg rounded-3xl bg-white dark:bg-slate-800 reading:bg-amber-50">
+                  <Card className="border-none shadow-lg rounded-3xl bg-card">
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <CardTitle className="text-2xl text-gray-900 dark:text-gray-100 reading:text-amber-900 mb-2">
+                          <CardTitle className="text-2xl text-foreground mb-2">
                             {team.team_name}
                           </CardTitle>
                           <div className="flex flex-wrap gap-3">
@@ -278,7 +278,7 @@ export default function HackathonManagerPage() {
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-center gap-2">
                             <Target className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                            <h3 className="font-semibold text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                            <h3 className="font-semibold text-foreground">
                               Hackathon Theme
                             </h3>
                           </div>
@@ -335,7 +335,7 @@ export default function HackathonManagerPage() {
                             </div>
                           </div>
                         ) : team.theme ? (
-                          <p className="text-gray-700 dark:text-gray-300 reading:text-amber-800">
+                          <p className="text-muted-foreground">
                             {team.theme}
                           </p>
                         ) : (
@@ -347,7 +347,7 @@ export default function HackathonManagerPage() {
 
                       {/* Team Leader */}
                       <div>
-                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 reading:text-amber-900 mb-3">
+                        <h3 className="font-semibold text-foreground mb-3">
                           Team Leader
                         </h3>
                         <div className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 to-brand-400/10 dark:from-amber-900/20 dark:to-brand-900/20">
@@ -358,7 +358,7 @@ export default function HackathonManagerPage() {
                           </Avatar>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <p className="font-semibold text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                              <p className="font-semibold text-foreground">
                                 {getDisplayName(team.leader_name, team.leader_email)}
                               </p>
                               <Badge className="bg-amber-500 text-white rounded-full">
@@ -375,7 +375,7 @@ export default function HackathonManagerPage() {
 
                       {/* Team Members */}
                       <div>
-                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 reading:text-amber-900 mb-3">
+                        <h3 className="font-semibold text-foreground mb-3">
                           All Members ({team.member_count})
                         </h3>
                         <div className="grid gap-2">
@@ -385,7 +385,7 @@ export default function HackathonManagerPage() {
                             return (
                               <div
                                 key={member.id}
-                                className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 dark:border-slate-700 reading:border-amber-300"
+                                className="flex items-center gap-3 p-3 rounded-xl border border-border"
                               >
                                 <Avatar className="h-10 w-10 border-2 border-white dark:border-slate-700">
                                   <AvatarFallback className={cn(
@@ -399,7 +399,7 @@ export default function HackathonManagerPage() {
                                 </Avatar>
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2">
-                                    <p className="font-medium text-gray-900 dark:text-gray-100 reading:text-amber-900 text-sm">
+                                    <p className="font-medium text-foreground text-sm">
                                       {getDisplayName(member.full_name, member.email)}
                                     </p>
                                     {isLeader && (

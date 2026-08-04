@@ -118,7 +118,7 @@ export default function StudentMentorPage() {
   };
 
   return (
-    <main className="overflow-hidden bg-slate-50 dark:bg-black min-h-screen transition-colors duration-300">
+    <main className="overflow-hidden bg-background min-h-screen transition-colors duration-300">
       {/* Mobile Sidebar */}
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
 
@@ -148,7 +148,7 @@ export default function StudentMentorPage() {
         <h1 className="text-3xl font-bold bg-gradient-to-r from-neutral-900 to-brand-700 bg-clip-text text-transparent">
           My Mentor
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">
+        <p className="text-muted-foreground mt-2">
           Connect with your assigned mentor for guidance and support
         </p>
       </div>
@@ -163,11 +163,11 @@ export default function StudentMentorPage() {
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
               No Mentor Assigned Yet
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-muted-foreground mb-6">
               You haven't been assigned a mentor yet. Please contact the admin or wait for assignment.
             </p>
             <Button variant="outline">
-              Contact Admin
+              Contact admin
             </Button>
           </CardContent>
         </Card>
@@ -195,7 +195,7 @@ export default function StudentMentorPage() {
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
                       {mentor.full_name}
                     </h2>
-                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                    <div className="flex items-center gap-2 text-muted-foreground">
                       <Calendar className="w-4 h-4" />
                       <span className="text-sm">
                         Assigned since {new Date(mentor.assigned_at).toLocaleDateString('en-US', {
@@ -212,14 +212,14 @@ export default function StudentMentorPage() {
                       <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
                         About
                       </h3>
-                      <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                      <p className="text-muted-foreground leading-relaxed">
                         {mentor.bio}
                       </p>
                     </div>
                   )}
 
                   <div className="pt-2">
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-muted-foreground">
                       Currently mentoring <span className="font-semibold text-brand-700">{mentor.student_count}</span> student{mentor.student_count !== 1 ? 's' : ''}
                     </p>
                   </div>
@@ -251,7 +251,7 @@ export default function StudentMentorPage() {
                 </div>
                 <Button asChild size="sm">
                   <a href={`mailto:${mentor.email}`}>
-                    Send Email
+                    Send email
                   </a>
                 </Button>
               </div>
@@ -273,7 +273,7 @@ export default function StudentMentorPage() {
                   </div>
                   <Button asChild size="sm" variant="outline">
                     <a href={`tel:${mentor.phone}`}>
-                      Call
+                      Call mentor
                     </a>
                   </Button>
                 </div>
@@ -296,7 +296,7 @@ export default function StudentMentorPage() {
                 >
                   <a href={`mailto:${mentor.email}?subject=Question from Student`}>
                     <MessageCircle className="w-6 h-6" />
-                    <span>Ask a Question</span>
+                    <span>Ask a question</span>
                   </a>
                 </Button>
 
@@ -307,7 +307,7 @@ export default function StudentMentorPage() {
                 >
                   <a href={`mailto:${mentor.email}?subject=Schedule Meeting Request`}>
                     <Calendar className="w-6 h-6" />
-                    <span>Schedule Meeting</span>
+                    <span>Schedule meeting</span>
                   </a>
                 </Button>
               </div>

@@ -226,7 +226,7 @@ export default function ResourcesPage() {
   const hasActiveFilters = selectedTags.length > 0 || searchQuery.trim() !== ''
 
   return (
-    <main className="overflow-hidden bg-slate-50 dark:bg-black reading:bg-amber-50 min-h-screen transition-colors duration-300">
+    <main className="overflow-hidden bg-background min-h-screen transition-colors duration-300">
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
       <Sidebar isOpen={sidebarOpen} />
 
@@ -248,7 +248,7 @@ export default function ResourcesPage() {
             <h1 className="text-4xl font-bold bg-gradient-to-r from-neutral-900 to-brand-700 dark:from-white dark:to-brand-400 bg-clip-text text-transparent">
               Learning Resources
             </h1>
-            <p className="mt-2 text-gray-600 dark:text-gray-400 reading:text-amber-700">
+            <p className="mt-2 text-muted-foreground">
               Browse and download educational materials
             </p>
           </div>
@@ -280,7 +280,7 @@ export default function ResourcesPage() {
                 className="rounded-xl"
               >
                 <X className="mr-2 h-4 w-4" />
-                Clear Filters
+                Clear filters
               </Button>
             )}
           </div>
@@ -290,9 +290,9 @@ export default function ResourcesPage() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-4 rounded-2xl bg-white dark:bg-slate-800 reading:bg-amber-50 border border-gray-200 dark:border-slate-700"
+              className="p-4 rounded-2xl bg-card border border-border"
             >
-              <h3 className="text-sm font-semibold mb-3 text-gray-900 dark:text-gray-100 reading:text-amber-900">
+              <h3 className="text-sm font-semibold mb-3 text-foreground">
                 Filter by Tags
               </h3>
               <div className="flex flex-wrap gap-2">
@@ -318,7 +318,7 @@ export default function ResourcesPage() {
           {/* Active Filters Display */}
           {selectedTags.length > 0 && (
             <div className="flex flex-wrap gap-2 items-center">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Active filters:</span>
+              <span className="text-sm text-muted-foreground">Active filters:</span>
               {selectedTags.map((tag) => (
                 <Badge
                   key={tag}
@@ -339,12 +339,12 @@ export default function ResourcesPage() {
 
           {loading ? (
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-8 w-8 animate-spin text-primary dark:text-brand-400 reading:text-brand-700" />
+              <Loader2 className="h-8 w-8 animate-spin text-primary dark:text-brand-400" />
             </div>
           ) : filteredResources.length === 0 ? (
             <Card className="rounded-3xl p-12 text-center">
               <FileText className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-              <h3 className="text-2xl font-semibold mb-2 text-gray-900 dark:text-gray-100 reading:text-amber-900">
+              <h3 className="text-2xl font-semibold mb-2 text-foreground">
                 {hasActiveFilters ? 'No Resources Found' : 'No Resources Yet'}
               </h3>
               <p className="text-muted-foreground">
@@ -356,7 +356,7 @@ export default function ResourcesPage() {
           ) : (
             /* Resources Grid */
             <div>
-              <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+              <div className="mb-4 text-sm text-muted-foreground">
                 Showing {filteredResources.length} of {resources.length} resources
               </div>
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -367,7 +367,7 @@ export default function ResourcesPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
                   >
-                    <Card className="border-none shadow-lg rounded-3xl bg-white dark:bg-slate-800 reading:bg-amber-50 h-full flex flex-col">
+                    <Card className="border-none shadow-lg rounded-3xl bg-card h-full flex flex-col">
                       <CardHeader>
                         <div className="flex items-start gap-2">
                           {resource.file_name ? (
@@ -376,7 +376,7 @@ export default function ResourcesPage() {
                             <FileText className="h-5 w-5 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-1" />
                           )}
                           <div className="flex-1 min-w-0">
-                            <CardTitle className="text-lg text-gray-900 dark:text-gray-100 reading:text-amber-900 break-words">
+                            <CardTitle className="text-lg text-foreground break-words">
                               {resource.file_name || (resource.description || 'Text Resource')}
                             </CardTitle>
                             <CardDescription className="text-xs mt-1">
@@ -388,15 +388,15 @@ export default function ResourcesPage() {
                       <CardContent className="space-y-4 flex-1 flex flex-col">
                         {/* Description */}
                         {resource.description && !resource.text_content && (
-                          <p className="text-sm text-gray-700 dark:text-gray-300 reading:text-amber-800 line-clamp-3">
+                          <p className="text-sm text-muted-foreground line-clamp-3">
                             {resource.description}
                           </p>
                         )}
 
                         {/* Text Content */}
                         {resource.text_content && (
-                          <div className="p-4 bg-slate-50 dark:bg-slate-900 reading:bg-amber-100 rounded-xl">
-                            <p className="text-sm text-gray-700 dark:text-gray-300 reading:text-amber-800 whitespace-pre-wrap line-clamp-6">
+                          <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl">
+                            <p className="text-sm text-muted-foreground whitespace-pre-wrap line-clamp-6">
                               {resource.text_content}
                             </p>
                           </div>
@@ -421,7 +421,7 @@ export default function ResourcesPage() {
                         <div className="flex-1" />
 
                         {/* Metadata */}
-                        <div className="space-y-2 pt-4 border-t border-gray-200 dark:border-slate-700">
+                        <div className="space-y-2 pt-4 border-t border-border">
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <Calendar className="h-3 w-3 flex-shrink-0" />
                             <span className="truncate">

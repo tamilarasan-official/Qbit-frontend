@@ -238,7 +238,7 @@ export default function SessionTracker() {
   const progressPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0
 
   return (
-    <main className="overflow-hidden bg-slate-50 dark:bg-black reading:bg-amber-50 min-h-screen">
+    <main className="overflow-hidden bg-background min-h-screen">
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
       <Sidebar isOpen={sidebarOpen} />
 
@@ -257,23 +257,23 @@ export default function SessionTracker() {
         <div className="p-6 space-y-6 max-w-4xl mx-auto">
           {/* Header */}
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 reading:text-amber-900">
+            <h1 className="text-3xl font-bold text-foreground">
               Session Tracker
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 reading:text-amber-700 mt-1">
+            <p className="text-muted-foreground mt-1">
               Track and manage session completions
             </p>
           </div>
 
           {/* Progress Card */}
-          <Card className="border-none shadow-lg rounded-2xl bg-gradient-to-br from-brand-50 to-brand-100 dark:from-brand-900/20 dark:to-brand-900/20 reading:from-brand-100 reading:to-brand-200">
+          <Card className="border-none shadow-lg rounded-2xl bg-gradient-to-br from-brand-50 to-brand-100 dark:from-brand-900/20 dark:to-brand-900/20">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                  <h3 className="text-lg font-semibold text-foreground">
                     Overall Progress
                   </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                  <p className="text-sm text-muted-foreground">
                     {completedCount} of {totalCount} sessions completed
                   </p>
                 </div>
@@ -281,7 +281,7 @@ export default function SessionTracker() {
                   {Math.round(progressPercentage)}%
                 </div>
               </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 reading:bg-amber-200 rounded-full h-3">
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
                 <div
                   className="bg-gradient-to-r from-brand-300 to-brand-400 h-3 rounded-full transition-all duration-500"
                   style={{ width: `${progressPercentage}%` }}
@@ -293,10 +293,10 @@ export default function SessionTracker() {
           {/* Add New Session */}
           <Card className="border-none shadow-lg rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-gray-900 dark:text-gray-100 reading:text-amber-900">
+              <CardTitle className="text-foreground">
                 Add New Session
               </CardTitle>
-              <CardDescription className="text-gray-600 dark:text-gray-400 reading:text-amber-700">
+              <CardDescription className="text-muted-foreground">
                 Create a new session to track
               </CardDescription>
             </CardHeader>
@@ -325,10 +325,10 @@ export default function SessionTracker() {
           {/* Sessions List */}
           <Card className="border-none shadow-lg rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-gray-900 dark:text-gray-100 reading:text-amber-900">
+              <CardTitle className="text-foreground">
                 Sessions
               </CardTitle>
-              <CardDescription className="text-gray-600 dark:text-gray-400 reading:text-amber-700">
+              <CardDescription className="text-muted-foreground">
                 Drag to reorder, click checkbox to mark complete
               </CardDescription>
             </CardHeader>
@@ -340,7 +340,7 @@ export default function SessionTracker() {
               ) : sessions.length === 0 ? (
                 <div className="text-center py-12">
                   <Circle className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                  <p className="text-muted-foreground">
                     No sessions yet. Add your first session above!
                   </p>
                 </div>
@@ -357,8 +357,8 @@ export default function SessionTracker() {
                       className={cn(
                         "group flex items-center gap-3 p-4 rounded-xl border-2 transition-all cursor-move",
                         session.completed
-                          ? "bg-green-50 dark:bg-green-900/20 reading:bg-green-100 border-green-200 dark:border-green-800"
-                          : "bg-white dark:bg-slate-800 reading:bg-amber-50 border-gray-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-600",
+                          ?"bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                          :"bg-card border-border hover:border-brand-300 dark:hover:border-brand-600",
                         draggedItem?.id === session.id && "opacity-50"
                       )}
                     >
@@ -382,8 +382,8 @@ export default function SessionTracker() {
                           className={cn(
                             "font-medium truncate",
                             session.completed
-                              ? "line-through text-gray-500 dark:text-gray-400"
-                              : "text-gray-900 dark:text-gray-100 reading:text-amber-900"
+                              ?"line-through text-muted-foreground"
+                              :"text-foreground"
                           )}
                         >
                           {session.title}
@@ -417,12 +417,12 @@ export default function SessionTracker() {
           </Card>
 
           {/* Instructions */}
-          <Card className="border-none shadow-lg rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 reading:from-purple-100 reading:to-pink-100">
+          <Card className="border-none shadow-lg rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
             <CardContent className="p-6">
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 reading:text-amber-900 mb-3">
+              <h3 className="font-semibold text-foreground mb-3">
                 How to use:
               </h3>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400 reading:text-amber-700">
+              <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-start gap-2">
                   <span className="text-purple-600 dark:text-purple-400">•</span>
                   <span>Add new sessions using the input field above</span>

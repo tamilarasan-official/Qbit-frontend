@@ -371,8 +371,13 @@ export function Sidebar({ isOpen, isMobile = false, onClose, sidebarWidth = 256,
                       key={item.title}
                       href={item.url}
                       className={cn(
-                        "flex w-full items-center justify-between rounded-2xl px-3 py-2 text-sm font-medium hover:bg-muted transition-colors",
-                        currentPath === item.url ? "bg-primary/10 text-primary" : "text-foreground"
+                        // Active nav is a lime chip with ink type -- the same
+                        // move the marketing site makes with its CTA, and the
+                        // only place in the sidebar the brand colour appears.
+                        "flex w-full items-center justify-between rounded-full px-3 py-2 text-sm font-medium transition-all",
+                        currentPath === item.url
+                          ?"bg-brand-400 text-ink font-semibold shadow-soft"
+                          :"text-foreground hover:bg-muted"
                       )}
                     >
                       <div className="flex items-center gap-3">
@@ -395,17 +400,17 @@ export function Sidebar({ isOpen, isMobile = false, onClose, sidebarWidth = 256,
 
       <div className="border-t p-3">
         <div className="space-y-1">
-          <a href="/settings" className="flex w-full items-center gap-3 rounded-2xl px-3 py-2 text-sm font-medium hover:bg-muted">
+          <a href="/settings" className="flex w-full items-center gap-3 rounded-full px-3 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors">
             <Settings className="h-5 w-5" />
             <span>Settings</span>
           </a>
-          <button className="flex w-full items-center gap-2 rounded-2xl px-3 py-2 text-sm font-medium hover:bg-muted overflow-hidden">
+          <button className="flex w-full items-center gap-2 rounded-full px-3 py-2 text-sm font-medium hover:bg-muted overflow-hidden transition-colors">
             <Avatar className="h-6 w-6 flex-shrink-0">
               <AvatarImage src={getAvatarUrl()} alt={getDisplayName()} />
               <AvatarFallback className="text-xs">{getInitials()}</AvatarFallback>
             </Avatar>
             <span className="truncate flex-1 min-w-0 text-left">
-              {loading ? "Loading..." : getDisplayName()}
+              {loading ?"Loading…" : getDisplayName()}
             </span>
             <Badge
               variant="outline"

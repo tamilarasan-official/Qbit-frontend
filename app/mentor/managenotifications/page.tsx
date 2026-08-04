@@ -191,7 +191,7 @@ export default function MentorManageNotifications() {
   }
 
   return (
-    <main className="overflow-hidden bg-slate-50 dark:bg-black reading:bg-amber-50 min-h-screen">
+    <main className="overflow-hidden bg-background min-h-screen">
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
       <Sidebar isOpen={sidebarOpen} />
 
@@ -210,10 +210,10 @@ export default function MentorManageNotifications() {
         <div className="p-6 space-y-6">
           {/* Header */}
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 reading:text-amber-900">
+            <h1 className="text-3xl font-bold text-foreground">
               Manage Notifications
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 reading:text-amber-700 mt-1 flex items-center gap-2">
+            <p className="text-muted-foreground mt-1 flex items-center gap-2">
               Send notifications to your students
               <Badge variant="outline" className="ml-2">
                 <Users className="h-3 w-3 mr-1" />
@@ -225,17 +225,17 @@ export default function MentorManageNotifications() {
           {/* Create Notification */}
           <Card className="border-none shadow-lg rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-gray-900 dark:text-gray-100 reading:text-amber-900 flex items-center gap-2">
+              <CardTitle className="text-foreground flex items-center gap-2">
                 <Bell className="h-5 w-5" />
                 Send New Notification
               </CardTitle>
-              <CardDescription className="text-gray-600 dark:text-gray-400 reading:text-amber-700">
+              <CardDescription className="text-muted-foreground">
                 This will be sent to all your students
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                <label className="text-sm font-medium text-foreground">
                   Title
                 </label>
                 <Input
@@ -248,7 +248,7 @@ export default function MentorManageNotifications() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                <label className="text-sm font-medium text-foreground">
                   Message
                 </label>
                 <Textarea
@@ -287,10 +287,10 @@ export default function MentorManageNotifications() {
           {/* Sent Notifications */}
           <Card className="border-none shadow-lg rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-gray-900 dark:text-gray-100 reading:text-amber-900">
+              <CardTitle className="text-foreground">
                 Sent Notifications ({notifications.length})
               </CardTitle>
-              <CardDescription className="text-gray-600 dark:text-gray-400 reading:text-amber-700">
+              <CardDescription className="text-muted-foreground">
                 View all notifications you've sent
               </CardDescription>
             </CardHeader>
@@ -302,7 +302,7 @@ export default function MentorManageNotifications() {
               ) : notifications.length === 0 ? (
                 <div className="text-center py-12">
                   <Bell className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                  <p className="text-muted-foreground">
                     No notifications sent yet
                   </p>
                 </div>
@@ -311,22 +311,22 @@ export default function MentorManageNotifications() {
                   {notifications.map((notification) => (
                     <div
                       key={notification.id}
-                      className="p-4 rounded-xl border-2 border-gray-200 dark:border-slate-700 reading:border-amber-300 bg-white dark:bg-slate-800 reading:bg-amber-50 hover:border-brand-300 dark:hover:border-brand-600 transition-all"
+                      className="p-4 rounded-xl border-2 border-border bg-card hover:border-brand-300 dark:hover:border-brand-600 transition-all"
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-semibold text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                            <h3 className="font-semibold text-foreground">
                               {notification.title}
                             </h3>
-                            <Badge className="bg-brand-100 text-brand-800 dark:bg-brand-900/30 dark:text-brand-400 reading:bg-brand-200">
+                            <Badge className="bg-brand-100 text-brand-800 dark:bg-brand-900/30 dark:text-brand-400">
                               My Students
                             </Badge>
                           </div>
-                          <p className="text-gray-600 dark:text-gray-400 reading:text-amber-700 text-sm mb-2">
+                          <p className="text-muted-foreground text-sm mb-2">
                             {notification.message}
                           </p>
-                          <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-500 reading:text-amber-600">
+                          <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-500">
                             <Calendar className="h-3 w-3" />
                             {new Date(notification.created_at).toLocaleDateString()} at{' '}
                             {new Date(notification.created_at).toLocaleTimeString()}

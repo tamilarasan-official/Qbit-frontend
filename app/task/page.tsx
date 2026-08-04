@@ -818,7 +818,7 @@ export default function StudentTasksPage() {
   }
 
   return (
-    <main className="overflow-hidden bg-slate-50 dark:bg-black min-h-screen">
+    <main className="overflow-hidden bg-background min-h-screen">
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
       <Sidebar isOpen={sidebarOpen} />
 

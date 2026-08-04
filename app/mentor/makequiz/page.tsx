@@ -499,7 +499,7 @@ export default function MakeQuizPage() {
   }
 
   return (
-    <main className="overflow-hidden bg-slate-50 dark:bg-black reading:bg-amber-50 min-h-screen transition-colors duration-300">
+    <main className="overflow-hidden bg-background min-h-screen transition-colors duration-300">
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
       <Sidebar isOpen={sidebarOpen} />
 
@@ -528,10 +528,10 @@ export default function MakeQuizPage() {
                 <ArrowLeft className="h-4 w-4" />
               </Button>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                <h1 className="text-3xl font-bold text-foreground">
                   Create Quiz
                 </h1>
-                <p className="mt-1 text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                <p className="mt-1 text-muted-foreground">
                   Design and publish quizzes for your students
                 </p>
               </div>
@@ -547,17 +547,17 @@ export default function MakeQuizPage() {
               ) : (
                 <Save className="mr-2 h-4 w-4" />
               )}
-              Save Draft
+              Save draft
             </Button>
           </div>
 
           {/* Quiz Info */}
-          <Card className="border-none shadow-lg rounded-2xl bg-white dark:bg-slate-800 reading:bg-amber-50">
+          <Card className="border-none shadow-lg rounded-2xl bg-card">
             <CardHeader>
-              <CardTitle className="text-gray-900 dark:text-gray-100 reading:text-amber-900">
+              <CardTitle className="text-foreground">
                 Quiz Information
               </CardTitle>
-              <CardDescription className="text-gray-600 dark:text-gray-400 reading:text-amber-700">
+              <CardDescription className="text-muted-foreground">
                 Basic details about your quiz
               </CardDescription>
             </CardHeader>
@@ -588,12 +588,12 @@ export default function MakeQuizPage() {
           {/* Questions */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 reading:text-amber-900">
+              <h2 className="text-2xl font-bold text-foreground">
                 Questions ({quiz.questions.length})
               </h2>
               <Button onClick={addQuestion} className="rounded-xl">
                 <Plus className="mr-2 h-4 w-4" />
-                Add Question
+                Add question
               </Button>
             </div>
 
@@ -606,7 +606,7 @@ export default function MakeQuizPage() {
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <Card className="border-none shadow-lg rounded-2xl bg-white dark:bg-slate-800 reading:bg-amber-50">
+                  <Card className="border-none shadow-lg rounded-2xl bg-card">
                     <CardHeader>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -662,8 +662,8 @@ export default function MakeQuizPage() {
                               className={cn(
                                 'flex items-center gap-2 p-3 rounded-xl border-2 transition-all',
                                 question.correctOptionId === option.id
-                                  ? 'border-green-500 bg-green-50 dark:bg-green-900/20 reading:bg-green-100'
-                                  : 'border-gray-200 dark:border-slate-700 reading:border-amber-300'
+                                  ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                                  : 'border-border'
                               )}
                             >
                               <button
@@ -672,14 +672,14 @@ export default function MakeQuizPage() {
                                   'flex-shrink-0 h-6 w-6 rounded-full border-2 flex items-center justify-center transition-all',
                                   question.correctOptionId === option.id
                                     ? 'border-green-500 bg-green-500'
-                                    : 'border-gray-300 dark:border-slate-600'
+                                    : 'border-input'
                                 )}
                               >
                                 {question.correctOptionId === option.id && (
                                   <Check className="h-4 w-4 text-white" />
                                 )}
                               </button>
-                              <span className="flex-shrink-0 font-medium text-gray-700 dark:text-gray-300 reading:text-amber-800">
+                              <span className="flex-shrink-0 font-medium text-muted-foreground">
                                 {String.fromCharCode(65 + oIndex)}.
                               </span>
                               <Input
@@ -703,7 +703,7 @@ export default function MakeQuizPage() {
                             </div>
                           ))}
                         </div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 reading:text-amber-600">
+                        <p className="text-xs text-muted-foreground">
                           Click the circle to mark the correct answer
                         </p>
                       </div>
@@ -714,20 +714,20 @@ export default function MakeQuizPage() {
             </AnimatePresence>
 
             {quiz.questions.length === 0 && (
-              <Card className="border-2 border-dashed border-gray-300 dark:border-slate-700 reading:border-amber-300 rounded-2xl bg-gray-50 dark:bg-slate-800/50 reading:bg-amber-100/50">
+              <Card className="border-2 border-dashed border-gray-300 dark:border-slate-700 rounded-2xl bg-gray-50 dark:bg-slate-800/50">
                 <CardContent className="flex flex-col items-center justify-center py-12">
-                  <div className="rounded-full bg-gray-200 dark:bg-slate-700 reading:bg-amber-200 p-4 mb-4">
-                    <Plus className="h-8 w-8 text-gray-400 dark:text-gray-500 reading:text-amber-600" />
+                  <div className="rounded-full bg-gray-200 dark:bg-slate-700 p-4 mb-4">
+                    <Plus className="h-8 w-8 text-gray-400 dark:text-gray-500" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 reading:text-amber-900 mb-2">
+                  <h3 className="text-lg font-semibold text-foreground mb-2">
                     No questions yet
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400 reading:text-amber-700 mb-4 text-center">
+                  <p className="text-muted-foreground mb-4 text-center">
                     Start building your quiz by adding questions
                   </p>
                   <Button onClick={addQuestion} className="rounded-xl">
                     <Plus className="mr-2 h-4 w-4" />
-                    Add Your First Question
+                    Add your first question
                   </Button>
                 </CardContent>
               </Card>
@@ -736,19 +736,19 @@ export default function MakeQuizPage() {
 
           {/* Saved Quizzes */}
           <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 reading:text-amber-900">
+            <h2 className="text-2xl font-bold text-foreground">
               Your Quizzes ({savedQuizzes.length})
             </h2>
 
             {loadingQuizzes ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary dark:text-brand-400 reading:text-brand-700" />
+                <Loader2 className="h-8 w-8 animate-spin text-primary dark:text-brand-400" />
               </div>
             ) : savedQuizzes.length === 0 ? (
-              <Card className="border-2 border-dashed border-gray-300 dark:border-slate-700 reading:border-amber-300 rounded-2xl bg-gray-50 dark:bg-slate-800/50 reading:bg-amber-100/50">
+              <Card className="border-2 border-dashed border-gray-300 dark:border-slate-700 rounded-2xl bg-gray-50 dark:bg-slate-800/50">
                 <CardContent className="flex flex-col items-center justify-center py-12">
-                  <FileText className="h-12 w-12 text-gray-400 dark:text-gray-500 reading:text-amber-600 mb-4" />
-                  <p className="text-gray-600 dark:text-gray-400 reading:text-amber-700 text-center">
+                  <FileText className="h-12 w-12 text-gray-400 dark:text-gray-500 mb-4" />
+                  <p className="text-muted-foreground text-center">
                     No saved quizzes yet. Create your first quiz above!
                   </p>
                 </CardContent>
@@ -762,11 +762,11 @@ export default function MakeQuizPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <Card className="border-none shadow-lg rounded-2xl bg-white dark:bg-slate-800 reading:bg-amber-50 hover:shadow-xl transition-shadow">
+                    <Card className="border-none shadow-lg rounded-2xl bg-card hover:shadow-xl transition-shadow">
                       <CardHeader>
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1 min-w-0">
-                            <CardTitle className="text-lg text-gray-900 dark:text-gray-100 reading:text-amber-900 truncate">
+                            <CardTitle className="text-lg text-foreground truncate">
                               {savedQuiz.title}
                             </CardTitle>
                             {savedQuiz.description && (
@@ -789,7 +789,7 @@ export default function MakeQuizPage() {
                       </CardHeader>
                       <CardContent className="space-y-3">
                         {/* Quiz Info */}
-                        <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <FileText className="h-4 w-4" />
                             {savedQuiz.questions.length} questions
@@ -936,7 +936,7 @@ export default function MakeQuizPage() {
             {/* Quiz Code Display */}
             <div className="flex flex-col items-center gap-2">
               <Label className="text-sm text-muted-foreground">Quiz Code</Label>
-              <div className="flex items-center gap-2 p-4 rounded-xl bg-brand-50 dark:bg-brand-900/20 reading:bg-brand-100 w-full justify-center">
+              <div className="flex items-center gap-2 p-4 rounded-xl bg-brand-50 dark:bg-brand-900/20 w-full justify-center">
                 <Badge className="text-2xl font-bold bg-brand-500 hover:bg-brand-600 px-6 py-2">
                   {publishedQuizCode}
                 </Badge>
@@ -946,7 +946,7 @@ export default function MakeQuizPage() {
             {/* QR Code */}
             <div className="flex flex-col items-center gap-2">
               <Label className="text-sm text-muted-foreground">Scan QR Code</Label>
-              <div className="p-4 rounded-xl bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700">
+              <div className="p-4 rounded-xl bg-card border-2 border-border">
                 <QRCodeSVG
                   value={`http://localhost:3000/quiz/${publishedQuizCode}`}
                   size={200}
@@ -994,7 +994,7 @@ export default function MakeQuizPage() {
                 className="flex-1 rounded-xl bg-gradient-to-r from-brand-300 to-brand-400 hover:from-brand-400 hover:to-brand-500"
               >
                 <ExternalLink className="mr-2 h-4 w-4" />
-                View Quiz
+                View quiz
               </Button>
               <Button
                 onClick={() => setShowSuccessDialog(false)}

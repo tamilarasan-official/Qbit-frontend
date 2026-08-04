@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-type Theme = 'light' | 'dark' | 'reading';
+type Theme = 'light' | 'dark';
 
 interface ThemeContextType {
   theme: Theme;
@@ -20,7 +20,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setMounted(true);
     // Load theme from localStorage
     const savedTheme = localStorage.getItem('theme') as Theme | null;
-    if (savedTheme && ['light', 'dark', 'reading'].includes(savedTheme)) {
+    if (savedTheme && ['light', 'dark'].includes(savedTheme)) {
       setTheme(savedTheme);
     } else {
       // Check system preference
@@ -37,6 +37,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     // Update document class
     const root = document.documentElement;
+    // 'reading' is removed too: a browser that stored it before the theme was
+    // retired must not keep the stale class on <html>.
     root.classList.remove('light', 'dark', 'reading');
     root.classList.add(theme);
 
@@ -44,9 +46,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
       const colors = {
-        light: '#ffffff',
-        dark: '#0f172a',
-        reading: '#fef3c7'
+        light: '#FFFAF5',
+        dark: '#121111',
       };
       metaThemeColor.setAttribute('content', colors[theme]);
     }
@@ -54,15 +55,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const toggleTheme = () => {
     setTheme((prevTheme) => {
-      if (prevTheme === 'light') return 'dark';
-      if (prevTheme === 'dark') return 'reading';
-      return 'light';
+      return prevTheme === 'light' ? 'dark' : 'light';
     });
   };
 
   // Prevent flash of wrong theme
   if (!mounted) {
-    return <div className="min-h-screen bg-white" />;
+    return <div className="min-h-screen bg-background" />;
   }
 
   return (

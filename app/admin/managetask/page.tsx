@@ -444,7 +444,7 @@ export default function AdminManageTaskPage() {
   }
 
   return (
-    <main className="overflow-hidden bg-slate-50 dark:bg-black min-h-screen">
+    <main className="overflow-hidden bg-background min-h-screen">
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
       <Sidebar isOpen={sidebarOpen} />
 
@@ -467,7 +467,7 @@ export default function AdminManageTaskPage() {
               <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                 Admin - Manage Tasks
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-2">
+              <p className="text-muted-foreground mt-2">
                 Create and assign tasks to all students across the platform
               </p>
             </div>
@@ -476,7 +476,7 @@ export default function AdminManageTaskPage() {
               <DialogTrigger asChild>
                 <Button className="bg-gradient-to-r from-purple-600 to-pink-600">
                   <Plus className="w-4 h-4 mr-2" />
-                  Create Task
+                  Create task
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -544,7 +544,7 @@ export default function AdminManageTaskPage() {
                       <Label className="text-lg font-semibold">Task Steps</Label>
                       <Button onClick={addStep} size="sm" variant="outline">
                         <Plus className="w-4 h-4 mr-2" />
-                        Add Step
+                        Add step
                       </Button>
                     </div>
 
@@ -686,7 +686,7 @@ export default function AdminManageTaskPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Total Tasks</p>
+                    <p className="text-sm text-muted-foreground">Total Tasks</p>
                     <p className="text-3xl font-bold text-gray-900 dark:text-white">{tasks.length}</p>
                   </div>
                   <ClipboardList className="w-10 h-10 text-purple-600" />
@@ -698,7 +698,7 @@ export default function AdminManageTaskPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Active Tasks</p>
+                    <p className="text-sm text-muted-foreground">Active Tasks</p>
                     <p className="text-3xl font-bold text-green-600">
                       {tasks.filter(t => t.is_active).length}
                     </p>
@@ -712,7 +712,7 @@ export default function AdminManageTaskPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Total Students</p>
+                    <p className="text-sm text-muted-foreground">Total Students</p>
                     <p className="text-3xl font-bold text-pink-600">{students.length}</p>
                   </div>
                   <Users className="w-10 h-10 text-pink-600" />
@@ -760,7 +760,7 @@ export default function AdminManageTaskPage() {
                             </div>
 
                             {task.description && (
-                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                              <p className="text-sm text-muted-foreground mb-2">
                                 {task.description}
                               </p>
                             )}
@@ -815,7 +815,7 @@ export default function AdminManageTaskPage() {
                                       )}
                                     </div>
                                     {step.description && (
-                                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                                      <p className="text-xs text-muted-foreground mb-2">
                                         {step.description}
                                       </p>
                                     )}

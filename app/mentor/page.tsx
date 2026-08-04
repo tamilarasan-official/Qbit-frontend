@@ -210,7 +210,7 @@ export default function MentorDashboard() {
   ]
 
   return (
-    <main className="overflow-hidden bg-slate-50 dark:bg-black reading:bg-amber-50 min-h-screen transition-colors duration-300">
+    <main className="overflow-hidden bg-background min-h-screen transition-colors duration-300">
       {/* Mobile Sidebar */}
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
 
@@ -233,10 +233,10 @@ export default function MentorDashboard() {
           {/* Header Section */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 reading:text-amber-900">
+              <h1 className="text-3xl font-bold text-foreground">
                 Mentor Dashboard
               </h1>
-              <p className="mt-1 text-gray-600 dark:text-gray-400 reading:text-amber-700">
+              <p className="mt-1 text-muted-foreground">
                 Manage your students and track their progress
               </p>
             </div>
@@ -248,7 +248,7 @@ export default function MentorDashboard() {
 
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary dark:text-brand-400 reading:text-brand-700" />
+              <Loader2 className="h-8 w-8 animate-spin text-primary dark:text-brand-400" />
             </div>
           ) : (
             <>
@@ -260,17 +260,17 @@ export default function MentorDashboard() {
                     whileHover={{ scale: 1.02 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <Card className="border-none shadow-lg rounded-2xl bg-white dark:bg-slate-800 reading:bg-amber-50">
+                    <Card className="border-none shadow-lg rounded-2xl bg-card">
                       <CardContent className="p-6">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm font-medium text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                            <p className="text-sm font-medium text-muted-foreground">
                               {stat.title}
                             </p>
-                            <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                            <p className="mt-2 text-3xl font-bold text-foreground">
                               {stat.value}
                             </p>
-                            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 reading:text-amber-600">
+                            <p className="mt-1 text-xs text-muted-foreground">
                               {stat.description}
                             </p>
                           </div>
@@ -290,12 +290,12 @@ export default function MentorDashboard() {
               </div>
 
               {/* Quick Actions */}
-              <Card className="border-none shadow-lg rounded-2xl bg-white dark:bg-slate-800 reading:bg-amber-50">
+              <Card className="border-none shadow-lg rounded-2xl bg-card">
                 <CardHeader>
-                  <CardTitle className="text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                  <CardTitle className="text-foreground">
                     Quick Actions
                   </CardTitle>
-                  <CardDescription className="text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                  <CardDescription className="text-muted-foreground">
                     Common mentor tasks
                   </CardDescription>
                 </CardHeader>
@@ -305,7 +305,7 @@ export default function MentorDashboard() {
                       <Button
                         key={action.label}
                         variant="outline"
-                        className="h-24 flex-col gap-2 rounded-2xl border-2 hover:border-primary dark:border-slate-700 reading:border-amber-300"
+                        className="h-24 flex-col gap-2 rounded-2xl border-2 hover:border-primary dark:border-slate-700"
                         onClick={() => window.location.href = action.href}
                       >
                         <div
@@ -316,7 +316,7 @@ export default function MentorDashboard() {
                         >
                           <action.icon className="h-6 w-6" />
                         </div>
-                        <span className="text-xs font-medium text-gray-700 dark:text-gray-300 reading:text-amber-800">
+                        <span className="text-xs font-medium text-muted-foreground">
                           {action.label}
                         </span>
                       </Button>
@@ -326,26 +326,26 @@ export default function MentorDashboard() {
               </Card>
 
               {/* Recent Activity */}
-              <Card className="border-none shadow-lg rounded-2xl bg-white dark:bg-slate-800 reading:bg-amber-50">
+              <Card className="border-none shadow-lg rounded-2xl bg-card">
                 <CardHeader>
-                  <CardTitle className="text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                  <CardTitle className="text-foreground">
                     Recent Activity
                   </CardTitle>
-                  <CardDescription className="text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                  <CardDescription className="text-muted-foreground">
                     Latest task submissions from your students
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     {recentSubmissions.length === 0 ? (
-                      <p className="text-center text-gray-500 dark:text-gray-400 reading:text-amber-600 py-8">
+                      <p className="text-center text-muted-foreground py-8">
                         No recent activity yet
                       </p>
                     ) : (
                       recentSubmissions.map((submission) => (
                         <div
                           key={submission.id}
-                          className="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-slate-700/50 reading:bg-amber-100/50 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+                          className="flex items-center justify-between p-4 rounded-xl bg-muted/50 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
                         >
                           <div className="flex items-center gap-4 flex-1 min-w-0">
                             <div className={cn(
@@ -360,10 +360,10 @@ export default function MentorDashboard() {
                               )}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="font-medium text-gray-900 dark:text-gray-100 reading:text-amber-900 truncate">
+                              <p className="font-medium text-foreground truncate">
                                 {submission.task_title}
                               </p>
-                              <p className="text-sm text-gray-600 dark:text-gray-400 reading:text-amber-700 truncate">
+                              <p className="text-sm text-muted-foreground truncate">
                                 {submission.student_name}
                               </p>
                             </div>
@@ -380,7 +380,7 @@ export default function MentorDashboard() {
                               {submission.status === 'completed' ? 'Completed' :
                                submission.status === 'in_progress' ? 'In Progress' : 'Pending'}
                             </Badge>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 reading:text-amber-600 mt-1">
+                            <p className="text-xs text-muted-foreground mt-1">
                               {new Date(submission.submitted_at).toLocaleDateString()}
                             </p>
                           </div>

@@ -16,14 +16,14 @@ export function AppsTab() {
           primaryButton={
             <Button className="w-fit rounded-2xl bg-white text-red-700 hover:bg-white/90">
               <Download className="mr-2 h-4 w-4" />
-              Install Desktop App
+              Install desktop app
             </Button>
           }
         />
       </section>
 
       <div className="flex flex-wrap gap-3 mb-6">
-        <Button variant="outline" className="rounded-2xl">All Categories</Button>
+        <Button variant="outline" className="rounded-2xl">All categories</Button>
         <Button variant="outline" className="rounded-2xl">Creative</Button>
         <Button variant="outline" className="rounded-2xl">Video</Button>
         <Button variant="outline" className="rounded-2xl">Web</Button>

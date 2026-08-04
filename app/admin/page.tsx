@@ -148,7 +148,7 @@ export default function AdminDashboard() {
   ]
 
   return (
-    <main className="overflow-hidden bg-slate-50 dark:bg-black reading:bg-amber-50 min-h-screen transition-colors duration-300">
+    <main className="overflow-hidden bg-background min-h-screen transition-colors duration-300">
       {/* Mobile Sidebar */}
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
 
@@ -171,10 +171,10 @@ export default function AdminDashboard() {
           {/* Header Section */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 reading:text-amber-900">
+              <h1 className="text-3xl font-bold text-foreground">
                 Admin Dashboard
               </h1>
-              <p className="mt-1 text-gray-600 dark:text-gray-400 reading:text-amber-700">
+              <p className="mt-1 text-muted-foreground">
                 Manage your platform and monitor performance
               </p>
             </div>
@@ -186,7 +186,7 @@ export default function AdminDashboard() {
 
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary dark:text-brand-400 reading:text-brand-700" />
+              <Loader2 className="h-8 w-8 animate-spin text-primary dark:text-brand-400" />
             </div>
           ) : (
             <>
@@ -198,14 +198,14 @@ export default function AdminDashboard() {
                     whileHover={{ scale: 1.02 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <Card className="border-none shadow-lg rounded-2xl bg-white dark:bg-slate-800 reading:bg-amber-50">
+                    <Card className="border-none shadow-lg rounded-2xl bg-card">
                       <CardContent className="p-6">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm font-medium text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                            <p className="text-sm font-medium text-muted-foreground">
                               {stat.title}
                             </p>
-                            <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                            <p className="mt-2 text-3xl font-bold text-foreground">
                               {stat.value}
                             </p>
                           </div>
@@ -225,26 +225,26 @@ export default function AdminDashboard() {
               </div>
 
               {/* User Management */}
-              <Card className="border-none shadow-lg rounded-2xl bg-white dark:bg-slate-800 reading:bg-amber-50">
+              <Card className="border-none shadow-lg rounded-2xl bg-card">
                 <CardHeader>
-                  <CardTitle className="text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                  <CardTitle className="text-foreground">
                     User Management
                   </CardTitle>
-                  <CardDescription className="text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                  <CardDescription className="text-muted-foreground">
                     Manage user roles and permissions
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     {recentUsers.length === 0 ? (
-                      <p className="text-center text-gray-500 dark:text-gray-400 reading:text-amber-600 py-4">
+                      <p className="text-center text-muted-foreground py-4">
                         No users yet
                       </p>
                     ) : (
                       recentUsers.map((user) => (
                         <div
                           key={user.id}
-                          className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-slate-700/50 reading:bg-amber-100/50"
+                          className="flex items-center justify-between p-3 rounded-xl bg-muted/50"
                         >
                           <div className="flex items-center gap-3 flex-1 min-w-0">
                             <Avatar className="h-10 w-10 flex-shrink-0">
@@ -253,10 +253,10 @@ export default function AdminDashboard() {
                               </AvatarFallback>
                             </Avatar>
                             <div className="flex-1 min-w-0">
-                              <p className="font-medium text-gray-900 dark:text-gray-100 reading:text-amber-900 truncate">
+                              <p className="font-medium text-foreground truncate">
                                 {user.full_name || user.email?.split('@')[0] || 'Anonymous'}
                               </p>
-                              <p className="text-xs text-gray-500 dark:text-gray-400 reading:text-amber-600 truncate">
+                              <p className="text-xs text-muted-foreground truncate">
                                 {user.email}
                               </p>
                             </div>

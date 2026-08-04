@@ -210,7 +210,7 @@ export default function StudentQuizPage() {
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               {session?.quiz?.title}
             </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-muted-foreground">
               Question {questionIndex + 1} of {totalQuestions}
             </p>
           </div>
@@ -258,7 +258,7 @@ export default function StudentQuizPage() {
                       {timeRemaining}s
                     </span>
                   </div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Time Remaining</span>
+                  <span className="text-sm text-muted-foreground">Time Remaining</span>
                 </div>
                 <Progress
                   value={timerPercentage}
@@ -452,7 +452,7 @@ export default function StudentQuizPage() {
                         ? "Time's up! ⏰"
                         : "Answer submitted! ✓"}
                     </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    <p className="text-sm text-muted-foreground mt-1">
                       Waiting for the mentor to advance to the next question...
                     </p>
                   </div>
@@ -479,7 +479,7 @@ export default function StudentQuizPage() {
                     <p className="font-semibold text-gray-900 dark:text-white">
                       {participant?.nickname}
                     </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-muted-foreground">
                       {participant?.correct_answers || 0} / {participant?.questions_answered || 0}{' '}
                       correct
                     </p>

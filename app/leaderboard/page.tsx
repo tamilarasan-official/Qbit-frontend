@@ -240,19 +240,19 @@ export default function LeaderboardPage() {
   const getRankIcon = (rank: number) => {
     if (rank === 1) return (
       <div className="flex flex-col items-center">
-        <Crown className="h-6 w-6 text-amber-600 dark:text-amber-400 reading:text-amber-700" />
+        <Crown className="h-6 w-6 text-amber-600 dark:text-amber-400" />
         <span className="text-xs font-bold text-black mt-0.5">#{rank}</span>
       </div>
     )
     if (rank === 2) return (
       <div className="flex flex-col items-center">
-        <Medal className="h-6 w-6 text-slate-500 dark:text-slate-300 reading:text-slate-600" />
+        <Medal className="h-6 w-6 text-slate-500 dark:text-slate-300" />
         <span className="text-xs font-bold text-black mt-0.5">#{rank}</span>
       </div>
     )
     if (rank === 3) return (
       <div className="flex flex-col items-center">
-        <Medal className="h-6 w-6 text-brand-700 dark:text-brand-400 reading:text-brand-800" />
+        <Medal className="h-6 w-6 text-brand-700 dark:text-brand-400" />
         <span className="text-xs font-bold text-black mt-0.5">#{rank}</span>
       </div>
     )
@@ -292,34 +292,34 @@ export default function LeaderboardPage() {
       icon: Trophy,
       label: 'Your Rank',
       value: currentUser ? `#${currentUser.rank}` : '-',
-      color: 'bg-purple-500/10 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400 reading:bg-purple-100 reading:text-purple-700',
+      color: 'bg-purple-500/10 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400',
       iconColor: 'text-purple-600 dark:text-purple-400'
     },
     {
       icon: Star,
       label: 'Total Points',
       value: currentUser ? currentUser.total_points.toLocaleString() : '-',
-      color: 'bg-brand-400/10 text-brand-700 dark:bg-brand-900/20 dark:text-brand-400 reading:bg-brand-100 reading:text-brand-800',
+      color: 'bg-brand-400/10 text-brand-700 dark:bg-brand-900/20 dark:text-brand-400',
       iconColor: 'text-brand-700 dark:text-brand-400'
     },
     {
       icon: CheckCircle,
       label: 'Quizzes Completed',
       value: currentUser ? currentUser.quizzes_completed.toString() : '-',
-      color: 'bg-green-500/10 text-green-600 dark:bg-green-900/20 dark:text-green-400 reading:bg-green-100 reading:text-green-700',
+      color: 'bg-green-500/10 text-green-600 dark:bg-green-900/20 dark:text-green-400',
       iconColor: 'text-green-600 dark:text-green-400'
     },
     {
       icon: Target,
       label: 'Accuracy',
       value: currentUser ? `${getAccuracy(currentUser.correct_answers, currentUser.total_attempts)}%` : '-',
-      color: 'bg-emerald-500/10 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400 reading:bg-emerald-100 reading:text-emerald-700',
+      color: 'bg-emerald-500/10 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400',
       iconColor: 'text-emerald-600 dark:text-emerald-400'
     },
   ]
 
   return (
-    <main className="overflow-hidden bg-slate-50 dark:bg-black reading:bg-amber-50 min-h-screen transition-colors duration-300">
+    <main className="brand-canvas min-h-screen overflow-hidden bg-background transition-colors duration-300">
       {/* Mobile Sidebar */}
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
 
@@ -345,13 +345,13 @@ export default function LeaderboardPage() {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-neutral-900 to-brand-700 dark:from-white dark:to-brand-400 bg-clip-text text-transparent">
                 {sessionId ? sessionData?.quiz?.title || 'Quiz Results' : 'Leaderboard'}
               </h1>
-              <p className="mt-2 text-gray-600 dark:text-gray-400 reading:text-amber-700">
+              <p className="mt-2 text-muted-foreground">
                 {sessionId
                   ? sessionData?.quiz?.description || 'Final rankings for this quiz session'
                   : 'Compete with others and climb to the top!'}
               </p>
             </div>
-            <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full px-4 py-2 text-sm">
+            <Badge className="rounded-full bg-foreground px-4 py-2 text-sm text-background">
               <Trophy className="mr-2 h-4 w-4" />
               {sessionId ? sessionParticipants.length : leaderboardData.length} {sessionId ? 'Participants' : 'Competitors'}
             </Badge>
@@ -360,7 +360,7 @@ export default function LeaderboardPage() {
           {/* User Stats - Only show for platform leaderboard */}
           {!sessionId && currentUser && (
             <section>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 reading:text-amber-900 mb-4">
+              <h2 className="text-xl font-semibold text-foreground mb-4">
                 Your Performance
               </h2>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -392,10 +392,10 @@ export default function LeaderboardPage() {
           {/* Rank Structure Display - Only show for platform leaderboard */}
           {!sessionId && (
             <section>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 reading:text-amber-900 mb-2">
+              <h2 className="text-lg font-semibold text-foreground mb-2">
                 Rank Structure
               </h2>
-              <p className="text-xs text-gray-600 dark:text-gray-400 reading:text-amber-700 mb-4">
+              <p className="text-xs text-muted-foreground mb-4">
                 Earn points to climb through the ranks and unlock achievements!
               </p>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
@@ -419,9 +419,9 @@ export default function LeaderboardPage() {
                       <Card
                         className={cn(
                           'border-2 transition-all duration-300 rounded-xl relative overflow-hidden',
-                          isCurrentRank && 'border-brand-400 dark:border-brand-400 reading:border-brand-400 shadow-md ring-2 ring-brand-400/20 dark:ring-brand-400/20 reading:ring-brand-400/20',
-                          isUnlocked && !isCurrentRank && 'border-green-500/30 bg-green-50/50 dark:bg-green-900/10 reading:bg-green-100/50',
-                          !isUnlocked && 'border-gray-300 dark:border-slate-700 reading:border-amber-300 opacity-75'
+                          isCurrentRank && 'border-brand-400 dark:border-brand-400 shadow-md ring-2 ring-brand-400/20 dark:ring-brand-400/20',
+                          isUnlocked && !isCurrentRank && 'border-green-500/30 bg-green-50/50 dark:bg-green-900/10',
+                          !isUnlocked && 'border-gray-300 dark:border-slate-700 opacity-75'
                         )}
                       >
                         {/* Background Gradient */}
@@ -437,20 +437,20 @@ export default function LeaderboardPage() {
                             <div className="flex items-center gap-2">
                               <div className={cn(
                                 'flex items-center justify-center rounded-lg text-3xl w-10 h-10',
-                                isUnlocked ? 'bg-white dark:bg-slate-800' : 'bg-gray-100 dark:bg-slate-700 grayscale'
+                                isUnlocked ? 'bg-card' : 'bg-gray-100 dark:bg-slate-700 grayscale'
                               )}>
                                 {rank.emoji}
                               </div>
                               <div>
                                 <h3 className={cn(
                                   'font-bold text-sm',
-                                  isCurrentRank && 'text-brand-700 dark:text-brand-400 reading:text-brand-700',
-                                  isUnlocked && !isCurrentRank && 'text-green-600 dark:text-green-400 reading:text-green-700',
-                                  !isUnlocked && 'text-gray-600 dark:text-gray-400 reading:text-amber-600'
+                                  isCurrentRank && 'text-brand-700 dark:text-brand-400',
+                                  isUnlocked && !isCurrentRank && 'text-green-600 dark:text-green-400',
+                                  !isUnlocked && 'text-muted-foreground'
                                 )}>
                                   {rank.name}
                                 </h3>
-                                <p className="text-[10px] text-gray-500 dark:text-gray-400 reading:text-amber-600">
+                                <p className="text-[10px] text-muted-foreground">
                                   {rank.minPoints.toLocaleString()} - {rank.maxPoints === Infinity ? '∞' : rank.maxPoints.toLocaleString()} pts
                                 </p>
                               </div>
@@ -467,7 +467,7 @@ export default function LeaderboardPage() {
 
                           <p className={cn(
                             'text-[11px] mb-2',
-                            isUnlocked ? 'text-gray-700 dark:text-gray-300 reading:text-amber-800' : 'text-gray-500 dark:text-gray-400 reading:text-amber-600'
+                            isUnlocked ? 'text-muted-foreground' : 'text-muted-foreground'
                           )}>
                             {rank.description}
                           </p>
@@ -476,12 +476,12 @@ export default function LeaderboardPage() {
                           <div className="space-y-1">
                             <div className="flex items-center justify-between text-[10px]">
                               <span className={cn(
-                                isCurrentRank ? 'text-brand-700 dark:text-brand-400 font-medium' : 'text-gray-500 dark:text-gray-400'
+                                isCurrentRank ? 'text-brand-700 dark:text-brand-400 font-medium' : 'text-muted-foreground'
                               )}>
                                 {isCurrentRank ? 'Your Progress' : isUnlocked ? 'Completed' : 'Locked'}
                               </span>
                               <span className={cn(
-                                isCurrentRank ? 'text-brand-700 dark:text-brand-400 font-medium' : 'text-gray-500 dark:text-gray-400'
+                                isCurrentRank ? 'text-brand-700 dark:text-brand-400 font-medium' : 'text-muted-foreground'
                               )}>
                                 {Math.round(progressInRank)}%
                               </span>
@@ -495,7 +495,7 @@ export default function LeaderboardPage() {
                               )}
                             />
                             {isCurrentRank && currentUser && (
-                              <p className="text-[10px] text-gray-600 dark:text-gray-400 mt-0.5">
+                              <p className="text-[10px] text-muted-foreground mt-0.5">
                                 {getRankStats(currentUser.total_points).isMaxRank
                                   ? '🎉 Maximum rank achieved!'
                                   : `${getRankStats(currentUser.total_points).pointsNeeded.toLocaleString()} pts to next`
@@ -525,7 +525,7 @@ export default function LeaderboardPage() {
                       'rounded-2xl transition-all',
                       activeTab === tab.id
                         ? 'bg-gradient-to-r from-brand-300 to-brand-400 hover:from-brand-400 hover:to-brand-500 text-black'
-                        : 'dark:bg-slate-800 dark:text-gray-300 dark:border-slate-700 reading:bg-amber-100 reading:text-amber-900 reading:border-amber-300'
+                        : 'dark:bg-slate-800 dark:text-gray-300 dark:border-slate-700'
                     )}
                   >
                     <tab.icon className="mr-2 h-4 w-4" />
@@ -538,28 +538,28 @@ export default function LeaderboardPage() {
             {/* Leaderboard List */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                <h2 className="text-2xl font-semibold text-foreground">
                   {sessionId ? 'Final Rankings' : `${LEADERBOARD_TABS.find(t => t.id === activeTab)?.label} Rankings`}
                 </h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400 reading:text-amber-600">
+                <p className="text-sm text-muted-foreground">
                   {sessionId ? 'Ranked by total score' : LEADERBOARD_TABS.find(t => t.id === activeTab)?.description}
                 </p>
               </div>
 
               {loading ? (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary dark:text-brand-400 reading:text-brand-700" />
+                  <Loader2 className="h-8 w-8 animate-spin text-primary dark:text-brand-400" />
                 </div>
               ) : error ? (
-                <div className="p-6 text-center rounded-2xl bg-red-50 dark:bg-red-900/20 reading:bg-red-100 border border-red-200 dark:border-red-800 reading:border-red-300">
-                  <p className="text-red-600 dark:text-red-400 reading:text-red-700">{error}</p>
+                <div className="p-6 text-center rounded-2xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                  <p className="text-red-600 dark:text-red-400">{error}</p>
                 </div>
               ) : sessionId ? (
                 // Session-specific leaderboard
                 sessionParticipants.length === 0 ? (
-                  <div className="p-6 text-center rounded-2xl bg-gray-50 dark:bg-slate-800 reading:bg-amber-100 border border-gray-200 dark:border-slate-700 reading:border-amber-300">
-                    <Trophy className="h-12 w-12 mx-auto mb-3 text-gray-400 dark:text-gray-500 reading:text-amber-500" />
-                    <p className="text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                  <div className="p-6 text-center rounded-2xl bg-gray-50 dark:bg-slate-800 border border-border">
+                    <Trophy className="h-12 w-12 mx-auto mb-3 text-gray-400 dark:text-gray-500" />
+                    <p className="text-muted-foreground">
                       No participants in this session yet
                     </p>
                   </div>
@@ -583,8 +583,8 @@ export default function LeaderboardPage() {
                             className={cn(
                               'border-2 transition-all duration-300 rounded-2xl',
                               isTopThree
-                                ? 'border-amber-500/50 bg-gradient-to-r from-amber-50 to-brand-50 dark:from-amber-900/10 dark:to-brand-900/10 reading:from-amber-100 reading:to-brand-100 shadow-lg'
-                                : 'border-transparent bg-white dark:bg-slate-800 reading:bg-amber-50 hover:border-brand-400/20'
+                                ? 'border-amber-500/50 bg-gradient-to-r from-amber-50 to-brand-50 dark:from-amber-900/10 dark:to-brand-900/10 shadow-lg'
+                                : 'border-transparent bg-card hover:border-brand-400/20'
                             )}
                           >
                             <CardContent className="p-6">
@@ -592,10 +592,10 @@ export default function LeaderboardPage() {
                                 {/* Rank */}
                                 <div className={cn(
                                   "flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl",
-                                  participant.rank === 1 && "bg-amber-100 dark:bg-amber-900/30 reading:bg-amber-200",
-                                  participant.rank === 2 && "bg-slate-200 dark:bg-slate-600 reading:bg-slate-300",
-                                  participant.rank === 3 && "bg-brand-100 dark:bg-brand-900/30 reading:bg-brand-200",
-                                  participant.rank > 3 && "bg-muted dark:bg-slate-700 reading:bg-amber-200"
+                                  participant.rank === 1 &&"bg-amber-100 dark:bg-amber-900/30",
+                                  participant.rank === 2 &&"bg-slate-200 dark:bg-slate-600",
+                                  participant.rank === 3 &&"bg-brand-100 dark:bg-brand-900/30",
+                                  participant.rank > 3 &&"bg-muted dark:bg-slate-700"
                                 )}>
                                   {getRankIcon(participant.rank)}
                                 </div>
@@ -609,7 +609,7 @@ export default function LeaderboardPage() {
                                   </Avatar>
                                   <div className="min-w-0 flex-1">
                                     <div className="flex items-center gap-2 flex-wrap">
-                                      <p className="font-bold text-lg text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                                      <p className="font-bold text-lg text-foreground">
                                         {participant.nickname}
                                       </p>
                                       {participant.current_streak > 0 && (
@@ -618,7 +618,7 @@ export default function LeaderboardPage() {
                                         </Badge>
                                       )}
                                     </div>
-                                    <div className="mt-1 flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                                    <div className="mt-1 flex items-center gap-4 text-sm text-muted-foreground">
                                       <div className="flex items-center gap-1">
                                         <CheckCircle className="h-3 w-3" />
                                         {participant.correct_answers}/{participant.questions_answered} correct
@@ -636,7 +636,7 @@ export default function LeaderboardPage() {
                                   <p className="text-2xl font-bold bg-gradient-to-r from-neutral-900 to-brand-700 dark:from-white dark:to-brand-400 bg-clip-text text-transparent">
                                     {participant.total_score.toLocaleString()}
                                   </p>
-                                  <span className="text-xs text-muted-foreground dark:text-gray-500 reading:text-amber-600">
+                                  <span className="text-xs text-muted-foreground dark:text-gray-500">
                                     points
                                   </span>
                                 </div>
@@ -649,9 +649,9 @@ export default function LeaderboardPage() {
                   </div>
                 )
               ) : leaderboardData.length === 0 ? (
-                <div className="p-6 text-center rounded-2xl bg-gray-50 dark:bg-slate-800 reading:bg-amber-100 border border-gray-200 dark:border-slate-700 reading:border-amber-300">
-                  <Trophy className="h-12 w-12 mx-auto mb-3 text-gray-400 dark:text-gray-500 reading:text-amber-500" />
-                  <p className="text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                <div className="p-6 text-center rounded-2xl bg-gray-50 dark:bg-slate-800 border border-border">
+                  <Trophy className="h-12 w-12 mx-auto mb-3 text-gray-400 dark:text-gray-500" />
+                  <p className="text-muted-foreground">
                     No leaderboard data available yet
                   </p>
                 </div>
@@ -679,9 +679,9 @@ export default function LeaderboardPage() {
                           className={cn(
                             'border-2 transition-all duration-300 rounded-2xl',
                             isTopThree
-                              ? 'border-amber-500/50 bg-gradient-to-r from-amber-50 to-brand-50 dark:from-amber-900/10 dark:to-brand-900/10 reading:from-amber-100 reading:to-brand-100 shadow-lg'
-                              : 'border-transparent bg-white dark:bg-slate-800 reading:bg-amber-50 hover:border-brand-400/20',
-                            isCurrentUser && 'ring-2 ring-brand-400 dark:ring-brand-400 reading:ring-brand-400'
+                              ? 'border-amber-500/50 bg-gradient-to-r from-amber-50 to-brand-50 dark:from-amber-900/10 dark:to-brand-900/10 shadow-lg'
+                              : 'border-transparent bg-card hover:border-brand-400/20',
+                            isCurrentUser && 'ring-2 ring-brand-400 dark:ring-brand-400'
                           )}
                         >
                           <CardContent className="p-6">
@@ -689,10 +689,10 @@ export default function LeaderboardPage() {
                               {/* Rank */}
                               <div className={cn(
                                 "flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl",
-                                entry.rank === 1 && "bg-amber-100 dark:bg-amber-900/30 reading:bg-amber-200",
-                                entry.rank === 2 && "bg-slate-200 dark:bg-slate-600 reading:bg-slate-300",
-                                entry.rank === 3 && "bg-brand-100 dark:bg-brand-900/30 reading:bg-brand-200",
-                                entry.rank > 3 && "bg-muted dark:bg-slate-700 reading:bg-amber-200"
+                                entry.rank === 1 &&"bg-amber-100 dark:bg-amber-900/30",
+                                entry.rank === 2 &&"bg-slate-200 dark:bg-slate-600",
+                                entry.rank === 3 &&"bg-brand-100 dark:bg-brand-900/30",
+                                entry.rank > 3 &&"bg-muted dark:bg-slate-700"
                               )}>
                                 {getRankIcon(entry.rank)}
                               </div>
@@ -706,32 +706,32 @@ export default function LeaderboardPage() {
                                 </Avatar>
                                 <div className="min-w-0 flex-1">
                                   <div className="flex items-center gap-2 flex-wrap">
-                                    <p className="font-bold text-lg text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                                    <p className="font-bold text-lg text-foreground">
                                       {displayName}
                                       {isCurrentUser && (
-                                        <span className="ml-2 text-sm font-normal text-brand-700 dark:text-brand-400 reading:text-brand-700">
+                                        <span className="ml-2 text-sm font-normal text-brand-700 dark:text-brand-400">
                                           (You)
                                         </span>
                                       )}
                                     </p>
                                     <Badge className={cn(
                                       "rounded-full text-xs font-semibold border-none bg-black text-white",
-                                      rankInfo.gradient === 'from-green-400 to-emerald-500' && "dark:bg-gradient-to-r dark:from-green-400 dark:to-emerald-500 reading:bg-gradient-to-r reading:from-green-400 reading:to-emerald-500",
-                                      rankInfo.gradient === 'from-emerald-400 to-brand-400' && "dark:bg-gradient-to-r dark:from-emerald-400 dark:to-brand-400 reading:bg-gradient-to-r reading:from-emerald-400 reading:to-brand-400",
-                                      rankInfo.gradient === 'from-amber-400 to-yellow-500' && "dark:bg-gradient-to-r dark:from-amber-400 dark:to-yellow-500 reading:bg-gradient-to-r reading:from-amber-400 reading:to-yellow-500",
-                                      rankInfo.gradient === 'from-brand-200 to-brand-400' && "dark:bg-gradient-to-r dark:from-brand-200 dark:to-brand-400 reading:bg-gradient-to-r reading:from-brand-200 reading:to-brand-400",
-                                      rankInfo.gradient === 'from-brand-200 to-purple-500' && "dark:bg-gradient-to-r dark:from-brand-200 dark:to-purple-500 reading:bg-gradient-to-r reading:from-brand-200 reading:to-purple-500",
-                                      rankInfo.gradient === 'from-purple-400 to-pink-500' && "dark:bg-gradient-to-r dark:from-purple-400 dark:to-pink-500 reading:bg-gradient-to-r reading:from-purple-400 reading:to-pink-500",
-                                      rankInfo.gradient === 'from-brand-200 to-brand-400' && "dark:bg-gradient-to-r dark:from-brand-200 dark:to-brand-400 reading:bg-gradient-to-r reading:from-brand-200 reading:to-brand-400",
-                                      rankInfo.gradient === 'from-brand-300 to-red-500' && "dark:bg-gradient-to-r dark:from-brand-300 dark:to-red-500 reading:bg-gradient-to-r reading:from-brand-300 reading:to-red-500",
-                                      rankInfo.gradient === 'from-yellow-400 to-amber-500' && "dark:bg-gradient-to-r dark:from-yellow-400 dark:to-amber-500 reading:bg-gradient-to-r reading:from-yellow-400 reading:to-amber-500",
-                                      "dark:text-black reading:text-black"
+                                      rankInfo.gradient === 'from-green-400 to-emerald-500' &&"dark:bg-gradient-to-r dark:from-green-400 dark:to-emerald-500",
+                                      rankInfo.gradient === 'from-emerald-400 to-brand-400' &&"dark:bg-gradient-to-r dark:from-emerald-400 dark:to-brand-400",
+                                      rankInfo.gradient === 'from-amber-400 to-yellow-500' &&"dark:bg-gradient-to-r dark:from-amber-400 dark:to-yellow-500",
+                                      rankInfo.gradient === 'from-brand-200 to-brand-400' &&"dark:bg-gradient-to-r dark:from-brand-200 dark:to-brand-400",
+                                      rankInfo.gradient === 'from-brand-200 to-purple-500' &&"dark:bg-gradient-to-r dark:from-brand-200 dark:to-purple-500",
+                                      rankInfo.gradient === 'from-purple-400 to-pink-500' &&"dark:bg-gradient-to-r dark:from-purple-400 dark:to-pink-500",
+                                      rankInfo.gradient === 'from-brand-200 to-brand-400' &&"dark:bg-gradient-to-r dark:from-brand-200 dark:to-brand-400",
+                                      rankInfo.gradient === 'from-brand-300 to-red-500' &&"dark:bg-gradient-to-r dark:from-brand-300 dark:to-red-500",
+                                      rankInfo.gradient === 'from-yellow-400 to-amber-500' &&"dark:bg-gradient-to-r dark:from-yellow-400 dark:to-amber-500",
+                                      "dark:text-black"
                                     )}>
                                       <span className="mr-1">{rankInfo.emoji}</span>
                                       {rankInfo.name}
                                     </Badge>
                                   </div>
-                                  <div className="mt-1 flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 reading:text-amber-700">
+                                  <div className="mt-1 flex items-center gap-4 text-sm text-muted-foreground">
                                     <div className="flex items-center gap-1">
                                       <CheckCircle className="h-3 w-3" />
                                       {entry.quizzes_completed} quizzes
@@ -749,11 +749,11 @@ export default function LeaderboardPage() {
                                 <p className="text-2xl font-bold bg-gradient-to-r from-neutral-900 to-brand-700 dark:from-white dark:to-brand-400 bg-clip-text text-transparent">
                                   {entry.total_points.toLocaleString()}
                                 </p>
-                                <span className="text-xs text-muted-foreground dark:text-gray-500 reading:text-amber-600">
+                                <span className="text-xs text-muted-foreground dark:text-gray-500">
                                   points
                                 </span>
                                 {entry.quiz_points > 0 && (
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 reading:text-amber-600">
+                                  <div className="text-xs text-muted-foreground">
                                     <Zap className="h-3 w-3 inline mr-1" />
                                     {entry.quiz_points} from quizzes
                                   </div>

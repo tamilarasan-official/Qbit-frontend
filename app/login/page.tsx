@@ -66,17 +66,11 @@ export default function LoginPage() {
     checkAuth()
   }, [router, supabase])
 
-  const cycleTheme = () => {
-    if (theme === 'light') setTheme('dark')
-    else if (theme === 'dark') setTheme('reading')
-    else setTheme('light')
-  }
+  const cycleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark')
 
-  const getThemeIcon = () => {
-    if (theme === 'light') return <Sun className="h-5 w-5" />
-    if (theme === 'dark') return <Moon className="h-5 w-5" />
-    return <BookOpen className="h-5 w-5" />
-  }
+  const getThemeIcon = () =>
+    theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />
+
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -154,10 +148,10 @@ export default function LoginPage() {
   // Show loading while checking authentication
   if (checkingAuth) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-black">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+          <div className="animate-spin rounded-full h-10 w-10 border-2 border-border border-t-brand-400 mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading…</p>
         </div>
       </div>
     )
@@ -168,48 +162,78 @@ export default function LoginPage() {
       {/* Theme Toggle Button - Top Right */}
       <button
         onClick={cycleTheme}
-        className="fixed top-6 right-6 z-50 p-3 rounded-xl bg-white/90 dark:bg-slate-800/90 reading:bg-amber-100/90 backdrop-blur-sm border border-gray-200 dark:border-slate-700 reading:border-amber-300 shadow-lg hover:shadow-xl transition-all hover:scale-110 text-gray-700 dark:text-gray-300 reading:text-amber-800"
-        aria-label="Toggle theme"
+        className="pill-chrome fixed top-6 right-6 z-50 p-3 text-foreground transition-all hover:scale-105"
+        aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
       >
         {getThemeIcon()}
       </button>
 
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-black dark:bg-black reading:bg-amber-900">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover opacity-80"
-        >
-          <source src="https://www.pexels.com/download/video/2715412/" type="video/mp4" />
-        </video>
-        
-        <div className="relative z-10 flex flex-col justify-between w-full px-12 py-12 bg-gradient-to-br from-brand-500/40 dark:from-brand-600/40 reading:from-amber-600/40 to-transparent">
+      {/*
+        The panel used to play a stock fire video streamed from pexels.com --
+        off-brand, and a third-party request on the sign-in page. It is now the
+        ink surface with the lime bloom the marketing site uses.
+      */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-ink">
+        <div
+          aria-hidden="true"
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              'radial-gradient(38rem 38rem at 18% 12%, hsl(var(--brand) / 0.30), transparent 62%), radial-gradient(30rem 30rem at 88% 92%, hsl(var(--brand) / 0.16), transparent 60%)',
+          }}
+        />
+        {/* Faint grid, so the panel has texture without an image. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage:
+              'linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)',
+            backgroundSize: '56px 56px',
+          }}
+        />
+
+        <div className="relative z-10 flex flex-col justify-between w-full px-14 py-14">
           <div className="flex items-center gap-4">
             <img
               src={brand.logo.wordmarkDark}
               alt={brand.displayName}
               className="h-9 w-auto select-none"
             />
-            <span className="h-8 w-px bg-white/25" aria-hidden="true" />
-            <p className="text-sm font-medium uppercase tracking-[0.14em] text-white/85">
+            <span className="h-8 w-px bg-white/20" aria-hidden="true" />
+            <p className="text-sm font-medium uppercase tracking-[0.14em] text-white/70">
               {brand.partner}
             </p>
           </div>
 
           <div className="flex-1 flex flex-col justify-center">
-            <h2 className="text-5xl font-bold text-white mb-6 leading-tight">
-              Master Skills Through <span className="text-brand-400 dark:text-brand-400 reading:text-amber-300">Interactive Quizzes</span>
+            <h2 className="text-[3.4rem] font-extrabold text-white leading-[1.05] tracking-tight">
+              Learn by
+              <br />
+              <span className="text-brand-400">building things.</span>
             </h2>
-            <p className="text-white/95 text-lg leading-relaxed max-w-md">
-              Test your knowledge, track your progress, and unlock your potential with our comprehensive quiz platform.
+            <p className="mt-6 text-white/70 text-lg leading-relaxed max-w-md">
+              Tasks from your mentor, live quizzes with your batch, and a
+              leaderboard that actually keeps score.
             </p>
+
+            <div className="mt-10 flex flex-wrap gap-2.5">
+              {['Mentor-assigned tasks', 'Live quizzes', 'Leaderboard', 'Hackathons'].map((f) => (
+                <span
+                  key={f}
+                  className="rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80 backdrop-blur"
+                >
+                  {f}
+                </span>
+              ))}
+            </div>
           </div>
+
+          <p className="text-sm text-white/40">{brand.tagline}</p>
         </div>
       </div>
 
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-slate-50 dark:bg-black reading:bg-amber-50 transition-colors duration-300">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-background transition-colors duration-300">
         <div className="w-full max-w-md space-y-8">
           <div className="lg:hidden text-center mb-8">
             <BrandWordmark className="mx-auto mb-3 h-10" priority />
@@ -225,25 +249,25 @@ export default function LoginPage() {
                   type="button"
                   variant="ghost"
                   onClick={() => setCurrentView("login")}
-                  className="absolute left-8 top-8 p-2 rounded-xl hover:bg-brand-100 dark:hover:bg-slate-700 reading:hover:bg-amber-200 text-gray-900 dark:text-gray-100 reading:text-amber-900"
+                  className="absolute left-8 top-8 rounded-full"
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
               )}
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 reading:text-amber-900">
-                {currentView === "login" && "Welcome Back"}
-                {currentView === "register" && "Create Account"}
-                {currentView === "forgot" && "Reset Password"}
+              <h2 className="text-4xl font-extrabold tracking-tight text-foreground">
+                {currentView ==="login" &&"Welcome back"}
+                {currentView ==="register" &&"Create account"}
+                {currentView ==="forgot" &&"Reset your password"}
               </h2>
-              <p className="text-gray-600 dark:text-gray-400 reading:text-amber-700">
+              <p className="text-muted-foreground">
                 {currentView === "login" && "Sign in to continue your learning journey."}
-                {currentView === "register" && "Join thousands of learners mastering new skills."}
+                {currentView ==="register" &&"Set a password and get started."}
                 {currentView === "forgot" && "Enter your email address and we'll send you a reset link."}
               </p>
             </div>
 
             {error && (
-              <div className="p-3 text-sm text-red-600 dark:text-red-400 reading:text-red-700 bg-red-50 dark:bg-red-900/20 reading:bg-red-100 border border-red-200 dark:border-red-800 reading:border-red-300 rounded-xl">
+              <div className="rounded-2xl border border-destructive/25 bg-destructive/10 p-3.5 text-sm font-medium text-destructive">
                 {error}
               </div>
             )}
@@ -251,7 +275,7 @@ export default function LoginPage() {
             <div className="space-y-4">
               {currentView === "register" && (
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm font-medium text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                  <Label htmlFor="name" className="text-sm font-semibold text-foreground">
                     Full Name
                   </Label>
                   <Input
@@ -260,13 +284,13 @@ export default function LoginPage() {
                     type="text"
                     placeholder="John Doe"
                     required
-                    className="h-12 bg-white dark:bg-slate-800 reading:bg-amber-50 border-gray-300 dark:border-slate-600 reading:border-amber-300 text-gray-900 dark:text-gray-100 reading:text-amber-900 placeholder:text-gray-400 dark:placeholder:text-gray-500 reading:placeholder:text-amber-600 focus:ring-2 focus:ring-brand-400 dark:focus:ring-brand-500 reading:focus:ring-amber-500 focus:border-brand-400 dark:focus:border-brand-500 reading:focus:border-amber-500 rounded-xl"
+                    className="h-12"
                   />
                 </div>
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                <Label htmlFor="email" className="text-sm font-semibold text-foreground">
                   Email
                 </Label>
                 <Input
@@ -275,13 +299,13 @@ export default function LoginPage() {
                   type="email"
                   placeholder="user@company.com"
                   required
-                  className="h-12 bg-white dark:bg-slate-800 reading:bg-amber-50 border-gray-300 dark:border-slate-600 reading:border-amber-300 text-gray-900 dark:text-gray-100 reading:text-amber-900 placeholder:text-gray-400 dark:placeholder:text-gray-500 reading:placeholder:text-amber-600 focus:ring-2 focus:ring-brand-400 dark:focus:ring-brand-500 reading:focus:ring-amber-500 focus:border-brand-400 dark:focus:border-brand-500 reading:focus:border-amber-500 rounded-xl"
+                  className="h-12"
                 />
               </div>
 
               {currentView !== "forgot" && (
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-medium text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                  <Label htmlFor="password" className="text-sm font-semibold text-foreground">
                     Password
                   </Label>
                   <div className="relative">
@@ -291,7 +315,7 @@ export default function LoginPage() {
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter password"
                       required
-                      className="h-12 pr-10 bg-white dark:bg-slate-800 reading:bg-amber-50 border-gray-300 dark:border-slate-600 reading:border-amber-300 text-gray-900 dark:text-gray-100 reading:text-amber-900 placeholder:text-gray-400 dark:placeholder:text-gray-500 reading:placeholder:text-amber-600 focus:ring-2 focus:ring-brand-400 dark:focus:ring-brand-500 reading:focus:ring-amber-500 focus:border-brand-400 dark:focus:border-brand-500 reading:focus:border-amber-500 rounded-xl"
+                      className="h-12 pr-12"
                     />
                     <Button
                       type="button"
@@ -301,9 +325,9 @@ export default function LoginPage() {
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? (
-                        <EyeOff className="h-4 w-4 text-gray-500 dark:text-gray-400 reading:text-amber-600" />
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
                       ) : (
-                        <Eye className="h-4 w-4 text-gray-500 dark:text-gray-400 reading:text-amber-600" />
+                        <Eye className="h-4 w-4 text-muted-foreground" />
                       )}
                     </Button>
                   </div>
@@ -312,7 +336,7 @@ export default function LoginPage() {
 
               {currentView === "register" && (
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-900 dark:text-gray-100 reading:text-amber-900">
+                  <Label htmlFor="confirmPassword" className="text-sm font-semibold text-foreground">
                     Confirm Password
                   </Label>
                   <div className="relative">
@@ -322,7 +346,7 @@ export default function LoginPage() {
                       type={showConfirmPassword ? "text" : "password"}
                       placeholder="Confirm password"
                       required
-                      className="h-12 pr-10 bg-white dark:bg-slate-800 reading:bg-amber-50 border-gray-300 dark:border-slate-600 reading:border-amber-300 text-gray-900 dark:text-gray-100 reading:text-amber-900 placeholder:text-gray-400 dark:placeholder:text-gray-500 reading:placeholder:text-amber-600 focus:ring-2 focus:ring-brand-400 dark:focus:ring-brand-500 reading:focus:ring-amber-500 focus:border-brand-400 dark:focus:border-brand-500 reading:focus:border-amber-500 rounded-xl"
+                      className="h-12 pr-12"
                     />
                     <Button
                       type="button"
@@ -332,9 +356,9 @@ export default function LoginPage() {
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     >
                       {showConfirmPassword ? (
-                        <EyeOff className="h-4 w-4 text-gray-500 dark:text-gray-400 reading:text-amber-600" />
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
                       ) : (
-                        <Eye className="h-4 w-4 text-gray-500 dark:text-gray-400 reading:text-amber-600" />
+                        <Eye className="h-4 w-4 text-muted-foreground" />
                       )}
                     </Button>
                   </div>
@@ -344,14 +368,15 @@ export default function LoginPage() {
 
             <Button
               type="submit"
+              variant="brand"
               disabled={loading}
-              className="w-full h-12 text-sm font-semibold text-black bg-gradient-to-r from-brand-300 to-brand-400 hover:from-brand-400 hover:to-brand-500 dark:from-brand-400 dark:to-brand-500 dark:hover:from-brand-300 dark:hover:to-brand-400 reading:from-brand-400 reading:to-brand-500 reading:hover:from-brand-500 reading:hover:to-brand-600 rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
+              className="w-full h-12 text-base"
             >
-              {loading ? "Processing..." : (
+              {loading ? (currentView ==="login" ?"Signing you in…" : currentView ==="register" ?"Creating your account…" :"Sending…") : (
                 <>
-                  {currentView === "login" && "Log In"}
-                  {currentView === "register" && "Create Account"}
-                  {currentView === "forgot" && "Send Reset Link"}
+                  {currentView ==="login" &&"Sign in"}
+                  {currentView ==="register" &&"Create account"}
+                  {currentView ==="forgot" &&"Send reset link"}
                 </>
               )}
             </Button>
@@ -360,11 +385,11 @@ export default function LoginPage() {
               <>
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <Separator className="w-full bg-gray-200 dark:bg-slate-700 reading:bg-amber-300" />
+                    <Separator className="w-full bg-border" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-slate-50 dark:bg-black reading:bg-amber-50 px-2 text-gray-500 dark:text-gray-400 reading:text-amber-600">
-                      Or {currentView === "login" ? "Login" : "Sign Up"} With
+                    <span className="bg-background px-3 text-muted-foreground">
+                      or continue with
                     </span>
                   </div>
                 </div>
@@ -374,7 +399,7 @@ export default function LoginPage() {
                   variant="outline"
                   onClick={handleGoogleSignIn}
                   disabled={googleLoading || loading}
-                  className="w-full h-12 bg-white dark:bg-slate-800 reading:bg-amber-50 border-gray-300 dark:border-slate-600 reading:border-amber-300 hover:bg-brand-50 dark:hover:bg-slate-700 reading:hover:bg-amber-100 text-gray-900 dark:text-gray-100 reading:text-amber-900 rounded-xl shadow-sm hover:shadow transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full h-12 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {!googleLoading && (
                     <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
@@ -396,48 +421,48 @@ export default function LoginPage() {
                       />
                     </svg>
                   )}
-                  {googleLoading ? "Connecting to Google..." : "Continue with Google"}
+                  {googleLoading ?"Opening Google…" :"Continue with Google"}
                 </Button>
               </>
             )}
 
-            <div className="text-center text-sm text-gray-600 dark:text-gray-400 reading:text-amber-700">
+            <div className="text-center text-sm text-muted-foreground">
               {currentView === "login" && (
                 <>
-                  Don't Have An Account?{" "}
+                  New here?{""}
                   <Button
                     type="button"
                     variant="link"
-                    className="p-0 h-auto text-sm font-semibold text-brand-700 hover:text-brand-800 dark:text-brand-400 dark:hover:text-brand-400 reading:text-brand-800 reading:hover:text-brand-800"
+                    className="p-0 h-auto text-sm font-semibold text-brand-700 dark:text-brand-400 underline underline-offset-4"
                     onClick={() => setCurrentView("register")}
                   >
-                    Register Now.
+                    Create an account
                   </Button>
                 </>
               )}
               {currentView === "register" && (
                 <>
-                  Already Have An Account?{" "}
+                  Already have an account?{""}
                   <Button
                     type="button"
                     variant="link"
-                    className="p-0 h-auto text-sm font-semibold text-brand-700 hover:text-brand-800 dark:text-brand-400 dark:hover:text-brand-400 reading:text-brand-800 reading:hover:text-brand-800"
+                    className="p-0 h-auto text-sm font-semibold text-brand-700 dark:text-brand-400 underline underline-offset-4"
                     onClick={() => setCurrentView("login")}
                   >
-                    Sign In.
+                    Sign in
                   </Button>
                 </>
               )}
               {currentView === "forgot" && (
                 <>
-                  Remember Your Password?{" "}
+                  Remembered your password?{""}
                   <Button
                     type="button"
                     variant="link"
-                    className="p-0 h-auto text-sm font-semibold text-brand-700 hover:text-brand-800 dark:text-brand-400 dark:hover:text-brand-400 reading:text-brand-800 reading:hover:text-brand-800"
+                    className="p-0 h-auto text-sm font-semibold text-brand-700 dark:text-brand-400 underline underline-offset-4"
                     onClick={() => setCurrentView("login")}
                   >
-                    Back to Login.
+                    Back to sign in
                   </Button>
                 </>
               )}

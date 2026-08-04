@@ -376,7 +376,7 @@ export default function AdminManageFeedbackPage() {
   };
 
   return (
-    <main className="overflow-hidden bg-slate-50 dark:bg-black reading:bg-amber-50 min-h-screen">
+    <main className="overflow-hidden bg-background min-h-screen">
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
       <Sidebar isOpen={sidebarOpen} />
 
@@ -396,10 +396,10 @@ export default function AdminManageFeedbackPage() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 reading:text-amber-900">
+              <h1 className="text-3xl font-bold text-foreground">
                 Manage Feedback Sessions
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 reading:text-amber-700 mt-1">
+              <p className="text-muted-foreground mt-1">
                 Create and manage feedback sessions for events, workshops, and programs
               </p>
             </div>
@@ -407,7 +407,7 @@ export default function AdminManageFeedbackPage() {
               <DialogTrigger asChild>
                 <Button className="bg-gradient-to-r from-brand-300 to-brand-400">
                   <Plus className="w-4 h-4 mr-2" />
-                  Create Session
+                  Create session
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -572,15 +572,15 @@ export default function AdminManageFeedbackPage() {
             <Card>
               <CardContent className="flex flex-col items-center justify-center py-12">
                 <MessageSquare className="w-12 h-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                <h3 className="text-lg font-semibold text-foreground mb-2">
                   No feedback sessions yet
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400 text-center mb-4">
+                <p className="text-muted-foreground text-center mb-4">
                   Create your first feedback session to start collecting feedback
                 </p>
                 <Button onClick={() => setShowCreateDialog(true)}>
                   <Plus className="w-4 h-4 mr-2" />
-                  Create Session
+                  Create session
                 </Button>
               </CardContent>
             </Card>
@@ -599,14 +599,14 @@ export default function AdminManageFeedbackPage() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                      <div className="flex items-center gap-2 text-muted-foreground">
                         <Users className="w-4 h-4" />
                         <span>{session.response_count} responses</span>
                       </div>
                       {session.avg_rating > 0 && (
                         <div className="flex items-center gap-1">
                           <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          <span className="text-gray-900 dark:text-gray-100 font-medium">
+                          <span className="text-foreground font-medium">
                             {session.avg_rating.toFixed(1)}
                           </span>
                         </div>

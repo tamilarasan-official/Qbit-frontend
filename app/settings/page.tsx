@@ -107,7 +107,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <main className="overflow-hidden bg-slate-50 dark:bg-black reading:bg-amber-50 transition-colors duration-300">
+    <main className="overflow-hidden bg-background transition-colors duration-300">
       {/* Mobile Sidebar */}
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
       {/* Desktop Sidebar */}
@@ -125,14 +125,14 @@ export default function SettingsPage() {
             {/* Header */}
             <div className="mb-6 sm:mb-8">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-brand-300 to-brand-400 dark:from-brand-300 dark:to-brand-400 reading:from-amber-600 reading:to-brand-500 flex items-center justify-center shadow-lg">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-brand-300 to-brand-400 dark:from-brand-300 dark:to-brand-400 flex items-center justify-center shadow-lg">
                   <SettingsIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-neutral-900 via-neutral-800 to-brand-700 dark:from-white dark:via-brand-200 dark:to-brand-400 reading:from-amber-600 reading:via-brand-900 reading:to-yellow-600 bg-clip-text text-transparent">
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-neutral-900 via-neutral-800 to-brand-700 dark:from-white dark:via-brand-200 dark:to-brand-400 bg-clip-text text-transparent">
                     Settings
                   </h1>
-                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 reading:text-amber-700 mt-1">Manage your account preferences and configuration</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">Manage your account preferences and configuration</p>
                 </div>
               </div>
             </div>
@@ -152,38 +152,38 @@ export default function SettingsPage() {
                         className={cn(
                           "w-full text-left p-4 rounded-2xl transition-all duration-200 group",
                           isActive
-                            ? "bg-gradient-to-r from-brand-300 to-brand-400 dark:from-brand-300 dark:to-brand-400 reading:from-amber-600 reading:to-brand-500 text-black shadow-lg scale-[1.02]"
-                            : "bg-white/70 dark:bg-slate-800/70 reading:bg-amber-100/70 hover:bg-white dark:hover:bg-slate-800 reading:hover:bg-amber-100 border border-gray-100 dark:border-slate-700 reading:border-amber-200 hover:shadow-md hover:scale-[1.01]"
+                            ?"bg-brand-400 text-ink shadow-soft scale-[1.02]"
+                            :"bg-card/70 hover:bg-card border border-border hover:shadow-soft hover:scale-[1.01]"
                         )}
                       >
                         <div className="flex items-center gap-3">
                           <div className={cn(
                             "w-10 h-10 rounded-xl flex items-center justify-center transition-all",
                             isActive
-                              ? "bg-white/20"
-                              : "bg-brand-100 dark:bg-brand-900/30 reading:bg-amber-200 group-hover:scale-110"
+                              ?"bg-ink/10"
+                              :"bg-brand-100 dark:bg-brand-900/30 group-hover:scale-110"
                           )}>
                             <Icon className={cn(
                               "w-5 h-5",
                               isActive
-                                ? "text-white"
-                                : "text-brand-700 dark:text-brand-400 reading:text-amber-600"
+                                ?"text-ink"
+                                :"text-brand-700 dark:text-brand-400"
                             )} />
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className={cn(
                               "font-semibold text-sm truncate",
                               isActive
-                                ? "text-white"
-                                : "text-gray-900 dark:text-gray-100 reading:text-amber-900"
+                                ?"text-ink"
+                                :"text-foreground"
                             )}>
                               {section.label}
                             </div>
                             <div className={cn(
                               "text-xs truncate",
                               isActive
-                                ? "text-white/80"
-                                : "text-gray-500 dark:text-gray-400 reading:text-amber-700"
+                                ?"text-ink/70"
+                                :"text-muted-foreground"
                             )}>
                               {section.description}
                             </div>
@@ -209,8 +209,8 @@ export default function SettingsPage() {
                           className={cn(
                             "flex items-center gap-2 px-4 py-3 rounded-xl transition-all duration-200 whitespace-nowrap text-sm font-medium",
                             isActive
-                              ? "bg-gradient-to-r from-brand-300 to-brand-400 dark:from-brand-300 dark:to-brand-400 reading:from-amber-600 reading:to-brand-500 text-black shadow-lg"
-                              : "bg-white/70 dark:bg-slate-800/70 reading:bg-amber-100/70 text-gray-700 dark:text-gray-300 reading:text-amber-900 border border-gray-200 dark:border-slate-700 reading:border-amber-200"
+                              ?"bg-brand-400 text-ink shadow-soft"
+                              :"bg-card/70 text-gray-700 dark:text-gray-300 border border-border"
                           )}
                         >
                           <Icon className="w-4 h-4" />

@@ -392,7 +392,7 @@ export default function FeedbackPage() {
   };
 
   return (
-    <main className="overflow-hidden bg-slate-50 dark:bg-black min-h-screen transition-colors duration-300">
+    <main className="overflow-hidden bg-background min-h-screen transition-colors duration-300">
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
       <Sidebar isOpen={sidebarOpen} />
 
@@ -419,7 +419,7 @@ export default function FeedbackPage() {
               <h1 className="text-3xl font-bold bg-gradient-to-r from-neutral-900 to-brand-700 bg-clip-text text-transparent">
                 Feedback
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-2">
+              <p className="text-muted-foreground mt-2">
                 Share your thoughts about sessions, the platform, your mentor, or the program
               </p>
             </div>
@@ -436,10 +436,10 @@ export default function FeedbackPage() {
                   <Card>
                     <CardContent className="flex flex-col items-center justify-center py-12">
                       <MessageSquare className="w-12 h-12 text-gray-400 mb-4" />
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                      <h3 className="text-lg font-semibold text-foreground mb-2">
                         No active feedback sessions
                       </h3>
-                      <p className="text-gray-600 dark:text-gray-400 text-center">
+                      <p className="text-muted-foreground text-center">
                         Check back later for new sessions to provide feedback on
                       </p>
                     </CardContent>
@@ -461,7 +461,7 @@ export default function FeedbackPage() {
                         </CardHeader>
                         <CardContent className="space-y-3">
                           {(session.start_date || session.end_date) && (
-                            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <Calendar className="w-4 h-4" />
                               <span>
                                 {session.start_date && new Date(session.start_date).toLocaleDateString()}
@@ -645,7 +645,7 @@ export default function FeedbackPage() {
                                 </h4>
                               )}
                               {feedback.mentor_name && (
-                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                                <p className="text-sm text-muted-foreground">
                                   For: {feedback.mentor_name}
                                 </p>
                               )}

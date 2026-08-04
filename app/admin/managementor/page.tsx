@@ -239,7 +239,7 @@ export default function ManageMentorPage() {
   };
 
   return (
-    <main className="overflow-hidden bg-slate-50 dark:bg-black min-h-screen transition-colors duration-300">
+    <main className="overflow-hidden bg-background min-h-screen transition-colors duration-300">
       {/* Mobile Sidebar */}
       <Sidebar isOpen={mobileMenuOpen} isMobile onClose={() => setMobileMenuOpen(false)} />
 
@@ -269,7 +269,7 @@ export default function ManageMentorPage() {
               <h1 className="text-3xl font-bold bg-gradient-to-r from-neutral-900 to-brand-700 bg-clip-text text-transparent">
                 Manage Mentor Assignments
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-2">
+              <p className="text-muted-foreground mt-2">
                 Assign students to mentors and manage mentor-student relationships
               </p>
             </div>
@@ -280,7 +280,7 @@ export default function ManageMentorPage() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Total Students</p>
+                      <p className="text-sm text-muted-foreground">Total Students</p>
                       <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
                     </div>
                     <Users className="w-10 h-10 text-brand-700" />
@@ -292,7 +292,7 @@ export default function ManageMentorPage() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Assigned</p>
+                      <p className="text-sm text-muted-foreground">Assigned</p>
                       <p className="text-3xl font-bold text-green-600">{stats.assigned}</p>
                     </div>
                     <UserCheck className="w-10 h-10 text-green-600" />
@@ -304,7 +304,7 @@ export default function ManageMentorPage() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Unassigned</p>
+                      <p className="text-sm text-muted-foreground">Unassigned</p>
                       <p className="text-3xl font-bold text-brand-700">{stats.unassigned}</p>
                     </div>
                     <UserX className="w-10 h-10 text-brand-700" />
@@ -364,7 +364,7 @@ export default function ManageMentorPage() {
                           <h4 className="font-semibold text-gray-900 dark:text-white truncate">
                             {student.full_name}
                           </h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                          <p className="text-sm text-muted-foreground truncate">
                             {student.email}
                           </p>
                           {student.mentor_name && (
@@ -426,7 +426,7 @@ export default function ManageMentorPage() {
                           <h4 className="font-semibold text-gray-900 dark:text-white truncate">
                             {mentor.full_name}
                           </h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                          <p className="text-sm text-muted-foreground truncate">
                             {mentor.email}
                           </p>
                         </div>
