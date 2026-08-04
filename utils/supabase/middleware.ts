@@ -28,11 +28,30 @@ function isPublicPath(pathname: string): boolean {
   return PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix))
 }
 
-/** Copy Set-Cookie headers from an API response onto the Next response. */
+/**
+ * Copy Set-Cookie headers from an API response onto the Next response,
+ * dropping any `Domain` attribute.
+ *
+ * The API scopes its cookies to its own domain (`COOKIE_DOMAIN`). This response
+ * is served from the PORTAL's origin, and a browser refuses a Set-Cookie whose
+ * Domain it is not itself under -- so on a portal.qbitio.com / api.edutou.in
+ * split the header would be discarded in silence. That kills the refresh in
+ * loadUser(): the access token expires after its TTL, the renewed cookie never
+ * lands, and the user is bounced to /login every ~15 minutes.
+ *
+ * Stripping Domain re-scopes the cookie host-only to the portal, which is
+ * exactly what persistSessionCookies() in app/login/actions.ts already does for
+ * the sign-in response. Same-domain deployments are unaffected: a host-only
+ * cookie on the portal is what they got anyway.
+ */
 function forwardCookies(from: Response, to: NextResponse): void {
   const setCookie = from.headers.getSetCookie?.() ?? []
   for (const cookie of setCookie) {
-    to.headers.append('set-cookie', cookie)
+    const scoped = cookie
+      .split(';')
+      .filter((attribute) => !attribute.trim().toLowerCase().startsWith('domain='))
+      .join(';')
+    to.headers.append('set-cookie', scoped)
   }
 }
 

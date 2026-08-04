@@ -283,7 +283,7 @@ export default function MakeQuizPage() {
         .eq('title', quiz.title)
         .eq('created_by', user.id)
         .eq('status', 'draft')
-        .single()
+        .maybeSingle()
 
       if (existingQuiz) {
         // Update existing draft
@@ -339,7 +339,7 @@ export default function MakeQuizPage() {
           .from('quizzes')
           .select('quiz_code')
           .eq('quiz_code', quizCode)
-          .single()
+          .maybeSingle()
 
         if (!data) {
           isUnique = true
@@ -384,7 +384,7 @@ export default function MakeQuizPage() {
           .from('quizzes')
           .select('quiz_code')
           .eq('quiz_code', quizCode)
-          .single()
+          .maybeSingle()
 
         if (!data) {
           isUnique = true

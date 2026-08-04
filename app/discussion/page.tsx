@@ -824,7 +824,7 @@ export default function DiscussionPage() {
               .select('vote_type')
               .eq('discussion_id', discussion.id)
               .eq('user_id', user.id)
-              .single()
+              .maybeSingle()
 
             userVote = voteData?.vote_type || null
           }
@@ -912,7 +912,7 @@ export default function DiscussionPage() {
         .select('*')
         .eq('discussion_id', discussionId)
         .eq('user_id', currentUserId)
-        .single()
+        .maybeSingle()
 
       if (existingVote) {
         // If same vote, remove it

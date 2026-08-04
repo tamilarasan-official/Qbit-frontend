@@ -28,6 +28,7 @@ import {
 import { Sidebar } from '@/components/sidebar';
 import { Header } from '@/components/platform/Header';
 import { cn } from '@/lib/utils';
+import { FileLink } from '@/components/file-link';
 
 interface TaskStep {
   id?: string;
@@ -997,15 +998,13 @@ export default function ManageTaskPage() {
                                           {completion.file_url && (
                                             <div>
                                               <p className="text-xs font-medium text-muted-foreground mb-1">File:</p>
-                                              <a
+                                              <FileLink
                                                 href={completion.file_url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
                                                 className="text-sm text-brand-700 hover:underline flex items-center gap-1"
                                               >
                                                 <FileText className="w-4 h-4" />
                                                 View File
-                                              </a>
+                                              </FileLink>
                                             </div>
                                           )}
 

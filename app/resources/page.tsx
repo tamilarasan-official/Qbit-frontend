@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/utils/supabase/client'
+import { browserFileUrl } from '@/utils/storage'
 
 interface Resource {
   id: string
@@ -58,11 +59,40 @@ export default function ResourcesPage() {
   const [showFilters, setShowFilters] = useState(false)
   const [viewingResource, setViewingResource] = useState<Resource | null>(null)
 
+  // The stored file URL is not fetchable by an <iframe> on its own -- it has to
+  // be exchanged for a signed one first. Null while that is in flight.
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [previewError, setPreviewError] = useState<string | null>(null)
+
   const supabase = createClient()
 
   useEffect(() => {
     fetchResources()
   }, [])
+
+  useEffect(() => {
+    if (!viewingResource?.file_url) {
+      setPreviewUrl(null)
+      setPreviewError(null)
+      return
+    }
+
+    // A signed URL expires, so it is fetched when the viewer opens rather than
+    // kept alongside the resource list.
+    let cancelled = false
+    setPreviewUrl(null)
+    setPreviewError(null)
+
+    browserFileUrl(viewingResource.file_url).then((url) => {
+      if (cancelled) return
+      if (!url) setPreviewError('This file could not be opened. Try again in a moment.')
+      else setPreviewUrl(url)
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [viewingResource])
 
   useEffect(() => {
     applyFilters()
@@ -468,15 +498,25 @@ export default function ResourcesPage() {
 
               {/* PDF Viewer */}
               <div className="flex-1 bg-white rounded-b-2xl overflow-hidden shadow-2xl">
-                <iframe
-                  src={`${viewingResource.file_url}#toolbar=0&navpanes=0&scrollbar=1`}
-                  className="w-full h-full"
-                  title={viewingResource.file_name}
-                  style={{
-                    border: 'none',
-                  }}
-                  onContextMenu={(e) => e.preventDefault()}
-                />
+                {previewError ? (
+                  <div className="flex h-full items-center justify-center p-6 text-center text-sm text-muted-foreground">
+                    {previewError}
+                  </div>
+                ) : previewUrl ? (
+                  <iframe
+                    src={`${previewUrl}#toolbar=0&navpanes=0&scrollbar=1`}
+                    className="w-full h-full"
+                    title={viewingResource.file_name}
+                    style={{
+                      border: 'none',
+                    }}
+                    onContextMenu={(e) => e.preventDefault()}
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                )}
               </div>
             </motion.div>
           </motion.div>

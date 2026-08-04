@@ -38,6 +38,7 @@ import {
   X
 } from "lucide-react"
 import type { AuthUser as User } from "@/lib/api/core"
+import { FileLink } from '@/components/file-link'
 
 interface TaskStep {
   id: string
@@ -217,7 +218,7 @@ export default function StudentTasksPage() {
         .from('task_assignments')
         .select('id')
         .eq('id', task.assignment_id)
-        .single()
+        .maybeSingle()
 
       if (assignmentError || !assignmentCheck) {
         console.error('Assignment validation failed:', assignmentError)
@@ -574,14 +575,12 @@ export default function StudentTasksPage() {
               <div className="space-y-2">
                 <CheckCircle2 className="h-8 w-8 text-green-600 mx-auto" />
                 <p className="text-sm font-medium">File uploaded and marked as complete</p>
-                <a
+                <FileLink
                   href={completion.file_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="text-xs text-brand-700 hover:underline block"
                 >
                   View uploaded file
-                </a>
+                </FileLink>
               </div>
             ) : (
               <div className="space-y-3">
@@ -1219,14 +1218,12 @@ export default function StudentTasksPage() {
                                     </a>
                                   )}
                                   {completion.file_url && (
-                                    <a
+                                    <FileLink
                                       href={completion.file_url}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
                                       className="text-sm text-brand-700 hover:underline block mt-2"
                                     >
                                       View submitted file
-                                    </a>
+                                    </FileLink>
                                   )}
                                 </div>
                               )}

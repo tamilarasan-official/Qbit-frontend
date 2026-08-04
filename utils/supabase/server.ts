@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers'
-import { QbitioClient, API_URL, type Fetcher } from '@/lib/api/core'
+import { QbitioClient, API_URL, apiHeaders, type Fetcher } from '@/lib/api/core'
 
 /**
  * Server-side client for Server Components, Route Handlers and Server Actions.
@@ -22,11 +22,7 @@ export async function createClient(): Promise<QbitioClient> {
   const serverFetcher: Fetcher = (path, init = {}) =>
     fetch(`${API_URL}${path}`, {
       ...init,
-      headers: {
-        'content-type': 'application/json',
-        ...(cookieHeader ? { cookie: cookieHeader } : {}),
-        ...(init.headers ?? {}),
-      },
+      headers: apiHeaders(init, cookieHeader ? { cookie: cookieHeader } : undefined),
       // Auth-dependent responses must never land in Next's data cache.
       cache: 'no-store',
     })

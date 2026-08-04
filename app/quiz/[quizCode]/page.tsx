@@ -89,7 +89,7 @@ export default function QuizPage() {
           .select('*')
           .eq('quiz_code', quizCode)
           .eq('status', 'published')
-          .single()
+          .maybeSingle()
 
         if (quizError || !data) {
           setError('Quiz not found or not available')

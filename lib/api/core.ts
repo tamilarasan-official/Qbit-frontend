@@ -83,6 +83,28 @@ export interface Fetcher {
 }
 
 /**
+ * Request headers for an API call.
+ *
+ * A FormData body must go out with NO explicit content-type. multipart needs a
+ * `boundary` parameter that is generated per request, and only the runtime
+ * sending the body knows it -- naming the type by hand drops the boundary and
+ * the server cannot parse what arrives (MALFORMED_BODY). Callers used to signal
+ * this by passing `headers: {}`, which cannot work: spreading an empty object
+ * does not remove a key the object literal already set.
+ */
+export function apiHeaders(
+  init: RequestInit,
+  extra?: Record<string, string>
+): Record<string, string> {
+  const isFormData = typeof FormData !== 'undefined' && init.body instanceof FormData
+  return {
+    ...(isFormData ? {} : { 'content-type': 'application/json' }),
+    ...extra,
+    ...((init.headers as Record<string, string> | undefined) ?? {}),
+  }
+}
+
+/**
  * Default transport. `credentials: 'include'` is what carries the httpOnly
  * session cookie; without it every request would be anonymous.
  */
@@ -90,10 +112,7 @@ export function browserFetcher(path: string, init: RequestInit = {}): Promise<Re
   return fetch(`${apiBase()}${path}`, {
     ...init,
     credentials: 'include',
-    headers: {
-      'content-type': 'application/json',
-      ...(init.headers ?? {}),
-    },
+    headers: apiHeaders(init),
   })
 }
 
@@ -327,6 +346,20 @@ class QueryBuilder<T = any> implements PromiseLike<Result<T>> {
 // Storage
 // ---------------------------------------------------------------------------
 
+export interface UploadedFile {
+  /** Storage key, e.g. `<userId>/<taskId>/<stepId>/<generated>.pdf`. */
+  path: string
+  /** Canonical URL. Store this; it does not expire. */
+  publicUrl: string
+  /** Ready to hand to the browser now, so a just-uploaded file can be previewed. */
+  signedUrl?: string
+  /** Unix seconds. */
+  signedUrlExpiresAt?: number
+  size?: number
+  mimeType?: string
+  originalName?: string
+}
+
 class StorageBucket {
   constructor(
     private readonly bucket: string,
@@ -343,7 +376,7 @@ class StorageBucket {
     path: string,
     file: File | Blob,
     _options?: { cacheControl?: string; upsert?: boolean }
-  ): Promise<{ data: { path: string; publicUrl: string } | null; error: ApiError | null }> {
+  ): Promise<{ data: UploadedFile | null; error: ApiError | null }> {
     try {
       const segments = path.split('/')
       const form = new FormData()
@@ -354,15 +387,15 @@ class StorageBucket {
         form.append('stepId', segments[2] ?? '')
       }
 
-      // Let the browser set the multipart boundary.
+      // No content-type: apiHeaders() omits it for a FormData body so the
+      // browser can set multipart/form-data with its own boundary.
       const response = await this.fetcher(`/api/storage/${this.bucket}`, {
         method: 'POST',
         body: form,
-        headers: {},
       })
 
       const payload = (await response.json().catch(() => ({}))) as {
-        data?: { path: string; publicUrl: string }
+        data?: UploadedFile
         error?: ApiError
       }
 
@@ -388,11 +421,58 @@ class StorageBucket {
   /**
    * Synchronous to match supabase-js. Downloads are access-checked server-side,
    * so this URL is only useful to someone entitled to the file.
+   *
+   * Fine to store, and fine to fetch from application code, which goes through
+   * the proxy and carries the session. It is NOT fetchable by the browser on
+   * its own -- see createSignedUrl.
    */
   getPublicUrl(path: string): { data: { publicUrl: string } } {
     // Same base as every other browser call: downloads are access-checked, so
     // the URL has to carry the session cookie to resolve to anything.
     return { data: { publicUrl: `${apiBase()}/api/storage/${this.bucket}/${path}` } }
+  }
+
+  /**
+   * A URL the browser can fetch by itself -- an `<iframe src>`, an `<img src>`,
+   * a download anchor, a new tab.
+   *
+   * Those contexts send no Authorization header, and the session cookie belongs
+   * to the PORTAL's hostname rather than the API's, so a raw storage URL comes
+   * back 401. This call is made over the authenticated proxy and returns a
+   * short-lived signed URL that stands on its own.
+   *
+   * `path` may be a storage key or a whole stored URL; the API accepts either.
+   */
+  async createSignedUrl(
+    path: string,
+    expiresIn?: number
+  ): Promise<{ data: { signedUrl: string } | null; error: ApiError | null }> {
+    const params = new URLSearchParams({ bucket: this.bucket, path })
+    if (expiresIn) params.set('expiresIn', String(expiresIn))
+
+    try {
+      const response = await this.fetcher(`/api/storage/sign?${params.toString()}`)
+      const payload = (await response.json().catch(() => ({}))) as {
+        data?: { signedUrl: string }
+        error?: ApiError
+      }
+
+      if (!response.ok || !payload.data) {
+        return {
+          data: null,
+          error: payload.error ?? { message: 'Could not sign URL', code: 'SIGN_FAILED' },
+        }
+      }
+      return { data: payload.data, error: null }
+    } catch (err) {
+      return {
+        data: null,
+        error: {
+          message: err instanceof Error ? err.message : 'Could not sign URL',
+          code: 'NETWORK_ERROR',
+        },
+      }
+    }
   }
 
   async remove(paths: string[]): Promise<{ data: unknown; error: ApiError | null }> {

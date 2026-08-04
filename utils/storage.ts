@@ -5,6 +5,52 @@ export interface UploadResult {
   error: string | null
 }
 
+/** `.../api/storage/<bucket>/<key>` -- absolute, or relative to the API proxy. */
+const STORAGE_URL = /\/api\/storage\/([^/?#]+)\/([^?#]+)/
+
+/**
+ * Turn a stored file URL into one the browser can fetch on its own.
+ *
+ * A stored URL points at the API's hostname, where the portal's session cookie
+ * does not apply -- and an `<iframe src>`, `<img src>` or download anchor has
+ * no way to authenticate itself, so the request is answered 401 (and the 401,
+ * being unframable, surfaces in the console only as an X-Frame-Options
+ * complaint). Exchanging it for a short-lived signed URL over the authenticated
+ * channel is what makes those elements work.
+ *
+ * Anything that is not one of our storage URLs -- a legacy Supabase link, an
+ * external resource -- is handed back untouched.
+ */
+export async function browserFileUrl(
+  fileUrl: string | null | undefined,
+  options: { download?: boolean; filename?: string | null } = {}
+): Promise<string | null> {
+  if (!fileUrl) return null
+
+  const match = STORAGE_URL.exec(fileUrl)
+  if (!match) return fileUrl
+
+  const [, bucket, key] = match
+  const supabase = createClient()
+  const { data, error } = await supabase.storage
+    .from(decodeURIComponent(bucket ?? ''))
+    .createSignedUrl(decodeURIComponent(key ?? ''))
+
+  if (error || !data) {
+    console.error('Could not sign file URL:', error)
+    return null
+  }
+
+  if (!options.download && !options.filename) return data.signedUrl
+
+  const url = new URL(data.signedUrl)
+  // Serves the file as a save-to-disk response under its original name rather
+  // than the generated one on disk.
+  if (options.download) url.searchParams.set('download', '1')
+  if (options.filename) url.searchParams.set('filename', options.filename)
+  return url.toString()
+}
+
 /**
  * Upload a file to Supabase Storage
  * @param file - The file to upload

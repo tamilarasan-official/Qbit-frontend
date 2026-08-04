@@ -131,9 +131,9 @@ export function ProfileTab() {
         .from('leaderboard')
         .select('*')
         .eq('user_id', user.id)
-        .single()
+        .maybeSingle()
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('Error loading leaderboard stats:', error)
         return
       }
