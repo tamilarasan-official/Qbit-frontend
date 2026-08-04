@@ -220,7 +220,7 @@ export default function MentorDashboard() {
       <div
         className={cn(
           'min-h-screen transition-all duration-300 ease-in-out',
-          sidebarOpen ? 'md:pl-64' : 'md:pl-0'
+          sidebarOpen ? 'md:pl-64' : 'md:pl-[76px]'
         )}
       >
         <Header

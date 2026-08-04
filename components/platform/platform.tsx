@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
-import { Sidebar } from "../sidebar"
+import { Sidebar, SIDEBAR_RAIL_WIDTH } from "../sidebar"
 import { Header } from "./Header"
 import { HomeTab } from "./tabs/HomeTab"
 
@@ -43,11 +43,21 @@ export function Platform() {
       />
 
       {/* Main Content */}
+      {/*
+        The gutter is a CSS variable applied at the md breakpoint, not a
+        window.innerWidth read: that was evaluated once during render, so it
+        was wrong on the server, and never updated when the window resized.
+        Collapsed, the gutter is the icon rail rather than zero.
+      */}
       <div
-        className={cn("min-h-screen transition-all duration-300 ease-in-out")}
-        style={{
-          marginLeft: typeof window !== 'undefined' && window.innerWidth >= 768 && sidebarOpen ? `${sidebarWidth}px` : '0px'
-        }}
+        className={cn(
+          "min-h-screen transition-all duration-300 ease-in-out md:ml-[var(--sidebar-gutter)]"
+        )}
+        style={
+          {
+            '--sidebar-gutter': `${sidebarOpen ? sidebarWidth : SIDEBAR_RAIL_WIDTH}px`,
+          } as React.CSSProperties
+        }
       >
         <Header
           sidebarOpen={sidebarOpen}

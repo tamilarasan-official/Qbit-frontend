@@ -32,11 +32,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/utils/supabase/client"
 import type { AuthUser as User } from "@/lib/api/core"
 import { BrandBadge, BrandWordmark } from "@/components/brand/Logo"
 import { brand } from "@/lib/brand"
+
+/** Width of the collapsed icon rail. The page gutter matches it. */
+export const SIDEBAR_RAIL_WIDTH = 76
 
 interface SidebarProps {
   isOpen: boolean
@@ -328,6 +332,94 @@ export function Sidebar({ isOpen, isMobile = false, onClose, sidebarWidth = 256,
     return user.user_metadata?.avatar_url || ""
   }
 
+  /**
+   * Collapsed, the sidebar becomes an icon rail rather than disappearing.
+   * Every destination stays one click away, with the label in a tooltip, and
+   * the page keeps a fixed left gutter instead of the content jumping.
+   */
+  const railContent = (
+    <div className="flex h-full flex-col items-center border-r bg-background py-4">
+      <a href="/" aria-label={brand.displayName} className="mb-4">
+        <BrandBadge className="size-10" />
+      </a>
+
+      <TooltipProvider delayDuration={0}>
+        <ScrollArea className="w-full flex-1">
+          <nav className="flex flex-col items-center gap-1 px-2">
+            {getNavigationSections().flatMap((section, sectionIndex) => [
+              // A hairline stands in for the section heading there is no room for.
+              sectionIndex > 0 ? (
+                <span key={`${section.title}-rule`} className="my-1.5 h-px w-8 bg-border" />
+              ) : null,
+              ...section.items.map((item) => {
+                const isActive = currentPath === item.url
+                return (
+                  <Tooltip key={item.title}>
+                    <TooltipTrigger asChild>
+                      <a
+                        href={item.url}
+                        aria-label={item.title}
+                        aria-current={isActive ? 'page' : undefined}
+                        className={cn(
+                          "relative flex h-11 w-11 items-center justify-center rounded-2xl transition-all",
+                          isActive
+                            ? "bg-brand-400 text-ink shadow-soft"
+                            : "text-foreground hover:bg-muted"
+                        )}
+                      >
+                        {item.icon}
+                        {item.badge && (
+                          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-foreground px-1 text-[10px] font-bold text-background">
+                            {item.badge}
+                          </span>
+                        )}
+                      </a>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">{item.title}</TooltipContent>
+                  </Tooltip>
+                )
+              }),
+            ])}
+          </nav>
+        </ScrollArea>
+
+        <div className="mt-2 flex w-full flex-col items-center gap-1 border-t px-2 pt-3">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <a
+                href="/settings"
+                aria-label="Settings"
+                className={cn(
+                  "flex h-11 w-11 items-center justify-center rounded-2xl transition-all",
+                  currentPath === '/settings'
+                    ? "bg-brand-400 text-ink shadow-soft"
+                    : "text-foreground hover:bg-muted"
+                )}
+              >
+                <Settings className="h-5 w-5" />
+              </a>
+            </TooltipTrigger>
+            <TooltipContent side="right">Settings</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <a href="/settings" aria-label={getDisplayName()} className="mt-1">
+                <Avatar className="h-9 w-9 border border-border">
+                  <AvatarImage src={getAvatarUrl()} alt={getDisplayName()} />
+                  <AvatarFallback className="text-xs">{getInitials()}</AvatarFallback>
+                </Avatar>
+              </a>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              {loading ? "Loading…" : `${getDisplayName()} · ${userRole === 'coursemaster' ? 'Course master' : userRole || 'student'}`}
+            </TooltipContent>
+          </Tooltip>
+        </div>
+      </TooltipProvider>
+    </div>
+  )
+
   const sidebarContent = (
     <div className="flex h-full flex-col border-r bg-background relative">
       <div className={cn("flex items-center p-4", isMobile && "justify-between")}>
@@ -460,13 +552,14 @@ export function Sidebar({ isOpen, isMobile = false, onClose, sidebarWidth = 256,
     <>
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-30 hidden transform border-r bg-background transition-transform duration-300 ease-in-out md:block",
-          isOpen ? "translate-x-0" : "-translate-x-full",
+          // Width, not translate: collapsing leaves the icon rail in place
+          // rather than sliding the whole thing off-screen.
+          "fixed inset-y-0 left-0 z-30 hidden overflow-hidden border-r bg-background transition-[width] duration-300 ease-in-out md:block",
           isResizing && "transition-none"
         )}
-        style={{ width: `${sidebarWidth}px` }}
+        style={{ width: isOpen ? `${sidebarWidth}px` : `${SIDEBAR_RAIL_WIDTH}px` }}
       >
-        {sidebarContent}
+        {isOpen ? sidebarContent : railContent}
       </div>
       {/* Resize cursor overlay */}
       {isResizing && (

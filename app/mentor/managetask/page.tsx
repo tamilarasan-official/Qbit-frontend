@@ -470,7 +470,7 @@ export default function ManageTaskPage() {
       <div
         className={cn(
           'min-h-screen transition-all duration-300',
-          sidebarOpen ? 'md:pl-64' : 'md:pl-0'
+          sidebarOpen ? 'md:pl-64' : 'md:pl-[76px]'
         )}
       >
         <Header
