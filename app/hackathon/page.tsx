@@ -83,12 +83,14 @@ export default function HackathonPage() {
       }
       setCurrentUserId(user.id)
 
-      // Check if user is in a team
+      // Check if user is in a team. maybeSingle, not single: having no team is
+      // the normal case for most students, and single() reports "no rows" as a
+      // 406 -- a red console error on an ordinary page load.
       const { data: membership } = await supabase
         .from('hackathon_team_members')
         .select('team_id')
         .eq('user_id', user.id)
-        .single()
+        .maybeSingle()
 
       if (!membership) {
         setLoading(false)
@@ -177,7 +179,7 @@ export default function HackathonPage() {
         .from('hackathon_team_members')
         .select('id')
         .eq('user_id', currentUserId)
-        .single()
+        .maybeSingle()
 
       if (existingMembership) {
         toast({
@@ -188,7 +190,8 @@ export default function HackathonPage() {
         return
       }
 
-      // Generate unique code
+      // Generate unique code. The loop is looking for a code that matches
+      // nothing, so single() would 406 on the expected outcome of every pass.
       let teamCode = generateTeamCode()
       let isUnique = false
       while (!isUnique) {
@@ -196,7 +199,7 @@ export default function HackathonPage() {
           .from('hackathon_teams')
           .select('id')
           .eq('team_code', teamCode)
-          .single()
+          .maybeSingle()
 
         if (!data) {
           isUnique = true
@@ -292,7 +295,7 @@ export default function HackathonPage() {
         .from('hackathon_team_members')
         .select('id')
         .eq('user_id', currentUserId)
-        .single()
+        .maybeSingle()
 
       if (existingMembership) {
         toast({
@@ -303,12 +306,13 @@ export default function HackathonPage() {
         return
       }
 
-      // Find team by code
+      // Find team by code. A typo'd code is a routine thing for someone to do,
+      // and the branch below already handles the empty result.
       const { data: team, error: teamError } = await supabase
         .from('hackathon_teams')
         .select('*')
         .eq('team_code', joinCode.toUpperCase())
-        .single()
+        .maybeSingle()
 
       if (teamError || !team) {
         toast({
