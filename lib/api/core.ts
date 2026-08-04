@@ -28,6 +28,41 @@ export interface Result<T> {
 export const API_URL =
   (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL) || 'http://localhost:4000'
 
+/**
+ * Where BROWSER requests go. Server-side code keeps using API_URL directly.
+ *
+ * Sign-in runs as a Server Action: the Next server calls the API, and
+ * `persistSessionCookies` in app/login/actions.ts re-issues the returned
+ * session as a cookie on the PORTAL's origin. The browser therefore never
+ * holds a cookie for the API's hostname, so a client-side fetch straight to
+ * `https://api.edutou.in` sends no credentials however `credentials:
+ * 'include'` is set, and every such call comes back 401 UNAUTHENTICATED.
+ *
+ * Routing browser calls through a path on the portal's own origin -- proxied
+ * to the API by the rewrite in next.config.mjs -- makes them first-party, so
+ * the cookie that already exists is attached and Next forwards it upstream.
+ * That also keeps this working in Safari and on iOS, which block third-party
+ * cookies outright and would defeat any cross-site arrangement.
+ *
+ * Set NEXT_PUBLIC_API_PROXY_PATH to '' to opt out and call the API directly --
+ * correct only when the portal and the API share a registrable domain.
+ */
+const configuredProxyPath =
+  typeof process !== 'undefined' ? process.env.NEXT_PUBLIC_API_PROXY_PATH : undefined
+
+export const API_PROXY_PATH =
+  configuredProxyPath === undefined ? '/backend' : configuredProxyPath.trim()
+
+/**
+ * The base a fetch should use from wherever it is running. Client Components
+ * that fetch during SSR still get an absolute URL, which server-side `fetch`
+ * requires -- a relative one would throw.
+ */
+export function apiBase(): string {
+  if (typeof window === 'undefined') return API_URL
+  return API_PROXY_PATH || API_URL
+}
+
 type FilterOp = 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'like' | 'ilike' | 'is' | 'in'
 
 interface Filter {
@@ -52,7 +87,7 @@ export interface Fetcher {
  * session cookie; without it every request would be anonymous.
  */
 export function browserFetcher(path: string, init: RequestInit = {}): Promise<Response> {
-  return fetch(`${API_URL}${path}`, {
+  return fetch(`${apiBase()}${path}`, {
     ...init,
     credentials: 'include',
     headers: {
@@ -355,7 +390,9 @@ class StorageBucket {
    * so this URL is only useful to someone entitled to the file.
    */
   getPublicUrl(path: string): { data: { publicUrl: string } } {
-    return { data: { publicUrl: `${API_URL}/api/storage/${this.bucket}/${path}` } }
+    // Same base as every other browser call: downloads are access-checked, so
+    // the URL has to carry the session cookie to resolve to anything.
+    return { data: { publicUrl: `${apiBase()}/api/storage/${this.bucket}/${path}` } }
   }
 
   async remove(paths: string[]): Promise<{ data: unknown; error: ApiError | null }> {
@@ -503,6 +540,9 @@ class AuthClient {
    */
   async signInWithOAuth(params: { provider: 'google'; options?: unknown }) {
     if (typeof window !== 'undefined') {
+      // Absolute, not the proxy path: this is a top-level navigation that ends
+      // at Google and comes back to the API's own PUBLIC_URL callback, so it
+      // never passes through the portal's rewrite.
       window.location.href = `${API_URL}/auth/oauth/${params.provider}`
     }
     return { data: { provider: params.provider, url: null }, error: null }
@@ -603,6 +643,11 @@ export class RealtimeChannelShim {
 
     if (typeof window === 'undefined' || this.bindings.length === 0) return this
 
+    // Absolute, not the proxy path: next.config.mjs rewrites do not upgrade a
+    // connection, so a WebSocket cannot travel through them. When the API is on
+    // a different registrable domain this handshake carries no cookie and the
+    // server closes it 4401 -- it needs its own reverse-proxy route on the
+    // portal's origin. REST is unaffected either way.
     const socket = new WebSocket(`${API_URL.replace(/^http/, 'ws')}/realtime`)
     this.socket = socket
 
