@@ -9,7 +9,17 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Loader2, Search, Users, Trophy, Target, TrendingUp, ArrowLeft, MessageSquare, Star, Mail, Plus, Minus } from 'lucide-react';
+import { Loader2, Search, Users, Trophy, Target, TrendingUp, ArrowLeft, MessageSquare, Star, Mail, Plus, Minus, Pencil, Save } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { useToast } from '@/components/ui/use-toast';
 import { adjustPointsManual } from '@/utils/points';
 import { getRankFromPoints } from '@/lib/ranks';
 import { cn } from '@/lib/utils';
@@ -18,6 +28,7 @@ interface AssignedStudent {
   id: string;
   full_name: string;
   email: string;
+  phone?: string | null;
   leaderboard_points: number;
   assigned_at: string;
   created_at: string;
@@ -47,11 +58,20 @@ export default function MentorStudentsPage() {
   const [mentorFeedback, setMentorFeedback] = useState<Feedback[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<AssignedStudent | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
+
+  // A mentor may edit name and phone for students assigned to them. Email is
+  // the sign-in credential and stays with admins, so it is not offered here --
+  // the server refuses it regardless of what this page sends.
+  const [editingStudent, setEditingStudent] = useState<AssignedStudent | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [savingStudent, setSavingStudent] = useState(false);
   const [studentStats, setStudentStats] = useState<any>(null);
   const [pointsAmount, setPointsAmount] = useState<number>(10);
   const [adjustingPoints, setAdjustingPoints] = useState(false);
 
   const supabase = createClient();
+  const { toast } = useToast();
 
   useEffect(() => {
     loadData();
@@ -91,7 +111,7 @@ export default function MentorStudentsPage() {
       // Get student profiles
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, full_name, email, leaderboard_points, created_at')
+        .select('id, full_name, email, phone, leaderboard_points, created_at')
         .in('id', studentIds);
 
       if (profilesError) throw profilesError;
@@ -107,8 +127,10 @@ export default function MentorStudentsPage() {
       }
 
       // Create maps for easy lookup
-      const profileMap = new Map((profiles || []).map((p: any) => [p.id, p]));
-      const statsMap = new Map((leaderboardStats || []).map((s: any) => [s.user_id, s]));
+      // Annotated: without the value type these infer as {} and every field
+      // read below is a type error.
+      const profileMap = new Map<string, any>((profiles || []).map((p: any) => [p.id, p]));
+      const statsMap = new Map<string, any>((leaderboardStats || []).map((s: any) => [s.user_id, s]));
       const assignmentDateMap = new Map(assignments.map((a: any) => [a.student_id, a.assigned_at]));
 
       // Combine all data
@@ -121,6 +143,7 @@ export default function MentorStudentsPage() {
           id: studentId,
           full_name: profile?.full_name || 'No Name',
           email: profile?.email || '',
+          phone: profile?.phone ?? null,
           leaderboard_points: profile?.leaderboard_points || 0,
           assigned_at: assignedAt,
           created_at: profile?.created_at || '',
@@ -168,6 +191,60 @@ export default function MentorStudentsPage() {
       console.error('Error loading assigned students:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const openEditStudent = (student: AssignedStudent) => {
+    setEditingStudent(student);
+    setEditName(student.full_name === 'No Name' ? '' : student.full_name);
+    setEditPhone(student.phone || '');
+  };
+
+  /**
+   * Mentor-scoped edit. The server checks the student is an ACTIVE assignment of
+   * this mentor and rejects any attempt to change the email, so this dialog
+   * offers only what will actually be accepted.
+   */
+  const handleUpdateStudent = async () => {
+    if (!editingStudent) return;
+
+    if (!editName.trim()) {
+      toast({
+        title: 'Missing details',
+        description: 'Name cannot be empty',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      setSavingStudent(true);
+
+      const { error } = await supabase.call(`/api/admin/users/${editingStudent.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          full_name: editName.trim(),
+          phone: editPhone.trim() || null,
+        }),
+      });
+
+      if (error) {
+        toast({
+          title: 'Could not save',
+          description: error.message,
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      toast({ title: 'Student updated', description: 'The changes have been saved' });
+      setEditingStudent(null);
+      await loadData();
+    } catch (err) {
+      console.error('Error updating student:', err);
+      toast({ title: 'Error', description: 'An unexpected error occurred', variant: 'destructive' });
+    } finally {
+      setSavingStudent(false);
     }
   };
 
@@ -317,7 +394,7 @@ export default function MentorStudentsPage() {
         <>
           {/* Header */}
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-neutral-900 to-brand-700 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-neutral-900 to-brand-700 dark:from-white dark:to-brand-400 bg-clip-text text-transparent">
               My Students
             </h1>
             <p className="text-muted-foreground mt-2">
@@ -402,87 +479,115 @@ export default function MentorStudentsPage() {
                   </CardContent>
                 </Card>
               ) : (
-                <div className="grid grid-cols-1 gap-4">
-                  {filteredStudents.map((student) => {
-                    const rank = getRankFromPoints(student.leaderboard_points);
-                    const accuracy = student.stats && student.stats.total_attempts > 0
-                      ? Math.round((student.stats.correct_answers / student.stats.total_attempts) * 100)
-                      : 0;
+                <Card>
+                  <CardContent className="p-0">
+                    <ul className="divide-y divide-border">
+                      {filteredStudents.map((student) => {
+                        const rank = getRankFromPoints(student.leaderboard_points);
+                        const accuracy = student.stats && student.stats.total_attempts > 0
+                          ? Math.round((student.stats.correct_answers / student.stats.total_attempts) * 100)
+                          : 0;
 
-                    return (
-                      <Card
-                        key={student.id}
-                        className="hover:shadow-lg transition-shadow cursor-pointer"
-                        onClick={() => loadStudentDetails(student)}
-                      >
-                        <CardContent className="p-6">
-                          <div className="flex items-start gap-4">
-                            <Avatar className="w-16 h-16 border-2 border-gray-200 dark:border-gray-700">
-                              <AvatarFallback className="text-lg bg-gradient-to-br from-brand-300 to-brand-400 text-black font-semibold">
-                                {getInitials(student.full_name)}
-                              </AvatarFallback>
-                            </Avatar>
+                        return (
+                          // The edit control is a sibling of the row button, not a
+                          // child: a button inside a button is invalid HTML, and the
+                          // inner click would also open the detail view.
+                          <li key={student.id} className="flex items-center transition-colors hover:bg-muted/50">
+                            <button
+                              type="button"
+                              onClick={() => loadStudentDetails(student)}
+                              className="flex min-w-0 flex-1 items-center gap-4 py-3 pl-4 pr-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset sm:pl-6"
+                            >
+                              <Avatar className="h-11 w-11 shrink-0 border-2 border-gray-200 dark:border-gray-700">
+                                <AvatarFallback className="bg-gradient-to-br from-brand-300 to-brand-400 text-black font-semibold">
+                                  {getInitials(student.full_name)}
+                                </AvatarFallback>
+                              </Avatar>
 
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-start justify-between mb-2">
-                                <div className="flex-1 min-w-0">
-                                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
-                                    {student.full_name}
-                                  </h3>
-                                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                    <Mail className="w-3 h-3" />
-                                    <span className="truncate">{student.email}</span>
-                                  </div>
+                              <div className="min-w-0 flex-1">
+                                <h3 className="truncate font-semibold text-gray-900 dark:text-white">
+                                  {student.full_name}
+                                </h3>
+                                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                                  <Mail className="w-3 h-3 shrink-0" />
+                                  <span className="truncate">{student.email}</span>
+                                </div>
+
+                                {/* The stat columns are hidden on narrow screens, so the
+                                    same numbers ride under the name there instead. */}
+                                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 lg:hidden">
+                                  <Badge className={`bg-gradient-to-r ${rank.gradient} text-white border-none text-xs`}>
+                                    {rank.emoji} {rank.name}
+                                  </Badge>
+                                  <span className="text-xs text-muted-foreground">
+                                    {student.stats?.total_points.toLocaleString() || 0} pts
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">
+                                    {student.stats?.quizzes_completed || 0} quizzes
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">
+                                    {accuracy}% accuracy
+                                  </span>
                                 </div>
                               </div>
 
-                              <div className="mb-3">
-                                <Badge className={`bg-gradient-to-r ${rank.gradient} text-white border-none`}>
-                                  <span className="mr-1">{rank.emoji}</span>
-                                  {rank.name}
+                              <div className="hidden w-32 shrink-0 lg:block">
+                                <Badge className={`bg-gradient-to-r ${rank.gradient} text-white border-none text-xs`}>
+                                  {rank.emoji} {rank.name}
                                 </Badge>
                               </div>
 
-                              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                <div className="bg-brand-50 dark:bg-brand-900/20 rounded-lg p-2">
-                                  <p className="text-xs text-brand-700 dark:text-brand-400">Points</p>
-                                  <p className="text-lg font-bold text-brand-900 dark:text-brand-200">
+                              <div className="hidden shrink-0 items-center gap-6 lg:flex">
+                                <div className="w-16 text-right">
+                                  <p className="text-xs text-muted-foreground">Points</p>
+                                  <p className="font-semibold text-brand-700 dark:text-brand-400">
                                     {student.stats?.total_points.toLocaleString() || 0}
                                   </p>
                                 </div>
 
-                                <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-2">
-                                  <p className="text-xs text-green-600 dark:text-green-400">Quizzes</p>
-                                  <p className="text-lg font-bold text-green-900 dark:text-green-100">
+                                <div className="w-16 text-right">
+                                  <p className="text-xs text-muted-foreground">Quizzes</p>
+                                  <p className="font-semibold text-gray-900 dark:text-white">
                                     {student.stats?.quizzes_completed || 0}
                                   </p>
                                 </div>
 
-                                <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-2">
-                                  <p className="text-xs text-purple-600 dark:text-purple-400">Accuracy</p>
-                                  <p className="text-lg font-bold text-purple-900 dark:text-purple-100">
+                                <div className="w-20 text-right">
+                                  <p className="text-xs text-muted-foreground">Accuracy</p>
+                                  <p className="font-semibold text-gray-900 dark:text-white">
                                     {accuracy}%
+                                    <span className="ml-1 text-xs font-normal text-muted-foreground">
+                                      ({student.stats?.correct_answers || 0}/
+                                      {student.stats?.total_attempts || 0})
+                                    </span>
                                   </p>
                                 </div>
 
-                                <div className="bg-brand-50 dark:bg-brand-900/20 rounded-lg p-2">
-                                  <p className="text-xs text-brand-700 dark:text-brand-400">Correct</p>
-                                  <p className="text-lg font-bold text-brand-900 dark:text-brand-200">
-                                    {student.stats?.correct_answers || 0}/{student.stats?.total_attempts || 0}
+                                <div className="w-24 text-right">
+                                  <p className="text-xs text-muted-foreground">Assigned</p>
+                                  <p className="text-sm text-gray-900 dark:text-white">
+                                    {new Date(student.assigned_at).toLocaleDateString()}
                                   </p>
                                 </div>
                               </div>
+                            </button>
 
-                              <p className="text-xs text-muted-foreground mt-3">
-                                Assigned: {new Date(student.assigned_at).toLocaleDateString()}
-                              </p>
+                            <div className="shrink-0 pr-2 sm:pr-4">
+                              <Button
+                                onClick={() => openEditStudent(student)}
+                                variant="ghost"
+                                size="sm"
+                                title={`Edit ${student.full_name}`}
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </Button>
                             </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </CardContent>
+                </Card>
               )}
             </div>
 
@@ -662,7 +767,7 @@ export default function MentorStudentsPage() {
                       {/* Current Points Display */}
                       <div className="p-4 bg-gradient-to-r from-brand-50 to-brand-100 dark:from-brand-900/20 dark:to-brand-900/20 rounded-xl">
                         <p className="text-sm text-muted-foreground mb-1">Current Leaderboard Points</p>
-                        <p className="text-3xl font-bold bg-gradient-to-r from-neutral-900 to-brand-700 bg-clip-text text-transparent">
+                        <p className="text-3xl font-bold bg-gradient-to-r from-neutral-900 to-brand-700 dark:from-white dark:to-brand-400 bg-clip-text text-transparent">
                           {selectedStudent.leaderboard_points.toLocaleString()}
                         </p>
                       </div>
@@ -751,6 +856,74 @@ export default function MentorStudentsPage() {
       )}
         </div>
       </div>
+
+      {/* Edit student */}
+      <Dialog
+        open={editingStudent !== null}
+        onOpenChange={(open) => !open && setEditingStudent(null)}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Student</DialogTitle>
+            <DialogDescription>
+              You can correct the name and phone number for students assigned to you. The
+              sign-in email can only be changed by an admin.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="edit-student-name">Full Name *</Label>
+              <Input
+                id="edit-student-name"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="Student name"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="edit-student-phone">Phone</Label>
+              <Input
+                id="edit-student-phone"
+                value={editPhone}
+                onChange={(e) => setEditPhone(e.target.value)}
+                placeholder="Optional"
+              />
+            </div>
+
+            {/* Shown but not editable, so it is obvious which account is being
+                changed without implying the address can be edited here. */}
+            <div>
+              <Label>Email</Label>
+              <Input value={editingStudent?.email || ''} disabled readOnly />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setEditingStudent(null)}
+              disabled={savingStudent}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateStudent} disabled={savingStudent}>
+              {savingStudent ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" />
+                  Save Changes
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }

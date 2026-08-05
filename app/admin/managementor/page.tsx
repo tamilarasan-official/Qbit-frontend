@@ -8,8 +8,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, Search, UserCheck, UserX, Save, Users } from 'lucide-react';
+import { Loader2, Search, UserCheck, UserX, Save, Users, Plus, Pencil, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   Select,
@@ -18,6 +19,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface Student {
   id: string;
@@ -43,6 +63,29 @@ export default function ManageMentorPage() {
   const [saving, setSaving] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'assigned' | 'unassigned'>('all');
+
+  // Mentor account CRUD, against the same /api/admin/users endpoints the user
+  // management page uses -- they take a role, so nothing mentor-specific is
+  // needed on the server.
+  const [showCreate, setShowCreate] = useState(false);
+  const [createName, setCreateName] = useState('');
+  const [createEmail, setCreateEmail] = useState('');
+  const [createPassword, setCreatePassword] = useState('');
+  const [creating, setCreating] = useState(false);
+
+  const [editingMentor, setEditingMentor] = useState<Mentor | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [savingMentor, setSavingMentor] = useState(false);
+
+  const [mentorToDelete, setMentorToDelete] = useState<Mentor | null>(null);
+  const [deletingMentor, setDeletingMentor] = useState(false);
+
+  // Role changes go through their own endpoint rather than the account PATCH,
+  // because that endpoint also revokes the user's sessions -- otherwise a token
+  // minted while they were a mentor keeps mentor access until it expires.
+  const [roleChange, setRoleChange] = useState<{ mentor: Mentor; role: string } | null>(null);
+  const [changingRole, setChangingRole] = useState(false);
 
   const supabase = createClient();
   const { toast } = useToast();
@@ -140,6 +183,175 @@ export default function ManageMentorPage() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  /** Same initials treatment as the user management list, so the two read alike. */
+  const getInitials = (name: string) => {
+    if (!name || name === 'No Name') return 'M';
+    const parts = name.trim().split(/\s+/);
+    return parts.length >= 2
+      ? `${parts[0][0]}${parts[1][0]}`.toUpperCase()
+      : name.slice(0, 2).toUpperCase();
+  };
+
+  const handleCreateMentor = async () => {
+    if (!createName.trim() || !createEmail.trim() || createPassword.length < 8) {
+      toast({
+        title: 'Missing details',
+        description: 'Name, email and a password of at least 8 characters are required',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      setCreating(true);
+
+      const { error } = await supabase.call('/api/admin/users', {
+        method: 'POST',
+        body: JSON.stringify({
+          full_name: createName.trim(),
+          email: createEmail.trim(),
+          password: createPassword,
+          role: 'mentor',
+        }),
+      });
+
+      if (error) {
+        toast({
+          title: 'Could not create mentor',
+          description: error.message,
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      toast({
+        title: 'Mentor created',
+        description: `${createName} can sign in and be assigned students`,
+      });
+      setShowCreate(false);
+      setCreateName('');
+      setCreateEmail('');
+      setCreatePassword('');
+      await loadData();
+    } catch (err) {
+      console.error('Error creating mentor:', err);
+      toast({ title: 'Error', description: 'An unexpected error occurred', variant: 'destructive' });
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const openEditMentor = (mentor: Mentor) => {
+    setEditingMentor(mentor);
+    setEditName(mentor.full_name === 'No Name' ? '' : mentor.full_name);
+    setEditEmail(mentor.email || '');
+  };
+
+  const handleUpdateMentor = async () => {
+    if (!editingMentor) return;
+
+    if (!editName.trim() || !editEmail.trim()) {
+      toast({
+        title: 'Missing details',
+        description: 'Name and email cannot be empty',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      setSavingMentor(true);
+
+      const { error } = await supabase.call(`/api/admin/users/${editingMentor.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          full_name: editName.trim(),
+          email: editEmail.trim(),
+        }),
+      });
+
+      if (error) {
+        toast({ title: 'Could not save', description: error.message, variant: 'destructive' });
+        return;
+      }
+
+      toast({ title: 'Mentor updated', description: 'The changes have been saved' });
+      setEditingMentor(null);
+      await loadData();
+    } catch (err) {
+      console.error('Error updating mentor:', err);
+      toast({ title: 'Error', description: 'An unexpected error occurred', variant: 'destructive' });
+    } finally {
+      setSavingMentor(false);
+    }
+  };
+
+  const handleChangeRole = async () => {
+    if (!roleChange) return;
+
+    try {
+      setChangingRole(true);
+
+      const { error } = await supabase.call('/api/admin/role', {
+        method: 'PATCH',
+        body: JSON.stringify({ user_id: roleChange.mentor.id, role: roleChange.role }),
+      });
+
+      if (error) {
+        // LAST_ADMIN comes back from here when demoting the final admin.
+        toast({
+          title: 'Could not change role',
+          description: error.message,
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      toast({
+        title: 'Role changed',
+        description: `${roleChange.mentor.full_name} is now a ${roleChange.role}. They have been signed out.`,
+      });
+      setRoleChange(null);
+      await loadData();
+    } catch (err) {
+      console.error('Error changing role:', err);
+      toast({ title: 'Error', description: 'An unexpected error occurred', variant: 'destructive' });
+    } finally {
+      setChangingRole(false);
+    }
+  };
+
+  const handleDeleteMentor = async () => {
+    if (!mentorToDelete) return;
+
+    try {
+      setDeletingMentor(true);
+
+      const { error } = await supabase.call(`/api/admin/users/${mentorToDelete.id}`, {
+        method: 'DELETE',
+      });
+
+      if (error) {
+        toast({ title: 'Could not delete', description: error.message, variant: 'destructive' });
+        return;
+      }
+
+      toast({
+        title: 'Mentor deleted',
+        description: mentorToDelete.student_count
+          ? `${mentorToDelete.full_name} removed; ${mentorToDelete.student_count} student${mentorToDelete.student_count === 1 ? '' : 's'} now unassigned`
+          : `${mentorToDelete.full_name} has been removed`,
+      });
+      setMentorToDelete(null);
+      await loadData();
+    } catch (err) {
+      console.error('Error deleting mentor:', err);
+      toast({ title: 'Error', description: 'An unexpected error occurred', variant: 'destructive' });
+    } finally {
+      setDeletingMentor(false);
     }
   };
 
@@ -266,7 +478,7 @@ export default function ManageMentorPage() {
           <div className="container mx-auto p-6 max-w-7xl space-y-6">
             {/* Header */}
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-neutral-900 to-brand-700 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-neutral-900 to-brand-700 dark:from-white dark:to-brand-400 bg-clip-text text-transparent">
                 Manage Mentor Assignments
               </h1>
               <p className="text-muted-foreground mt-2">
@@ -411,42 +623,337 @@ export default function ManageMentorPage() {
             {/* Mentor Overview */}
             <Card>
               <CardHeader>
-                <CardTitle>Mentor Overview</CardTitle>
-                <CardDescription>Current student distribution across mentors</CardDescription>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <CardTitle>Mentor Overview</CardTitle>
+                    <CardDescription>Current student distribution across mentors</CardDescription>
+                  </div>
+                  <Button onClick={() => setShowCreate(true)} className="shrink-0">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Mentor
+                  </Button>
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {mentors.map((mentor) => (
-                    <div
-                      key={mentor.id}
-                      className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold text-gray-900 dark:text-white truncate">
+              <CardContent className="p-0">
+                {mentors.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    No mentors found. Please add mentors to the system first.
+                  </div>
+                ) : (
+                  <ul className="divide-y divide-border">
+                    {mentors.map((mentor) => (
+                      <li
+                        key={mentor.id}
+                        className="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-muted/50 sm:px-6"
+                      >
+                        <Avatar className="h-11 w-11 shrink-0 border-2 border-gray-200 dark:border-gray-700">
+                          <AvatarFallback className="bg-gradient-to-br from-brand-300 to-brand-400 text-black font-semibold">
+                            {getInitials(mentor.full_name)}
+                          </AvatarFallback>
+                        </Avatar>
+
+                        <div className="min-w-0 flex-1">
+                          <h4 className="truncate font-semibold text-gray-900 dark:text-white">
                             {mentor.full_name}
                           </h4>
-                          <p className="text-sm text-muted-foreground truncate">
+                          <p className="truncate text-sm text-muted-foreground">
                             {mentor.email}
                           </p>
+                          {/* The count has its own column on wide screens; below that
+                              it rides under the name so the row does not squeeze. */}
+                          <div className="mt-1 sm:hidden">
+                            <Badge className="bg-brand-500 text-black">
+                              {mentor.student_count}{' '}
+                              {mentor.student_count === 1 ? 'student' : 'students'}
+                            </Badge>
+                          </div>
                         </div>
-                        <Badge className="bg-brand-500 text-black">
-                          {mentor.student_count} {mentor.student_count === 1 ? 'student' : 'students'}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                  {mentors.length === 0 && (
-                    <div className="col-span-full text-center py-8 text-gray-500">
-                      No mentors found. Please add mentors to the system first.
-                    </div>
-                  )}
-                </div>
+
+                        <div className="hidden w-32 shrink-0 sm:block">
+                          <Badge className="bg-brand-500 text-black">
+                            {mentor.student_count}{' '}
+                            {mentor.student_count === 1 ? 'student' : 'students'}
+                          </Badge>
+                        </div>
+
+                        {/* Value stays "mentor": picking another role opens a
+                            confirmation, and the list reloads from the server, so the
+                            control never shows a role that has not been committed. */}
+                        <div className="hidden w-40 shrink-0 md:block">
+                          <Select
+                            value="mentor"
+                            onValueChange={(role) => setRoleChange({ mentor, role })}
+                          >
+                            <SelectTrigger className="h-9">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="mentor">Mentor</SelectItem>
+                              <SelectItem value="student">Student</SelectItem>
+                              <SelectItem value="coursemaster">Course Master</SelectItem>
+                              <SelectItem value="admin">Admin</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="flex shrink-0 items-center gap-1">
+                          <Button
+                            onClick={() => openEditMentor(mentor)}
+                            variant="ghost"
+                            size="sm"
+                            title={`Edit ${mentor.full_name}`}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            onClick={() => setMentorToDelete(mentor)}
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                            title={`Delete ${mentor.full_name}`}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </CardContent>
             </Card>
           </div>
         )}
       </div>
+
+      {/* Create mentor */}
+      <Dialog open={showCreate} onOpenChange={setShowCreate}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Mentor</DialogTitle>
+            <DialogDescription>
+              Creates a sign-in account with the mentor role. They can be assigned students
+              straight away.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="mentor-name">Full Name *</Label>
+              <Input
+                id="mentor-name"
+                value={createName}
+                onChange={(e) => setCreateName(e.target.value)}
+                placeholder="Jane Doe"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="mentor-email">Email *</Label>
+              <Input
+                id="mentor-email"
+                type="email"
+                value={createEmail}
+                onChange={(e) => setCreateEmail(e.target.value)}
+                placeholder="jane@qbitio.com"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="mentor-password">Password *</Label>
+              <Input
+                id="mentor-password"
+                type="password"
+                value={createPassword}
+                onChange={(e) => setCreatePassword(e.target.value)}
+                placeholder="At least 8 characters"
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                Share it with them directly -- no invitation email is sent.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCreate(false)} disabled={creating}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreateMentor} disabled={creating}>
+              {creating ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Mentor
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit mentor */}
+      <Dialog
+        open={editingMentor !== null}
+        onOpenChange={(open) => !open && setEditingMentor(null)}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Mentor</DialogTitle>
+            <DialogDescription>
+              Changing the email changes the address this mentor signs in with, not just the
+              one shown here.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="edit-mentor-name">Full Name *</Label>
+              <Input
+                id="edit-mentor-name"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="edit-mentor-email">Email *</Label>
+              <Input
+                id="edit-mentor-email"
+                type="email"
+                value={editEmail}
+                onChange={(e) => setEditEmail(e.target.value)}
+              />
+            </div>
+
+            {/* Demoting a mentor is a role change, which has its own endpoint and
+                revokes their sessions. It lives on the user management page. */}
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setEditingMentor(null)}
+              disabled={savingMentor}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateMentor} disabled={savingMentor}>
+              {savingMentor ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" />
+                  Save Changes
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Change role */}
+      <AlertDialog
+        open={roleChange !== null}
+        onOpenChange={(open) => !open && setRoleChange(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Change this person&apos;s role?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {roleChange && (
+                <>
+                  {roleChange.mentor.full_name} becomes a {roleChange.role} and is signed out
+                  immediately, so their next login carries the new role.
+                  {roleChange.mentor.student_count > 0 && (
+                    <>
+                      {' '}
+                      Their {roleChange.mentor.student_count}{' '}
+                      {roleChange.mentor.student_count === 1 ? 'student stays' : 'students stay'}{' '}
+                      assigned to them, so reassign
+                      {roleChange.mentor.student_count === 1 ? ' that student' : ' those students'}{' '}
+                      afterwards -- a demotion does not clear the assignment.
+                    </>
+                  )}
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={changingRole}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleChangeRole();
+              }}
+              disabled={changingRole}
+            >
+              {changingRole ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Changing...
+                </>
+              ) : (
+                'Change role'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete mentor */}
+      <AlertDialog
+        open={mentorToDelete !== null}
+        onOpenChange={(open) => !open && setMentorToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this mentor?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {mentorToDelete && (
+                <>
+                  {mentorToDelete.full_name} will be permanently removed. This also deletes
+                  the quizzes they created and the resources they uploaded, which cascade
+                  from the account
+                  {mentorToDelete.student_count > 0 && (
+                    <>
+                      , and leaves {mentorToDelete.student_count}{' '}
+                      {mentorToDelete.student_count === 1 ? 'student' : 'students'} with no
+                      mentor
+                    </>
+                  )}
+                  . Tasks they set stay, but lose their owner. This cannot be undone.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingMentor}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleDeleteMentor();
+              }}
+              disabled={deletingMentor}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deletingMentor ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete mentor'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </main>
   );
 }
