@@ -11,6 +11,16 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
 import { Loader2, Plus, Trash2, Save, Users, ClipboardList, ChevronDown, ChevronUp, Calendar, Edit, CheckCircle2, Circle, FileText } from 'lucide-react';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -50,6 +60,7 @@ interface Task {
   created_at: string;
   steps?: TaskStep[];
   assigned_count?: number;
+  points?: number;
 }
 
 interface Student {
@@ -71,6 +82,18 @@ export default function ManageTaskPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [selectedSubmission, setSelectedSubmission] = useState<any | null>(null);
+
+  // Editing and deleting an existing task. The policy scopes both to this
+  // mentor's own rows, so a mentor cannot reach another mentor's task here.
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editDueDate, setEditDueDate] = useState('');
+  const [editPoints, setEditPoints] = useState(10);
+  const [editIsActive, setEditIsActive] = useState(true);
+  const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   // New task form state
   const [taskTitle, setTaskTitle] = useState('');
@@ -441,6 +464,101 @@ export default function ManageTaskPage() {
   };
 
 
+  const openEditTask = (task: Task) => {
+    setEditingTask(task);
+    setEditTitle(task.title);
+    setEditDescription(task.description || '');
+    // datetime-local wants `YYYY-MM-DDTHH:mm`; a full ISO string renders blank.
+    setEditDueDate(task.due_date ? task.due_date.slice(0, 16) : '');
+    setEditPoints(task.points ?? 10);
+    setEditIsActive(task.is_active);
+    setShowEditDialog(true);
+  };
+
+  const handleUpdateTask = async () => {
+    if (!editingTask) return;
+
+    if (!editTitle.trim()) {
+      toast({
+        title: 'Error',
+        description: 'Please enter a task title',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+
+      const { error } = await supabase
+        .from('tasks')
+        .update({
+          title: editTitle,
+          description: editDescription,
+          due_date: editDueDate || null,
+          points: editPoints,
+          is_active: editIsActive,
+        })
+        .eq('id', editingTask.id);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Task updated',
+        description: 'The task has been saved',
+      });
+
+      setShowEditDialog(false);
+      setEditingTask(null);
+      await loadData();
+    } catch (error: any) {
+      console.error('Error updating task:', error);
+      toast({
+        title: 'Error',
+        description: error?.message || 'Failed to update task',
+        variant: 'destructive',
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  /**
+   * task_steps and task_assignments are ON DELETE CASCADE, so removing the task
+   * also removes every submission students made against it.
+   */
+  const handleDeleteTask = async () => {
+    if (!taskToDelete) return;
+
+    try {
+      setDeleting(true);
+
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', taskToDelete.id);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Task deleted',
+        description: `"${taskToDelete.title}" and its submissions have been removed`,
+      });
+
+      setTaskToDelete(null);
+      await loadData();
+    } catch (error: any) {
+      console.error('Error deleting task:', error);
+      toast({
+        title: 'Error',
+        description: error?.message || 'Failed to delete task',
+        variant: 'destructive',
+      });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const getSubmissionTypeLabel = (type: string) => {
     const labels: { [key: string]: string } = {
       text: 'Text Answer',
@@ -803,6 +921,27 @@ export default function ManageTaskPage() {
                         </Button>
 
                         <Button
+                          onClick={() => openEditTask(task)}
+                          size="sm"
+                          variant="outline"
+                          title="Edit this task"
+                        >
+                          <Edit className="w-4 h-4 mr-2" />
+                          Edit
+                        </Button>
+
+                        <Button
+                          onClick={() => setTaskToDelete(task)}
+                          size="sm"
+                          variant="outline"
+                          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                          title="Delete this task"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
+                        </Button>
+
+                        <Button
                           onClick={() => setExpandedTask(expandedTask === task.id ? null : task.id)}
                           size="sm"
                           variant="ghost"
@@ -1035,6 +1174,142 @@ export default function ManageTaskPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Task */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Task</DialogTitle>
+            <DialogDescription>
+              Update the task details. Steps and existing submissions are left untouched.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="edit-title">Task Title *</Label>
+              <Input
+                id="edit-title"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                placeholder="Enter task title"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="edit-description">Description</Label>
+              <Textarea
+                id="edit-description"
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+                placeholder="Describe the task"
+                rows={3}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-due">Due Date</Label>
+                <Input
+                  id="edit-due"
+                  type="datetime-local"
+                  value={editDueDate}
+                  onChange={(e) => setEditDueDate(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="edit-points">Points</Label>
+                <Input
+                  id="edit-points"
+                  type="number"
+                  min={0}
+                  value={editPoints}
+                  onChange={(e) => setEditPoints(Number(e.target.value))}
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="edit-status">Status</Label>
+              <Select
+                value={editIsActive ? 'active' : 'inactive'}
+                onValueChange={(v) => setEditIsActive(v === 'active')}
+              >
+                <SelectTrigger id="edit-status">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowEditDialog(false)}
+                disabled={submitting}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleUpdateTask} disabled={submitting}>
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Changes
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Task */}
+      <AlertDialog
+        open={taskToDelete !== null}
+        onOpenChange={(open) => !open && setTaskToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this task?</AlertDialogTitle>
+            <AlertDialogDescription>
+              &quot;{taskToDelete?.title}&quot; will be removed, along with its steps and
+              every submission students have already made against it
+              {taskToDelete?.assigned_count ? ` (${taskToDelete.assigned_count} assigned)` : ''}
+              . This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                // Radix closes on click; hold it open until the request settles.
+                e.preventDefault();
+                handleDeleteTask();
+              }}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete task'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
         </div>
       </div>
     </main>

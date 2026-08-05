@@ -14,6 +14,8 @@ import {
   File,
   X,
   Plus,
+  Pencil,
+  Save,
 } from 'lucide-react'
 
 import { Sidebar } from '@/components/sidebar'
@@ -80,6 +82,17 @@ export default function ResourcesManagerPage() {
   // be exchanged for a signed one first. Null while that is in flight.
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [previewError, setPreviewError] = useState<string | null>(null)
+
+  // Editing an existing resource. Only the metadata is editable -- the stored
+  // file itself is immutable, so replacing a file means uploading a new
+  // resource rather than mutating this row.
+  const [editingResource, setEditingResource] = useState<Resource | null>(null)
+  const [editFileName, setEditFileName] = useState('')
+  const [editDescription, setEditDescription] = useState('')
+  const [editTextContent, setEditTextContent] = useState('')
+  const [editTags, setEditTags] = useState<string[]>([])
+  const [editTagInput, setEditTagInput] = useState('')
+  const [savingEdit, setSavingEdit] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()
@@ -340,6 +353,77 @@ export default function ResourcesManagerPage() {
     }
   }
 
+  const openEditResource = (resource: Resource) => {
+    setEditingResource(resource)
+    setEditFileName(resource.file_name || '')
+    setEditDescription(resource.description || '')
+    setEditTextContent(resource.text_content || '')
+    setEditTags(resource.tags || [])
+    setEditTagInput('')
+  }
+
+  const handleAddEditTag = () => {
+    const tag = editTagInput.trim()
+    if (tag && !editTags.includes(tag)) {
+      setEditTags([...editTags, tag])
+      setEditTagInput('')
+    }
+  }
+
+  const handleRemoveEditTag = (tagToRemove: string) => {
+    setEditTags(editTags.filter(tag => tag !== tagToRemove))
+  }
+
+  /**
+   * Metadata only. file_url/file_type/file_size are not in the table's
+   * updatable set server-side, so the stored object cannot be swapped out from
+   * under a resource that students may already have open.
+   */
+  const handleUpdateResource = async () => {
+    if (!editingResource) return
+
+    try {
+      setSavingEdit(true)
+
+      const { error } = await supabase
+        .from('resources')
+        .update({
+          file_name: editFileName.trim() || null,
+          description: editDescription.trim() || null,
+          text_content: editTextContent.trim() || null,
+          tags: editTags,
+        })
+        .eq('id', editingResource.id)
+
+      if (error) {
+        console.error('Error updating resource:', error)
+        toast({
+          title: "Update failed",
+          description: error.message || "Failed to update resource",
+          variant: "destructive",
+        })
+        return
+      }
+
+      toast({
+        title: "Resource updated",
+        description: "The changes have been saved",
+      })
+
+      setEditingResource(null)
+      fetchResources()
+    } catch (err) {
+      console.error('Error:', err)
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setSavingEdit(false)
+    }
+  }
+
   const handleDelete = async (resource: Resource) => {
     try {
       // Delete from storage if file exists
@@ -493,14 +577,26 @@ export default function ResourcesManagerPage() {
                             {resource.file_size ? formatFileSize(resource.file_size) : 'Text Post'}
                           </CardDescription>
                         </div>
-                        <Button
-                          onClick={() => handleDelete(resource)}
-                          variant="ghost"
-                          size="sm"
-                          className="rounded-xl text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950 flex-shrink-0"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex flex-shrink-0 items-center">
+                          <Button
+                            onClick={() => openEditResource(resource)}
+                            variant="ghost"
+                            size="sm"
+                            className="rounded-xl"
+                            title="Edit this resource"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            onClick={() => handleDelete(resource)}
+                            variant="ghost"
+                            size="sm"
+                            className="rounded-xl text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+                            title="Delete this resource"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4 flex-1 flex flex-col">
@@ -797,6 +893,128 @@ export default function ResourcesManagerPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Edit Resource */}
+      <Dialog
+        open={editingResource !== null}
+        onOpenChange={(open) => !open && setEditingResource(null)}
+      >
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Edit Resource</DialogTitle>
+            <DialogDescription>
+              Update the title, description and tags. The uploaded file itself cannot be
+              replaced -- upload a new resource for that.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium text-foreground">Title</label>
+              <Input
+                value={editFileName}
+                onChange={(e) => setEditFileName(e.target.value)}
+                placeholder="Resource title"
+                className="mt-1 rounded-xl"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-foreground">Description</label>
+              <Textarea
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+                placeholder="Describe this resource..."
+                className="mt-1 rounded-xl"
+                rows={3}
+              />
+            </div>
+
+            {/* Only offered for text posts: a file-backed resource has no body
+                to edit, and blanking it would strand the card with no content. */}
+            {editingResource?.text_content !== null && !editingResource?.file_url && (
+              <div>
+                <label className="text-sm font-medium text-foreground">Content</label>
+                <Textarea
+                  value={editTextContent}
+                  onChange={(e) => setEditTextContent(e.target.value)}
+                  placeholder="Text content..."
+                  className="mt-1 rounded-xl"
+                  rows={5}
+                />
+              </div>
+            )}
+
+            <div>
+              <label className="text-sm font-medium text-foreground">Tags</label>
+              <div className="mt-1 flex gap-2">
+                <Input
+                  value={editTagInput}
+                  onChange={(e) => setEditTagInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      handleAddEditTag()
+                    }
+                  }}
+                  placeholder="Add a tag and press Enter"
+                  className="rounded-xl"
+                />
+                <Button
+                  type="button"
+                  onClick={handleAddEditTag}
+                  variant="outline"
+                  className="rounded-xl"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {editTags.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {editTags.map((tag, idx) => (
+                    <Badge key={idx} variant="secondary" className="rounded-full">
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveEditTag(tag)}
+                        className="ml-1"
+                        aria-label={`Remove tag ${tag}`}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setEditingResource(null)}
+              disabled={savingEdit}
+              className="rounded-xl"
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateResource} disabled={savingEdit} className="rounded-xl">
+              {savingEdit ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  Save Changes
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   )
 }

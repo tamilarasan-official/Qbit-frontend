@@ -13,6 +13,8 @@ import {
   Target,
   User,
   ArrowRightLeft,
+  Trash2,
+  UserMinus,
 } from 'lucide-react'
 
 import { Sidebar } from '@/components/sidebar'
@@ -38,6 +40,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { useToast } from '@/components/ui/use-toast'
 
 interface TeamMember {
@@ -79,10 +91,18 @@ export default function HackathonManagerPage() {
   const [moveTargetTeamId, setMoveTargetTeamId] = useState('')
   const [moving, setMoving] = useState(false)
 
+  // Removing a member and deleting a team are allowed for mentors as well as
+  // admins server-side (isStaff), unlike the move above which is admin-only.
+  const [memberToRemove, setMemberToRemove] = useState<{ member: TeamMember; team: Team } | null>(null)
+  const [teamToDelete, setTeamToDelete] = useState<Team | null>(null)
+  const [removing, setRemoving] = useState(false)
+  const [deletingTeam, setDeletingTeam] = useState(false)
+
   const supabase = createClient()
   const { toast } = useToast()
 
   const isAdmin = role === 'admin'
+  const isStaff = role === 'admin' || role === 'mentor'
 
   useEffect(() => {
     fetchAllTeams()
@@ -270,6 +290,89 @@ export default function HackathonManagerPage() {
     }
   }
 
+  const handleRemoveMember = async () => {
+    if (!memberToRemove) return
+
+    try {
+      setRemoving(true)
+
+      const { error } = await supabase
+        .from('hackathon_team_members')
+        .delete()
+        .eq('id', memberToRemove.member.id)
+
+      if (error) {
+        console.error('Error removing member:', error)
+        toast({
+          title: "Failed to remove member",
+          description: error.message || "An error occurred. Please try again.",
+          variant: "destructive",
+        })
+        return
+      }
+
+      toast({
+        title: "Member removed",
+        description: `${getDisplayName(memberToRemove.member.full_name, memberToRemove.member.email)} is no longer in ${memberToRemove.team.team_name}`,
+      })
+      setMemberToRemove(null)
+      fetchAllTeams()
+    } catch (err) {
+      console.error('Error:', err)
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setRemoving(false)
+    }
+  }
+
+  /**
+   * hackathon_team_members is ON DELETE CASCADE against the team, so removing
+   * the team disbands it and releases every member -- each is then free to join
+   * another team, which the UNIQUE (user_id) constraint would otherwise block.
+   */
+  const handleDeleteTeam = async () => {
+    if (!teamToDelete) return
+
+    try {
+      setDeletingTeam(true)
+
+      const { error } = await supabase
+        .from('hackathon_teams')
+        .delete()
+        .eq('id', teamToDelete.id)
+
+      if (error) {
+        console.error('Error deleting team:', error)
+        toast({
+          title: "Failed to delete team",
+          description: error.message || "An error occurred. Please try again.",
+          variant: "destructive",
+        })
+        return
+      }
+
+      toast({
+        title: "Team deleted",
+        description: `${teamToDelete.team_name} has been disbanded`,
+      })
+      setTeamToDelete(null)
+      fetchAllTeams()
+    } catch (err) {
+      console.error('Error:', err)
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setDeletingTeam(false)
+    }
+  }
+
   const getInitials = (name: string | null, email: string | null) => {
     if (name) {
       const parts = name.split(' ')
@@ -362,6 +465,19 @@ export default function HackathonManagerPage() {
                             </Badge>
                           </div>
                         </div>
+
+                        {isStaff && (
+                          <Button
+                            onClick={() => setTeamToDelete(team)}
+                            variant="ghost"
+                            size="sm"
+                            className="shrink-0 rounded-xl text-destructive hover:bg-destructive/10 hover:text-destructive"
+                            title="Disband this team"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete Team
+                          </Button>
+                        )}
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-6">
@@ -527,6 +643,22 @@ export default function HackathonManagerPage() {
                                       Move
                                     </Button>
                                   )}
+
+                                  {/* Removing the leader is blocked for the same
+                                      reason as moving them: the team would keep a
+                                      leader_id that is no longer a member. */}
+                                  {isStaff && !isLeader && movingMemberId !== member.id && (
+                                    <Button
+                                      onClick={() => setMemberToRemove({ member, team })}
+                                      variant="ghost"
+                                      size="sm"
+                                      className="shrink-0 rounded-xl text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                      title="Remove this member from the team"
+                                    >
+                                      <UserMinus className="h-4 w-4 mr-2" />
+                                      Remove
+                                    </Button>
+                                  )}
                                 </div>
 
                                 {isAdmin && movingMemberId === member.id && (
@@ -602,6 +734,78 @@ export default function HackathonManagerPage() {
           )}
         </div>
       </div>
+
+      {/* Remove member */}
+      <AlertDialog
+        open={memberToRemove !== null}
+        onOpenChange={(open) => !open && setMemberToRemove(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove this member?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {memberToRemove &&
+                `${getDisplayName(memberToRemove.member.full_name, memberToRemove.member.email)} will be removed from ${memberToRemove.team.team_name}. They can join another team afterwards.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={removing}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault()
+                handleRemoveMember()
+              }}
+              disabled={removing}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {removing ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Removing...
+                </>
+              ) : (
+                'Remove member'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete team */}
+      <AlertDialog
+        open={teamToDelete !== null}
+        onOpenChange={(open) => !open && setTeamToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Disband this team?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {teamToDelete &&
+                `${teamToDelete.team_name} will be deleted along with all ${teamToDelete.member_count} membership${teamToDelete.member_count === 1 ? '' : 's'}. Members are released and can join another team. This cannot be undone.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingTeam}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault()
+                handleDeleteTeam()
+              }}
+              disabled={deletingTeam}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deletingTeam ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete team'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </main>
   )
 }
