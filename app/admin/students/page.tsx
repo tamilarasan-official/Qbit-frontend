@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, Search, Users, Trophy, Target, TrendingUp, ArrowLeft, MessageSquare, Star, Shield, UserCog } from 'lucide-react';
+import { Loader2, Search, Users, Trophy, Target, TrendingUp, ArrowLeft, MessageSquare, Star, Shield, UserCog, Plus, Pencil, Trash2, Save } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -18,6 +18,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
 import { getRankFromPoints } from '@/lib/ranks';
 
@@ -61,6 +80,24 @@ export default function AdminStudentsPage() {
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [changingRole, setChangingRole] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string>('');
+
+  // Account CRUD. These go through /api/admin/users rather than /api/db: an
+  // account spans `users` (credentials, not in the table registry) and
+  // `profiles` (display), and the two have to move together.
+  const [showCreate, setShowCreate] = useState(false);
+  const [createName, setCreateName] = useState('');
+  const [createEmail, setCreateEmail] = useState('');
+  const [createPassword, setCreatePassword] = useState('');
+  const [createRole, setCreateRole] = useState('student');
+  const [creating, setCreating] = useState(false);
+
+  const [editingUser, setEditingUser] = useState<Student | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [savingUser, setSavingUser] = useState(false);
+
+  const [userToDelete, setUserToDelete] = useState<Student | null>(null);
+  const [deletingUser, setDeletingUser] = useState(false);
 
   const supabase = createClient();
   const { toast } = useToast();
@@ -179,6 +216,130 @@ export default function AdminStudentsPage() {
       });
     } finally {
       setChangingRole(false);
+    }
+  };
+
+  const handleCreateUser = async () => {
+    if (!createName.trim() || !createEmail.trim() || createPassword.length < 8) {
+      toast({
+        title: 'Missing details',
+        description: 'Name, email and a password of at least 8 characters are required',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      setCreating(true);
+
+      const { error } = await supabase.call('/api/admin/users', {
+        method: 'POST',
+        body: JSON.stringify({
+          full_name: createName.trim(),
+          email: createEmail.trim(),
+          password: createPassword,
+          role: createRole,
+        }),
+      });
+
+      if (error) {
+        // The API distinguishes EMAIL_TAKEN from a validation failure; showing
+        // its message is more useful than a generic "could not create".
+        toast({
+          title: 'Could not create account',
+          description: error.message,
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      toast({ title: 'Account created', description: `${createName} can now sign in` });
+      setShowCreate(false);
+      setCreateName('');
+      setCreateEmail('');
+      setCreatePassword('');
+      setCreateRole('student');
+      await loadStudents();
+    } catch (err) {
+      console.error('Error creating user:', err);
+      toast({ title: 'Error', description: 'An unexpected error occurred', variant: 'destructive' });
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const openEditUser = (student: Student) => {
+    setEditingUser(student);
+    setEditName(student.full_name || '');
+    setEditEmail(student.email || '');
+  };
+
+  const handleUpdateUser = async () => {
+    if (!editingUser) return;
+
+    if (!editName.trim() || !editEmail.trim()) {
+      toast({
+        title: 'Missing details',
+        description: 'Name and email cannot be empty',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      setSavingUser(true);
+
+      const { error } = await supabase.call(`/api/admin/users/${editingUser.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          full_name: editName.trim(),
+          email: editEmail.trim(),
+        }),
+      });
+
+      if (error) {
+        toast({ title: 'Could not save', description: error.message, variant: 'destructive' });
+        return;
+      }
+
+      toast({ title: 'Account updated', description: 'The changes have been saved' });
+      setEditingUser(null);
+      await loadStudents();
+    } catch (err) {
+      console.error('Error updating user:', err);
+      toast({ title: 'Error', description: 'An unexpected error occurred', variant: 'destructive' });
+    } finally {
+      setSavingUser(false);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+
+    try {
+      setDeletingUser(true);
+
+      const { error } = await supabase.call(`/api/admin/users/${userToDelete.id}`, {
+        method: 'DELETE',
+      });
+
+      if (error) {
+        // Covers SELF_DELETE and LAST_ADMIN, both of which the server refuses.
+        toast({ title: 'Could not delete', description: error.message, variant: 'destructive' });
+        return;
+      }
+
+      toast({
+        title: 'Account deleted',
+        description: `${userToDelete.full_name || userToDelete.email} has been removed`,
+      });
+      setUserToDelete(null);
+      await loadStudents();
+    } catch (err) {
+      console.error('Error deleting user:', err);
+      toast({ title: 'Error', description: 'An unexpected error occurred', variant: 'destructive' });
+    } finally {
+      setDeletingUser(false);
     }
   };
 
@@ -311,13 +472,20 @@ export default function AdminStudentsPage() {
             {!selectedStudent ? (
               <>
                 {/* Header */}
-                <div>
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-neutral-900 to-brand-700 bg-clip-text text-transparent">
-                    User Management
-                  </h1>
-                  <p className="text-muted-foreground mt-2">
-                    View and manage all users in the platform (Students, Mentors, Course Masters, Admins)
-                  </p>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-neutral-900 to-brand-700 bg-clip-text text-transparent">
+                      User Management
+                    </h1>
+                    <p className="text-muted-foreground mt-2">
+                      View and manage all users in the platform (Students, Mentors, Course Masters, Admins)
+                    </p>
+                  </div>
+
+                  <Button onClick={() => setShowCreate(true)} className="shrink-0">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add User
+                  </Button>
                 </div>
 
                 {/* Stats Overview */}
@@ -378,54 +546,91 @@ export default function AdminStudentsPage() {
                   </CardContent>
                 </Card>
 
-                {/* Students Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {filteredStudents.map((student) => {
-                    const rank = getRankFromPoints(student.leaderboard_points);
-                    return (
-                      <Card
-                        key={student.id}
-                        className="hover:shadow-lg transition-shadow cursor-pointer"
-                        onClick={() => loadStudentDetails(student)}
-                      >
-                        <CardContent className="p-6">
-                          <div className="flex items-start gap-4">
-                            <Avatar className="w-14 h-14 border-2 border-gray-200 dark:border-gray-700">
-                              <AvatarFallback className="text-lg bg-gradient-to-br from-brand-300 to-brand-400 text-black font-semibold">
-                                {getInitials(student.full_name)}
-                              </AvatarFallback>
-                            </Avatar>
+                {/* Students List */}
+                <Card>
+                  <CardContent className="p-0">
+                    <ul className="divide-y divide-border">
+                      {filteredStudents.map((student) => {
+                        const rank = getRankFromPoints(student.leaderboard_points);
+                        // The row opens the detail view and also carries its own actions.
+                        // The actions are siblings of the button, not children: nesting a
+                        // button inside a button is invalid HTML, and the inner click would
+                        // also trigger the outer one and open the detail view.
+                        return (
+                          <li key={student.id} className="flex items-center transition-colors hover:bg-muted/50">
+                            <button
+                              type="button"
+                              onClick={() => loadStudentDetails(student)}
+                              className="flex min-w-0 flex-1 items-center gap-4 py-3 pl-4 pr-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset sm:pl-6"
+                            >
+                              <Avatar className="h-11 w-11 shrink-0 border-2 border-gray-200 dark:border-gray-700">
+                                <AvatarFallback className="bg-gradient-to-br from-brand-300 to-brand-400 text-black font-semibold">
+                                  {getInitials(student.full_name)}
+                                </AvatarFallback>
+                              </Avatar>
 
-                            <div className="flex-1 min-w-0">
-                              <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
-                                {student.full_name}
-                              </h3>
-                              <p className="text-sm text-muted-foreground truncate">
-                                {student.email}
-                              </p>
+                              <div className="min-w-0 flex-1">
+                                <h3 className="truncate font-semibold text-gray-900 dark:text-white">
+                                  {student.full_name}
+                                </h3>
+                                <p className="truncate text-sm text-muted-foreground">
+                                  {student.email}
+                                </p>
 
-                              <div className="mt-2 flex items-center gap-2">
+                                {/* Narrow screens have no room for the columns on the
+                                    right, so rank and mentor ride under the name there. */}
+                                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 lg:hidden">
+                                  <Badge className={`bg-gradient-to-r ${rank.gradient} text-white border-none text-xs`}>
+                                    {rank.emoji} {rank.name}
+                                  </Badge>
+                                  {student.mentor_name && (
+                                    <span className="text-xs text-muted-foreground">
+                                      Mentor: {student.mentor_name}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="hidden w-32 shrink-0 lg:block">
                                 <Badge className={`bg-gradient-to-r ${rank.gradient} text-white border-none text-xs`}>
                                   {rank.emoji} {rank.name}
                                 </Badge>
                               </div>
 
-                              {student.mentor_name && (
-                                <p className="text-xs text-muted-foreground mt-2">
-                                  Mentor: {student.mentor_name}
-                                </p>
-                              )}
+                              <div className="hidden w-44 shrink-0 truncate text-sm text-muted-foreground lg:block">
+                                {student.mentor_name ? `Mentor: ${student.mentor_name}` : 'No mentor'}
+                              </div>
 
-                              <p className="text-sm font-semibold text-brand-700 mt-2">
+                              <div className="w-24 shrink-0 text-right text-sm font-semibold text-brand-700">
                                 {student.leaderboard_points.toLocaleString()} points
-                              </p>
+                              </div>
+                            </button>
+
+                            <div className="flex shrink-0 items-center gap-1 pr-2 sm:pr-4">
+                              <Button
+                                onClick={() => openEditUser(student)}
+                                variant="ghost"
+                                size="sm"
+                                title={`Edit ${student.full_name}`}
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                onClick={() => setUserToDelete(student)}
+                                variant="ghost"
+                                size="sm"
+                                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                title={`Delete ${student.full_name}`}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
                             </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </CardContent>
+                </Card>
               </>
             ) : (
               <>
@@ -703,6 +908,183 @@ export default function AdminStudentsPage() {
           </div>
         )}
       </div>
+
+      {/* Create account */}
+      <Dialog open={showCreate} onOpenChange={setShowCreate}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add User</DialogTitle>
+            <DialogDescription>
+              Creates a sign-in account directly. The person can log in immediately with the
+              password you set here.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="create-name">Full Name *</Label>
+              <Input
+                id="create-name"
+                value={createName}
+                onChange={(e) => setCreateName(e.target.value)}
+                placeholder="Jane Doe"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="create-email">Email *</Label>
+              <Input
+                id="create-email"
+                type="email"
+                value={createEmail}
+                onChange={(e) => setCreateEmail(e.target.value)}
+                placeholder="jane@example.com"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="create-password">Password *</Label>
+              <Input
+                id="create-password"
+                type="password"
+                value={createPassword}
+                onChange={(e) => setCreatePassword(e.target.value)}
+                placeholder="At least 8 characters"
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                Share it with them directly -- no invitation email is sent.
+              </p>
+            </div>
+
+            <div>
+              <Label htmlFor="create-role">Role</Label>
+              <Select value={createRole} onValueChange={setCreateRole}>
+                <SelectTrigger id="create-role">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="student">Student</SelectItem>
+                  <SelectItem value="mentor">Mentor</SelectItem>
+                  <SelectItem value="coursemaster">Course Master</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCreate(false)} disabled={creating}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreateUser} disabled={creating}>
+              {creating ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Account
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit account */}
+      <Dialog open={editingUser !== null} onOpenChange={(open) => !open && setEditingUser(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit User</DialogTitle>
+            <DialogDescription>
+              Changing the email changes the address this person signs in with, not just the
+              one shown here.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="edit-user-name">Full Name *</Label>
+              <Input
+                id="edit-user-name"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="edit-user-email">Email *</Label>
+              <Input
+                id="edit-user-email"
+                type="email"
+                value={editEmail}
+                onChange={(e) => setEditEmail(e.target.value)}
+              />
+            </div>
+
+            {/* Role deliberately absent: it has its own endpoint, which revokes the
+                user's sessions so a stale role claim cannot outlive the change.
+                It is changed from the student detail view. */}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingUser(null)} disabled={savingUser}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateUser} disabled={savingUser}>
+              {savingUser ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" />
+                  Save Changes
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete account */}
+      <AlertDialog
+        open={userToDelete !== null}
+        onOpenChange={(open) => !open && setUserToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this account?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {userToDelete &&
+                `${userToDelete.full_name || userToDelete.email} will be permanently removed, along with their submissions, quiz attempts, points history and team membership. There is no soft-delete and this cannot be undone.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingUser}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleDeleteUser();
+              }}
+              disabled={deletingUser}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deletingUser ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete account'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </main>
   );
 }
