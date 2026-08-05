@@ -171,42 +171,53 @@ export default function MentorDashboard() {
     fetchMentorData()
   }, [])
 
+  /**
+   * Each swatch carries its own foreground.
+   *
+   * brand-400 is a bright lime: a white glyph on it is near-invisible in the
+   * light theme, which is why the "Mentor Access" badge below already pairs it
+   * with black. The darker greens and purples keep white.
+   */
+  const BRAND_SWATCH = 'bg-brand-400 text-black'
+  const GREEN_SWATCH = 'bg-green-600 text-white'
+  const PURPLE_SWATCH = 'bg-purple-600 text-white'
+
   const statCards = [
     {
       title: 'Total Students',
       value: stats.totalStudents,
       icon: Users,
-      color: 'bg-brand-400',
+      color: BRAND_SWATCH,
       description: 'Assigned to you',
     },
     {
       title: 'Active Tasks',
       value: stats.activeTasks,
       icon: ClipboardList,
-      color: 'bg-green-500',
+      color: GREEN_SWATCH,
       description: 'Currently active',
     },
     {
       title: 'Pending Submissions',
       value: stats.pendingSubmissions,
       icon: Clock,
-      color: 'bg-brand-400',
+      color: BRAND_SWATCH,
       description: 'Awaiting completion',
     },
     {
       title: 'Completed Tasks',
       value: stats.completedTasks,
       icon: CheckCircle,
-      color: 'bg-purple-500',
+      color: PURPLE_SWATCH,
       description: 'Successfully finished',
     },
   ]
 
   const quickActions = [
-    { icon: ClipboardList, label: 'Manage Tasks', color: 'bg-brand-400', href: '/mentor/managetask' },
-    { icon: FileText, label: 'View Submissions', color: 'bg-green-500', href: '/mentor/managetask' },
-    { icon: Users, label: 'View Students', color: 'bg-purple-500', href: '/mentor/managetask' },
-    { icon: MessageSquare, label: 'Announcements', color: 'bg-brand-400', href: '/announcement' },
+    { icon: ClipboardList, label: 'Manage Tasks', color: BRAND_SWATCH, href: '/mentor/managetask' },
+    { icon: FileText, label: 'View Submissions', color: GREEN_SWATCH, href: '/mentor/managetask' },
+    { icon: Users, label: 'View Students', color: PURPLE_SWATCH, href: '/mentor/managetask' },
+    { icon: MessageSquare, label: 'Announcements', color: BRAND_SWATCH, href: '/announcement' },
   ]
 
   return (
@@ -277,7 +288,7 @@ export default function MentorDashboard() {
                           <div
                             className={cn(
                               stat.color,
-                              'flex h-14 w-14 items-center justify-center rounded-2xl text-white'
+                              'flex h-14 w-14 items-center justify-center rounded-2xl'
                             )}
                           >
                             <stat.icon className="h-7 w-7" />
@@ -311,7 +322,7 @@ export default function MentorDashboard() {
                         <div
                           className={cn(
                             action.color,
-                            'flex h-12 w-12 items-center justify-center rounded-xl text-white'
+                            'flex h-12 w-12 items-center justify-center rounded-xl'
                           )}
                         >
                           <action.icon className="h-6 w-6" />

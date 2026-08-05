@@ -474,7 +474,7 @@ export default function AdminStudentsPage() {
                 {/* Header */}
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-neutral-900 to-brand-700 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-neutral-900 to-brand-700 dark:from-white dark:to-brand-400 bg-clip-text text-transparent">
                       User Management
                     </h1>
                     <p className="text-muted-foreground mt-2">

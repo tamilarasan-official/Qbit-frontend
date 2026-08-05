@@ -92,7 +92,7 @@ const adminNavigationSections: NavigationSection[] = [
     title: "Overview",
     items: [
       { title: "Home", icon: <GraduationCap className="h-5 w-5" />, url: "/admin" },
-      { title: "All Students", icon: <Users2 className="h-5 w-5" />, url: "/admin/students" },
+      { title: "All Users", icon: <Users2 className="h-5 w-5" />, url: "/admin/students" },
       { title: "Manage Mentors", icon: <UserPlus className="h-5 w-5" />, url: "/admin/managementor" },
       { title: "Course Master", icon: <ClipboardCheck className="h-5 w-5" />, url: "/coursemaster" },
       { title: "Manage Points", icon: <Award className="h-5 w-5" />, url: "/admin/managepoints" },

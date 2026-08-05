@@ -131,19 +131,21 @@ export default function AdminDashboard() {
       title: 'Total Users',
       value: stats.totalUsers,
       icon: Users,
-      color: 'bg-brand-400',
+      // brand-400 is a bright lime; a white glyph on it washes out in the light
+      // theme, so this swatch carries a black foreground instead.
+      color: 'bg-brand-400 text-black',
     },
     {
       title: 'Active Users',
       value: stats.activeUsers,
       icon: Activity,
-      color: 'bg-green-500',
+      color: 'bg-green-600 text-white',
     },
     {
       title: 'Total Quizzes',
       value: stats.totalQuizzes,
       icon: FileText,
-      color: 'bg-purple-500',
+      color: 'bg-purple-600 text-white',
     },
   ]
 
@@ -212,7 +214,7 @@ export default function AdminDashboard() {
                           <div
                             className={cn(
                               stat.color,
-                              'flex h-14 w-14 items-center justify-center rounded-2xl text-white'
+                              'flex h-14 w-14 items-center justify-center rounded-2xl'
                             )}
                           >
                             <stat.icon className="h-7 w-7" />
