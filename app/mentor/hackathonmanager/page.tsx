@@ -12,6 +12,7 @@ import {
   Trophy,
   Target,
   User,
+  ArrowRightLeft,
 } from 'lucide-react'
 
 import { Sidebar } from '@/components/sidebar'
@@ -30,6 +31,13 @@ import {
 import { cn } from '@/lib/utils'
 import { createClient } from '@/utils/supabase/client'
 import { Textarea } from '@/components/ui/textarea'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { useToast } from '@/components/ui/use-toast'
 
 interface TeamMember {
@@ -63,12 +71,40 @@ export default function HackathonManagerPage() {
   const [themeInput, setThemeInput] = useState('')
   const [updating, setUpdating] = useState(false)
 
+  // Reassigning a member is admin-only server-side (hackathon_team_members
+  // update). The role is read here purely so mentors are not shown a control
+  // that would 403 -- the API is the actual boundary, not this flag.
+  const [role, setRole] = useState<string | null>(null)
+  const [movingMemberId, setMovingMemberId] = useState<string | null>(null)
+  const [moveTargetTeamId, setMoveTargetTeamId] = useState('')
+  const [moving, setMoving] = useState(false)
+
   const supabase = createClient()
   const { toast } = useToast()
 
+  const isAdmin = role === 'admin'
+
   useEffect(() => {
     fetchAllTeams()
+    fetchRole()
   }, [])
+
+  const fetchRole = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+      setRole(profile?.role?.toLowerCase() || 'student')
+    } catch (err) {
+      console.error('Error fetching role:', err)
+    }
+  }
 
   const fetchAllTeams = async () => {
     try {
@@ -176,6 +212,62 @@ export default function HackathonManagerPage() {
   const handleCancelEdit = () => {
     setEditingTeamId(null)
     setThemeInput('')
+  }
+
+  const handleStartMove = (memberId: string) => {
+    setMovingMemberId(memberId)
+    setMoveTargetTeamId('')
+  }
+
+  const handleCancelMove = () => {
+    setMovingMemberId(null)
+    setMoveTargetTeamId('')
+  }
+
+  /**
+   * A membership row carries UNIQUE (user_id), so one row per person overall --
+   * moving somebody is an update of team_id, not a delete plus an insert.
+   */
+  const handleMoveMember = async (memberId: string) => {
+    if (!moveTargetTeamId) return
+
+    try {
+      setMoving(true)
+
+      const { error } = await supabase
+        .from('hackathon_team_members')
+        .update({ team_id: moveTargetTeamId })
+        .eq('id', memberId)
+
+      if (error) {
+        console.error('Error moving member:', error)
+        toast({
+          title: "Failed to move member",
+          // Surfaced rather than swallowed: a non-admin gets "Admins only" here,
+          // which explains the refusal better than a generic message would.
+          description: error.message || "An error occurred. Please try again.",
+          variant: "destructive",
+        })
+        return
+      }
+
+      const target = teams.find(t => t.id === moveTargetTeamId)
+      toast({
+        title: "Member moved",
+        description: `Now a member of ${target?.team_name ?? 'the selected team'}`,
+      })
+      handleCancelMove()
+      fetchAllTeams()
+    } catch (err) {
+      console.error('Error:', err)
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setMoving(false)
+    }
   }
 
   const getInitials = (name: string | null, email: string | null) => {
@@ -385,34 +477,118 @@ export default function HackathonManagerPage() {
                             return (
                               <div
                                 key={member.id}
-                                className="flex items-center gap-3 p-3 rounded-xl border border-border"
+                                className="rounded-xl border border-border"
                               >
-                                <Avatar className="h-10 w-10 border-2 border-white dark:border-slate-700">
-                                  <AvatarFallback className={cn(
-                                    "font-bold text-white",
-                                    isLeader
-                                      ? "bg-gradient-to-br from-amber-500 to-brand-400"
-                                      : "bg-gradient-to-br from-purple-500 to-pink-500"
-                                  )}>
-                                    {getInitials(member.full_name, member.email)}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2">
-                                    <p className="font-medium text-foreground text-sm">
-                                      {getDisplayName(member.full_name, member.email)}
+                                <div className="flex items-center gap-3 p-3">
+                                  <Avatar className="h-10 w-10 border-2 border-white dark:border-slate-700">
+                                    <AvatarFallback className={cn(
+                                      "font-bold text-white",
+                                      isLeader
+                                        ? "bg-gradient-to-br from-amber-500 to-brand-400"
+                                        : "bg-gradient-to-br from-purple-500 to-pink-500"
+                                    )}>
+                                      {getInitials(member.full_name, member.email)}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2">
+                                      <p className="font-medium text-foreground text-sm">
+                                        {getDisplayName(member.full_name, member.email)}
+                                      </p>
+                                      {isLeader && (
+                                        <Badge variant="outline" className="rounded-full text-xs">
+                                          <Crown className="h-3 w-3 mr-1" />
+                                          Leader
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">
+                                      Joined {new Date(member.joined_at).toLocaleDateString()}
                                     </p>
-                                    {isLeader && (
-                                      <Badge variant="outline" className="rounded-full text-xs">
-                                        <Crown className="h-3 w-3 mr-1" />
-                                        Leader
-                                      </Badge>
-                                    )}
                                   </div>
-                                  <p className="text-xs text-muted-foreground">
-                                    Joined {new Date(member.joined_at).toLocaleDateString()}
-                                  </p>
+
+                                  {/* The leader is deliberately not movable: taking them out
+                                      of their own team would leave team.leader_id pointing at
+                                      somebody who is no longer a member. */}
+                                  {isAdmin && !isLeader && movingMemberId !== member.id && (
+                                    <Button
+                                      onClick={() => handleStartMove(member.id)}
+                                      variant="ghost"
+                                      size="sm"
+                                      className="rounded-xl shrink-0"
+                                      disabled={teams.length < 2}
+                                      title={
+                                        teams.length < 2
+                                          ? 'There is no other team to move this member into'
+                                          : 'Move this member to another team'
+                                      }
+                                    >
+                                      <ArrowRightLeft className="h-4 w-4 mr-2" />
+                                      Move
+                                    </Button>
+                                  )}
                                 </div>
+
+                                {isAdmin && movingMemberId === member.id && (
+                                  <div className="flex flex-col gap-3 border-t border-border p-3 sm:flex-row sm:items-center">
+                                    {/* undefined, not '': Radix treats an empty string as a
+                                        value rather than "nothing picked", and the placeholder
+                                        would never show. */}
+                                    <Select
+                                      value={moveTargetTeamId || undefined}
+                                      onValueChange={setMoveTargetTeamId}
+                                      disabled={moving}
+                                    >
+                                      <SelectTrigger className="rounded-xl sm:flex-1">
+                                        <SelectValue placeholder="Move to team..." />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {teams
+                                          .filter((t) => t.id !== team.id)
+                                          .map((t) => {
+                                            const full = t.member_count >= t.max_members
+                                            return (
+                                              <SelectItem key={t.id} value={t.id} disabled={full}>
+                                                {t.team_name} ({t.member_count}/{t.max_members})
+                                                {full ? ' - full' : ''}
+                                              </SelectItem>
+                                            )
+                                          })}
+                                      </SelectContent>
+                                    </Select>
+
+                                    <div className="flex gap-2">
+                                      <Button
+                                        onClick={handleCancelMove}
+                                        variant="outline"
+                                        size="sm"
+                                        className="rounded-xl"
+                                        disabled={moving}
+                                      >
+                                        <X className="h-4 w-4 mr-2" />
+                                        Cancel
+                                      </Button>
+                                      <Button
+                                        onClick={() => handleMoveMember(member.id)}
+                                        size="sm"
+                                        className="rounded-xl bg-gradient-to-r from-purple-600 to-pink-600"
+                                        disabled={moving || !moveTargetTeamId}
+                                      >
+                                        {moving ? (
+                                          <>
+                                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                            Moving...
+                                          </>
+                                        ) : (
+                                          <>
+                                            <Check className="h-4 w-4 mr-2" />
+                                            Confirm
+                                          </>
+                                        )}
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             )
                           })}
