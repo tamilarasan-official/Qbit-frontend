@@ -60,6 +60,7 @@ interface Task {
   created_at: string;
   steps?: TaskStep[];
   assigned_count?: number;
+  submitted_count?: number;
   mentor_id?: string;
   points?: number;
 }
@@ -145,7 +146,7 @@ export default function AdminManageTaskPage() {
 
         const { data: assignmentsData } = await supabase
           .from('task_assignments')
-          .select('task_id, student_id')
+          .select('task_id, student_id, status')
           .in('task_id', taskIds);
 
         const stepsMap = new Map();
@@ -157,17 +158,28 @@ export default function AdminManageTaskPage() {
         });
 
         const assignmentsMap = new Map();
+        // 'submitted' is work handed in and not yet marked off; 'completed' is
+        // handed in and signed off. Both are submissions; 'assigned' and
+        // 'in_progress' are not.
+        const submittedMap = new Map();
         (assignmentsData || []).forEach(assignment => {
           assignmentsMap.set(
             assignment.task_id,
             (assignmentsMap.get(assignment.task_id) || 0) + 1
           );
+          if (assignment.status === 'submitted' || assignment.status === 'completed') {
+            submittedMap.set(
+              assignment.task_id,
+              (submittedMap.get(assignment.task_id) || 0) + 1
+            );
+          }
         });
 
         const tasksWithSteps = tasksData.map(task => ({
           ...task,
           steps: stepsMap.get(task.id) || [],
-          assigned_count: assignmentsMap.get(task.id) || 0
+          assigned_count: assignmentsMap.get(task.id) || 0,
+          submitted_count: submittedMap.get(task.id) || 0
         }));
 
         setTasks(tasksWithSteps);
@@ -862,39 +874,54 @@ export default function AdminManageTaskPage() {
                   tasks.map((task) => (
                     <Card key={task.id} className="overflow-hidden">
                       <div className="p-6">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                {task.title}
-                              </h3>
-                              <Badge variant={task.is_active ? "default" : "secondary"}>
+                        {/* Title, then badges, then actions -- one non-wrapping row
+                            for all three squeezed the title and split badge labels. */}
+                        <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                          <div className="min-w-0 flex-1">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                              {task.title}
+                            </h3>
+
+                            <div className="mt-2 flex flex-wrap items-center gap-2">
+                              <Badge variant={task.is_active ? "default" : "secondary"} className="whitespace-nowrap">
                                 {task.is_active ? 'Active' : 'Inactive'}
                               </Badge>
-                              <Badge variant="outline">
+                              <Badge variant="outline" className="whitespace-nowrap">
                                 {task.steps?.length || 0} steps
                               </Badge>
-                              <Badge variant="outline">
+                              <Badge variant="outline" className="whitespace-nowrap">
                                 <Users className="w-3 h-3 mr-1" />
                                 {task.assigned_count || 0} assigned
+                              </Badge>
+                              {/* Tinted once there is something to look at. */}
+                              <Badge
+                                variant="outline"
+                                className={cn(
+                                  'whitespace-nowrap',
+                                  (task.submitted_count || 0) > 0 &&
+                                    'border-green-600/40 bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400'
+                                )}
+                              >
+                                <CheckCircle2 className="w-3 h-3 mr-1" />
+                                {task.submitted_count || 0} submitted
                               </Badge>
                             </div>
 
                             {task.description && (
-                              <p className="text-sm text-muted-foreground mb-2">
+                              <p className="mt-2 text-sm text-muted-foreground">
                                 {task.description}
                               </p>
                             )}
 
                             {task.due_date && (
-                              <div className="flex items-center gap-2 text-sm text-gray-500">
-                                <Calendar className="w-4 h-4" />
+                              <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
+                                <Calendar className="w-4 h-4 shrink-0" />
                                 Due: {new Date(task.due_date).toLocaleString()}
                               </div>
                             )}
                           </div>
 
-                          <div className="flex items-center gap-2">
+                          <div className="flex shrink-0 flex-wrap items-center gap-2">
                             <Button
                               onClick={() => loadTaskSubmissions(task)}
                               size="sm"
